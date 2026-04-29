@@ -21,7 +21,7 @@
             <div class="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
                 <p class="text-xs font-medium uppercase tracking-wide text-slate-500">Pemasukan bulan ini</p>
                 <p class="mt-2 text-2xl font-bold text-violet-700">Rp {{ number_format($pemasukanBulanIni, 0, ',', '.') }}</p>
-                <p class="mt-1 text-xs text-slate-500">{{ $namaBulan[$bulan] ?? '' }} {{ $tahun }}</p>
+                <p class="mt-1 text-xs text-slate-500">{{ $namaBulan[(int) $bulan] ?? '' }} {{ $tahun }}</p>
             </div>
             <div class="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
                 <p class="text-xs font-medium uppercase tracking-wide text-slate-500">Menunggu verifikasi</p>
@@ -60,6 +60,21 @@
                 <div class="mt-4 h-64">
                     <canvas id="chartPembayaran"></canvas>
                 </div>
+            </div>
+        </div>
+
+        <div class="grid gap-4 sm:grid-cols-3">
+            <div class="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
+                <p class="text-xs font-medium uppercase tracking-wide text-slate-500">Pemasukan operasional</p>
+                <p class="mt-2 text-2xl font-bold text-emerald-600">Rp {{ number_format($pemasukanOperasional, 0, ',', '.') }}</p>
+            </div>
+            <div class="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
+                <p class="text-xs font-medium uppercase tracking-wide text-slate-500">Pengeluaran operasional</p>
+                <p class="mt-2 text-2xl font-bold text-rose-600">Rp {{ number_format($pengeluaranOperasional, 0, ',', '.') }}</p>
+            </div>
+            <div class="rounded-2xl bg-gradient-to-br from-slate-900 to-indigo-900 p-5 text-white shadow-sm">
+                <p class="text-xs font-medium uppercase tracking-wide text-indigo-200">Saldo operasional</p>
+                <p class="mt-2 text-2xl font-bold">Rp {{ number_format($saldoOperasional, 0, ',', '.') }}</p>
             </div>
         </div>
     </div>

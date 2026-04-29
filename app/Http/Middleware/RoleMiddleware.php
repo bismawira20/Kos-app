@@ -4,8 +4,8 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpFoundation\Response;
 
 class RoleMiddleware
 {
@@ -14,12 +14,18 @@ class RoleMiddleware
      *
      * @param  Closure(Request): (Response)  $next
      */
-     public function handle(Request $request, Closure $next, $role)
+    public function handle(Request $request, Closure $next, $role): Response
     {
-        if (!Auth::check() || Auth::user()->role != $role) {
-            abort(403);
+        if (! Auth::check()) {
+            return redirect()->route('login');
         }
 
-        return $next($request);
+        $user = Auth::user();
+
+        if ($user->role === $role) {
+            return $next($request);
+        }
+
+        return redirect()->route($user->role === 'admin' ? 'dashboard' : 'dashboard.penghuni');
     }
 }

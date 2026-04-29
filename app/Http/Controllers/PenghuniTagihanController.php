@@ -72,6 +72,37 @@ class PenghuniTagihanController extends Controller
         return redirect()->route('penghuni.tagihan.index')->with('status', 'Bukti pembayaran dikirim. Menunggu verifikasi admin.');
     }
 
+    public function qris(Tagihan $tagihan): View
+    {
+        $this->authorizeTagihan($tagihan);
+
+        $payload = 'QRIS|tagihan:'.$tagihan->id.'|amount:'.$tagihan->jumlah.'|merchant:'.config('app.name');
+        $qrUrl = 'https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl='.urlencode($payload);
+
+        return view('penghuni.tagihan.qris', compact('tagihan', 'payload', 'qrUrl'));
+    }
+
+    public function qrisConfirm(Request $request, Tagihan $tagihan): RedirectResponse
+    {
+        $this->authorizeTagihan($tagihan);
+
+        if ($tagihan->status !== 'belum_bayar') {
+            return redirect()->route('penghuni.tagihan.index')->with('error', 'Tagihan ini tidak dapat dibayar.');
+        }
+
+        Pembayaran::create([
+            'penghuni_id' => $tagihan->penghuni_id,
+            'tagihan_id' => $tagihan->id,
+            'jumlah' => $tagihan->jumlah,
+            'tanggal_bayar' => now()->toDateString(),
+            'status' => 'menunggu',
+        ]);
+
+        $tagihan->update(['status' => 'menunggu']);
+
+        return redirect()->route('penghuni.tagihan.index')->with('status', 'QRIS: permintaan pembayaran dibuat. Menunggu konfirmasi gateway (simulasi).');
+    }
+
     private function authorizeTagihan(Tagihan $tagihan): void
     {
         $penghuni = Auth::user()->penghuni;

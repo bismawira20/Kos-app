@@ -58,12 +58,17 @@ Route::middleware(['auth', 'role:penghuni'])->group(function () {
     Route::get('/penghuni/tagihan', [PenghuniTagihanController::class, 'index'])->name('penghuni.tagihan.index');
     Route::get('/penghuni/tagihan/{tagihan}/bayar', [PenghuniTagihanController::class, 'bayar'])->name('penghuni.tagihan.bayar');
     Route::post('/penghuni/tagihan/{tagihan}/bayar', [PenghuniTagihanController::class, 'kirim'])->name('penghuni.tagihan.kirim');
+    Route::get('/penghuni/tagihan/{tagihan}/qris', [PenghuniTagihanController::class, 'qris'])->name('penghuni.tagihan.qris');
+    Route::post('/penghuni/tagihan/{tagihan}/qris/confirm', [PenghuniTagihanController::class, 'qrisConfirm'])->name('penghuni.tagihan.qris.confirm');
 
     Route::get('/penghuni/riwayat', [PenghuniRiwayatController::class, 'index'])->name('penghuni.riwayat');
 
     Route::get('/penghuni/kendala', [KendalaPenghuniController::class, 'index'])->name('penghuni.kendala.index');
     Route::get('/penghuni/kendala/buat', [KendalaPenghuniController::class, 'create'])->name('penghuni.kendala.create');
     Route::post('/penghuni/kendala', [KendalaPenghuniController::class, 'store'])->name('penghuni.kendala.store');
+    Route::get('/penghuni/kendala/{kendala}/edit', [KendalaPenghuniController::class, 'edit'])->name('penghuni.kendala.edit');
+    Route::put('/penghuni/kendala/{kendala}', [KendalaPenghuniController::class, 'update'])->name('penghuni.kendala.update');
+    Route::delete('/penghuni/kendala/{kendala}', [KendalaPenghuniController::class, 'destroy'])->name('penghuni.kendala.destroy');
 });
 
 Route::middleware('auth')->group(function () {

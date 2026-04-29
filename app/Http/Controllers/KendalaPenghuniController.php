@@ -6,6 +6,7 @@ use App\Models\KendalaLaporan;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\File;
 use Illuminate\View\View;
 
@@ -60,5 +61,49 @@ class KendalaPenghuniController extends Controller
         KendalaLaporan::create($data);
 
         return redirect()->route('penghuni.kendala.index')->with('status', 'Laporan kendala dikirim.');
+    }
+
+    public function edit(KendalaLaporan $kendala): View
+    {
+        $penghuni = Auth::user()->penghuni;
+        Gate::authorize('update', $kendala);
+
+        return view('penghuni.kendala.edit', compact('penghuni', 'kendala'));
+    }
+
+    public function update(Request $request, KendalaLaporan $kendala): RedirectResponse
+    {
+        Gate::authorize('update', $kendala);
+
+        $validated = $request->validate([
+            'deskripsi' => ['required', 'string', 'max:2000'],
+            'bukti' => ['nullable', 'image', 'max:5120'],
+        ]);
+
+        $data = ['deskripsi' => $validated['deskripsi']];
+
+        if ($request->hasFile('bukti')) {
+            if (! File::isDirectory(public_path('kendala'))) {
+                File::makeDirectory(public_path('kendala'), 0755, true);
+            }
+
+            $file = $request->file('bukti');
+            $nama = time().'_'.$file->getClientOriginalName();
+            $file->move(public_path('kendala'), $nama);
+            $data['bukti'] = $nama;
+        }
+
+        $kendala->update($data);
+
+        return redirect()->route('penghuni.kendala.index')->with('status', 'Laporan kendala diperbarui.');
+    }
+
+    public function destroy(KendalaLaporan $kendala): RedirectResponse
+    {
+        Gate::authorize('delete', $kendala);
+
+        $kendala->delete();
+
+        return redirect()->route('penghuni.kendala.index')->with('status', 'Laporan kendala dihapus.');
     }
 }

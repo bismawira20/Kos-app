@@ -30,6 +30,9 @@
         <a href="{{ route('laporan.index') }}" class="{{ $link(request()->routeIs('laporan.*')) }}">
             <span class="text-lg" aria-hidden="true">📊</span> Laporan
         </a>
+        <a href="{{ route('transaksi-operasional.index') }}" class="{{ $link(request()->routeIs('transaksi-operasional.*')) }}">
+            <span class="text-lg" aria-hidden="true">💰</span> Transaksi operasional
+        </a>
         <a href="{{ route('kendala.index') }}" class="{{ $link(request()->routeIs('kendala.*')) }}">
             <span class="text-lg" aria-hidden="true">⚠️</span> Kendala penghuni
         </a>

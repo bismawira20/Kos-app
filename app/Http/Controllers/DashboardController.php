@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Kamar;
 use App\Models\Pembayaran;
 use App\Models\Penghuni;
+use App\Models\TransaksiOperasional;
 use App\Models\Tagihan;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -27,6 +28,18 @@ class DashboardController extends Controller
             ->whereYear('tanggal_bayar', $tahun)
             ->whereMonth('tanggal_bayar', $bulan)
             ->sum('jumlah');
+
+        $pemasukanOperasional = (int) TransaksiOperasional::where('jenis', 'pemasukan')
+            ->whereYear('tanggal', $tahun)
+            ->whereMonth('tanggal', $bulan)
+            ->sum('jumlah');
+
+        $pengeluaranOperasional = (int) TransaksiOperasional::where('jenis', 'pengeluaran')
+            ->whereYear('tanggal', $tahun)
+            ->whereMonth('tanggal', $bulan)
+            ->sum('jumlah');
+
+        $saldoOperasional = $pemasukanBulanIni + $pemasukanOperasional - $pengeluaranOperasional;
 
         $tagihanBelumLunasBulanIni = Tagihan::where('tahun', $tahun)
             ->where('bulan', $bulan)
@@ -56,6 +69,9 @@ class DashboardController extends Controller
             'kamarTerisi',
             'menungguVerifikasi',
             'pemasukanBulanIni',
+            'pemasukanOperasional',
+            'pengeluaranOperasional',
+            'saldoOperasional',
             'tagihanBelumLunasBulanIni',
             'occupancy',
             'chart',
