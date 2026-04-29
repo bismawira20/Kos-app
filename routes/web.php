@@ -12,6 +12,7 @@ use App\Http\Controllers\PenghuniRiwayatController;
 use App\Http\Controllers\PenghuniTagihanController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TagihanController;
+use App\Http\Controllers\TransaksiOperasionalController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -29,6 +30,10 @@ Route::get('/redirect', function () {
         : redirect()->route('dashboard.penghuni');
 })->middleware('auth')->name('redirect');
 
+Route::get('/services', function () {
+    return view('services');
+})->middleware('auth')->name('services');
+
 Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
@@ -44,6 +49,11 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
     Route::get('/laporan/csv', [LaporanController::class, 'exportCsv'])->name('laporan.export');
     Route::get('/laporan/print', [LaporanController::class, 'print'])->name('laporan.print');
+
+    Route::get('/transaksi-operasional', [TransaksiOperasionalController::class, 'index'])->name('transaksi-operasional.index');
+    Route::get('/transaksi-operasional/create', [TransaksiOperasionalController::class, 'create'])->name('transaksi-operasional.create');
+    Route::post('/transaksi-operasional', [TransaksiOperasionalController::class, 'store'])->name('transaksi-operasional.store');
+    Route::delete('/transaksi-operasional/{transaksiOperasional}', [TransaksiOperasionalController::class, 'destroy'])->name('transaksi-operasional.destroy');
 
     Route::get('/kendala', [KendalaLaporanController::class, 'index'])->name('kendala.index');
     Route::get('/kendala/export', [KendalaLaporanController::class, 'export'])->name('kendala.export');

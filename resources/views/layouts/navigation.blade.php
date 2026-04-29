@@ -3,18 +3,17 @@
     $home = $isAdmin ? route('dashboard') : route('dashboard.penghuni');
 @endphp
 
-<nav x-data="{ open: false }" class="bg-white border-b border-gray-100">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-16">
-            <div class="flex">
-                <div class="shrink-0 flex items-center">
-                    <a href="{{ $home }}" class="flex items-center gap-2 text-lg font-semibold text-gray-800">
-                        <span class="rounded-lg bg-indigo-600 px-2 py-1 text-sm text-white">Kos</span>
-                        <span class="hidden sm:inline">Pengelolaan</span>
-                    </a>
-                </div>
+<nav x-data="{ open: false }" class="border-b border-slate-200 bg-gradient-to-r from-slate-950 via-indigo-950 to-violet-950 text-white shadow-lg shadow-slate-950/15">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="flex min-h-16 flex-wrap items-center justify-between gap-3 py-3">
+            <div class="flex min-w-0 items-center gap-3">
+                <a href="{{ $home }}" class="flex min-w-0 items-center gap-2 rounded-2xl bg-white/10 px-3 py-2 font-semibold text-white backdrop-blur transition hover:bg-white/15">
+                    <span class="rounded-xl bg-white px-2.5 py-1 text-sm font-bold text-slate-900">Kos</span>
+                    <span class="hidden sm:inline">Pengelolaan</span>
+                </a>
+            </div>
 
-                <div class="hidden space-x-6 sm:-my-px sm:ms-10 sm:flex sm:items-center">
+            <div class="hidden min-w-0 flex-1 items-center justify-center gap-2 sm:flex sm:flex-wrap sm:gap-2 lg:gap-3">
                     @if ($isAdmin)
                         <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                             Dashboard
@@ -33,15 +32,14 @@
                             Dashboard
                         </x-nav-link>
                     @endif
-                </div>
             </div>
 
-            <div class="hidden sm:flex sm:items-center sm:ms-6">
+            <div class="hidden sm:flex sm:items-center sm:gap-3">
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
-                        <button type="button" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
-                            <div>{{ Auth::user()->name }}</div>
-                            <div class="ms-1">
+                        <button type="button" class="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-white/10 px-3 py-2 text-sm font-medium text-white transition hover:bg-white/15 focus:outline-none">
+                            <div class="max-w-[10rem] truncate">{{ Auth::user()->name }}</div>
+                            <div>
                                 <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
                                 </svg>
@@ -66,7 +64,7 @@
             </div>
 
             <div class="-me-2 flex items-center sm:hidden">
-                <button type="button" @click="open = ! open" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none transition duration-150 ease-in-out">
+                <button type="button" @click="open = ! open" class="inline-flex items-center justify-center rounded-xl border border-white/10 bg-white/10 p-2 text-white transition hover:bg-white/15 focus:outline-none">
                     <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
                         <path :class="{'hidden': open, 'inline-flex': ! open }" class="inline-flex" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                         <path :class="{'hidden': ! open, 'inline-flex': open }" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -76,8 +74,8 @@
         </div>
     </div>
 
-    <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
-        <div class="pt-2 pb-3 space-y-1">
+    <div :class="{'block': open, 'hidden': ! open}" class="hidden border-t border-white/10 bg-slate-950/95 backdrop-blur-sm sm:hidden">
+        <div class="space-y-1 px-3 py-3">
             @if ($isAdmin)
                 <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                     Dashboard
@@ -98,10 +96,10 @@
             @endif
         </div>
 
-        <div class="pt-4 pb-1 border-t border-gray-200">
-            <div class="px-4">
-                <div class="font-medium text-base text-gray-800">{{ Auth::user()->name }}</div>
-                <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
+        <div class="border-t border-white/10 px-3 pb-3 pt-4 text-white">
+            <div class="rounded-2xl bg-white/10 px-4 py-3 backdrop-blur-sm">
+                <div class="font-semibold text-white">{{ Auth::user()->name }}</div>
+                <div class="mt-0.5 text-sm text-indigo-100">{{ Auth::user()->email }}</div>
             </div>
 
             <div class="mt-3 space-y-1">
