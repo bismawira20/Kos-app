@@ -14,27 +14,43 @@
     </x-slot>
 
     <div class="space-y-6">
-        <section class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <section class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            <article class="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
+                <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Total kamar</p>
+                <div class="mt-4 flex items-end justify-between gap-3">
+                    <p class="text-4xl font-semibold tracking-tight text-slate-900">{{ $totalKamar }}</p>
+                    <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">{{ $kamarTerisi }} terisi</span>
+                </div>
+            </article>
+
             <article class="group rounded-3xl bg-gradient-to-br from-indigo-700 to-violet-900 p-[1px] shadow-lg shadow-indigo-950/10">
                 <div class="rounded-[1.45rem] bg-white/95 p-5 backdrop-blur-sm">
-                    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-600">Kamar tersisa</p>
+                    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-600">Kamar kosong</p>
                     <div class="mt-4 flex items-end justify-between gap-3">
                         <p class="text-4xl font-semibold tracking-tight text-slate-900">{{ $kamarKosong }}</p>
-                        <span class="rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700">{{ $totalKamar }} total</span>
+                        <span class="rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700">{{ $occupancy }}% okupansi</span>
                     </div>
                 </div>
             </article>
 
             <article class="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
-                <p class="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-600">Penghuni aktif</p>
+                <p class="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-600">Total penghuni</p>
                 <div class="mt-4 flex items-end justify-between gap-3">
                     <p class="text-4xl font-semibold tracking-tight text-slate-900">{{ $totalPenghuni }}</p>
-                    <span class="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">{{ $kamarTerisi }} terisi</span>
+                    <span class="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">{{ $penghuniAktif }} aktif</span>
                 </div>
             </article>
 
             <article class="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
-                <p class="text-xs font-semibold uppercase tracking-[0.2em] text-violet-600">Pemasukan bulan ini</p>
+                <p class="text-xs font-semibold uppercase tracking-[0.2em] text-violet-600">Penghuni aktif</p>
+                <div class="mt-4 flex items-end justify-between gap-3">
+                    <p class="text-4xl font-semibold tracking-tight text-slate-900">{{ $penghuniAktif }}</p>
+                    <span class="rounded-full bg-violet-50 px-3 py-1 text-xs font-semibold text-violet-700">{{ $penghuniNonaktif }} nonaktif</span>
+                </div>
+            </article>
+
+            <article class="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
+                <p class="text-xs font-semibold uppercase tracking-[0.2em] text-amber-600">Pemasukan bulan ini</p>
                 <p class="mt-4 text-3xl font-semibold tracking-tight text-slate-900">Rp {{ number_format($pemasukanBulanIni, 0, ',', '.') }}</p>
                 <p class="mt-2 text-xs text-slate-500">{{ $namaBulan[(int) $bulan] ?? '' }} {{ $tahun }}</p>
             </article>
@@ -91,7 +107,7 @@
                 </div>
 
                 <div class="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-                    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Cepat cek</p>
+                    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Ringkasan cepat</p>
                     <ul class="mt-4 space-y-3 text-sm text-slate-600">
                         <li class="flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3">
                             <span>Tagihan belum lunas</span>
@@ -101,7 +117,21 @@
                             <span>Tingkat okupansi</span>
                             <span class="font-semibold text-indigo-700">{{ $occupancy }}%</span>
                         </li>
+                        <li class="flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3">
+                            <span>Penghuni nonaktif</span>
+                            <span class="font-semibold text-slate-900">{{ $penghuniNonaktif }}</span>
+                        </li>
                     </ul>
+                </div>
+
+                <div class="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+                    <div class="flex items-center justify-between">
+                        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Komposisi kamar</p>
+                        <span class="text-xs font-semibold text-indigo-600">{{ $totalKamar }} kamar</span>
+                    </div>
+                    <div class="mt-4 h-48 rounded-2xl bg-slate-50 p-4">
+                        <canvas id="chartOkupansi"></canvas>
+                    </div>
                 </div>
             </div>
         </section>
@@ -129,6 +159,25 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+                }
+            });
+
+            new Chart(document.getElementById('chartOkupansi'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Terisi', 'Kosong'],
+                    datasets: [{
+                        data: [{{ $kamarTerisi }}, {{ $kamarKosong }}],
+                        backgroundColor: ['rgba(16, 185, 129, 0.85)', 'rgba(148, 163, 184, 0.6)'],
+                        borderWidth: 0,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { boxWidth: 10 } }
+                    }
                 }
             });
         </script>

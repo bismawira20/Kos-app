@@ -21,6 +21,10 @@ class DashboardController extends Controller
         $kamarKosong = Kamar::where('status', 'kosong')->count();
         $totalPenghuni = Penghuni::count();
         $kamarTerisi = Kamar::where('status', 'terisi')->count();
+        $penghuniAktif = Penghuni::whereHas('kamar', function ($query) {
+            $query->where('status', 'terisi');
+        })->count();
+        $penghuniNonaktif = max(0, $totalPenghuni - $penghuniAktif);
 
         $menungguVerifikasi = Pembayaran::where('status', 'menunggu')->count();
 
@@ -67,6 +71,8 @@ class DashboardController extends Controller
             'kamarKosong',
             'totalPenghuni',
             'kamarTerisi',
+            'penghuniAktif',
+            'penghuniNonaktif',
             'menungguVerifikasi',
             'pemasukanBulanIni',
             'pemasukanOperasional',
