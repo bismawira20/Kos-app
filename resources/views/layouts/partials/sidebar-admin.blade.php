@@ -16,6 +16,9 @@
             <a href="{{ route('services') }}" class="{{ $link(request()->routeIs('services')) }}">
                 <span class="text-lg" aria-hidden="true">🎯</span> Layanan
             </a>
+            <a href="{{ route('akun-penghuni.index') }}" class="{{ $link(request()->routeIs('akun-penghuni.*')) }}">
+                <span class="text-lg" aria-hidden="true">🔐</span> Pengelolaan akun
+            </a>
             <a href="{{ route('dashboard') }}" class="{{ $link(request()->routeIs('dashboard')) }}">
                 <span class="text-lg" aria-hidden="true">◆</span> Dashboard
             </a>

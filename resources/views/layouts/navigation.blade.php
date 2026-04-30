@@ -3,7 +3,7 @@
     $home = $isAdmin ? route('dashboard') : route('dashboard.penghuni');
 @endphp
 
-<nav x-data="{ open: false }" class="border-b border-slate-200 bg-gradient-to-r from-slate-950 via-indigo-950 to-violet-950 text-white shadow-lg shadow-slate-950/15">
+<nav x-data="{ open: false }" class="fixed top-0 left-0 w-full z-50 border-b border-slate-200 bg-gradient-to-r from-slate-950 via-indigo-950 to-violet-950 text-white shadow-lg shadow-slate-950/15">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div class="flex min-h-16 flex-wrap items-center justify-between gap-3 py-3">
             <div class="flex min-w-0 items-center gap-3">
@@ -118,3 +118,5 @@
         </div>
     </div>
 </nav>
+{{-- spacer to avoid page content being hidden under fixed navbar --}}
+<div class="h-16"></div>
