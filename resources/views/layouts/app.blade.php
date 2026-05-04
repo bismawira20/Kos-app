@@ -37,10 +37,16 @@
             </div>
 
             <!-- PROFILE / FOOTER -->
-            <div class="border-t border-slate-200 p-4">
+            <div class="border-t border-slate-200 p-4 flex justify-between items-center">
                 <a href="{{ route('profile.edit') }}" class="text-sm text-slate-600 hover:text-slate-900">
                     Profil
                 </a>
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button type="submit" class="text-sm text-red-600 hover:text-red-900 font-medium">
+                        Logout
+                    </button>
+                </form>
             </div>
 
         </aside>
@@ -69,6 +75,7 @@
                 @endif
 
                 @yield('content')
+                {{ $slot ?? '' }}
 
             </main>
 

@@ -53,7 +53,10 @@
                                 </td>
                                 <td class="px-4 py-3 text-right">
                                     @if ($t->status === 'belum_bayar')
-                                        <a href="{{ route('penghuni.tagihan.bayar', $t) }}" class="inline-block rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-700">Bayar</a>
+                                        <div class="flex items-center justify-end gap-2">
+                                            <a href="{{ route('penghuni.tagihan.midtrans', $t) }}" class="inline-block rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700">Midtrans</a>
+                                            <a href="{{ route('penghuni.tagihan.bayar', $t) }}" class="inline-block rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-700">Manual</a>
+                                        </div>
                                     @elseif ($t->status === 'lunas')
                                         <span class="text-xs text-slate-500">Lunas</span>
                                     @else

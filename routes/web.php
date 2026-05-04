@@ -75,8 +75,7 @@ Route::middleware(['auth', 'role:penghuni'])->group(function () {
     Route::get('/penghuni/tagihan', [PenghuniTagihanController::class, 'index'])->name('penghuni.tagihan.index');
     Route::get('/penghuni/tagihan/{tagihan}/bayar', [PenghuniTagihanController::class, 'bayar'])->name('penghuni.tagihan.bayar');
     Route::post('/penghuni/tagihan/{tagihan}/bayar', [PenghuniTagihanController::class, 'kirim'])->name('penghuni.tagihan.kirim');
-    Route::get('/penghuni/tagihan/{tagihan}/qris', [PenghuniTagihanController::class, 'qris'])->name('penghuni.tagihan.qris');
-    Route::post('/penghuni/tagihan/{tagihan}/qris/confirm', [PenghuniTagihanController::class, 'qrisConfirm'])->name('penghuni.tagihan.qris.confirm');
+    Route::get('/penghuni/tagihan/{tagihan}/midtrans', [\App\Http\Controllers\MidtransController::class, 'pay'])->name('penghuni.tagihan.midtrans');
 
     Route::get('/penghuni/riwayat', [PenghuniRiwayatController::class, 'index'])->name('penghuni.riwayat');
 
