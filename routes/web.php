@@ -76,6 +76,7 @@ Route::middleware(['auth', 'role:penghuni'])->group(function () {
     Route::get('/penghuni/tagihan/{tagihan}/bayar', [PenghuniTagihanController::class, 'bayar'])->name('penghuni.tagihan.bayar');
     Route::post('/penghuni/tagihan/{tagihan}/bayar', [PenghuniTagihanController::class, 'kirim'])->name('penghuni.tagihan.kirim');
     Route::get('/penghuni/tagihan/{tagihan}/midtrans', [\App\Http\Controllers\MidtransController::class, 'pay'])->name('penghuni.tagihan.midtrans');
+    Route::get('/penghuni/tagihan/{tagihan}/invoice', [PenghuniTagihanController::class, 'downloadInvoice'])->name('penghuni.tagihan.invoice');
 
     Route::get('/penghuni/riwayat', [PenghuniRiwayatController::class, 'index'])->name('penghuni.riwayat');
 

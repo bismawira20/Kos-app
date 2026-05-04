@@ -30,7 +30,7 @@
             <button type="submit" class="w-full rounded-lg bg-emerald-600 py-3 text-sm font-semibold text-white hover:bg-emerald-700">
                 Kirim pembayaran
             </button>
-            <a href="{{ route('penghuni.tagihan.midtrans.pay', $tagihan) }}" class="mt-2 block w-full rounded-lg border border-slate-200 py-3 text-center text-sm font-semibold text-slate-700 hover:bg-slate-50">Bayar via Midtrans</a>
+            <a href="{{ route('penghuni.tagihan.midtrans', $tagihan) }}" class="mt-2 block w-full rounded-lg border border-slate-200 py-3 text-center text-sm font-semibold text-slate-700 hover:bg-slate-50">Bayar via Midtrans</a>
             <a href="{{ route('penghuni.tagihan.index') }}" class="block text-center text-sm text-slate-600 hover:underline">Batal</a>
         </form>
     </div>

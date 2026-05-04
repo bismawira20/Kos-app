@@ -7,9 +7,11 @@
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div class="flex min-h-16 flex-wrap items-center justify-between gap-3 py-3">
             <div class="flex min-w-0 items-center gap-3">
-                <a href="{{ $home }}" class="flex min-w-0 items-center gap-2 rounded-2xl bg-white/10 px-3 py-2 font-semibold text-white backdrop-blur transition hover:bg-white/15">
-                    <span class="rounded-xl bg-white px-2.5 py-1 text-sm font-bold text-slate-900">Kos</span>
-                    <span class="hidden sm:inline">Pengelolaan</span>
+                <a href="{{ $home }}" class="flex min-w-0 items-center gap-3 rounded-2xl bg-white/10 px-3 py-2 font-semibold text-white backdrop-blur transition hover:bg-white/15">
+                    <div class="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white shadow-sm">
+                        <img src="{{ asset('images/epaykos-logo.png') }}" alt="ePayKos" class="h-full w-full object-cover">
+                    </div>
+                    <span class="text-lg font-bold tracking-tight">ePayKos</span>
                 </a>
             </div>
 

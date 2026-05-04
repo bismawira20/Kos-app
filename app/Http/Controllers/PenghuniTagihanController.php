@@ -20,7 +20,7 @@ class PenghuniTagihanController extends Controller
             return view('penghuni.tagihan.index', ['penghuni' => null, 'tagihans' => collect()]);
         }
 
-        $tagihans = Tagihan::with('kamar')
+        $tagihans = Tagihan::with(['kamar', 'pembayaran'])
             ->where('penghuni_id', $penghuni->id)
             ->orderByDesc('tahun')
             ->orderByDesc('bulan')
@@ -73,6 +73,21 @@ class PenghuniTagihanController extends Controller
     }
 
 
+
+    public function downloadInvoice(Tagihan $tagihan)
+    {
+        $this->authorizeTagihan($tagihan);
+        
+        if ($tagihan->status !== 'lunas') {
+            return redirect()->route('penghuni.tagihan.index')->with('error', 'Kuitansi hanya tersedia untuk tagihan yang sudah lunas.');
+        }
+
+        $tagihan->load(['penghuni', 'kamar']);
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('penghuni.tagihan.invoice', compact('tagihan'));
+        
+        return $pdf->download('Invoice-'.$tagihan->labelPeriode().'.pdf');
+    }
 
     private function authorizeTagihan(Tagihan $tagihan): void
     {

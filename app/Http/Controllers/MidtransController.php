@@ -61,7 +61,7 @@ class MidtransController extends Controller
         $params = [
             'transaction_details' => [
                 'order_id' => $orderId,
-                'gross_amount' => $tagihan->jumlah,
+                'gross_amount' => (int) $tagihan->jumlah,
             ],
             'customer_details' => [
                 'first_name' => $penghuni->nama,
@@ -69,13 +69,15 @@ class MidtransController extends Controller
             ],
             'item_details' => [
                 [
-                    'id' => $tagihan->id,
-                    'price' => $tagihan->jumlah,
+                    'id' => (string) $tagihan->id,
+                    'price' => (int) $tagihan->jumlah,
                     'quantity' => 1,
-                    'name' => 'Tagihan Kamar ' . $tagihan->kamar->nomor_kamar . ' (' . $tagihan->labelPeriode() . ')'
+                    'name' => 'Sewa Kos ' . $tagihan->labelPeriode()
                 ]
             ]
         ];
+
+        Log::info('Midtrans Payload: ' . json_encode($params));
 
         try {
             $snapToken = Snap::getSnapToken($params);
@@ -91,6 +93,7 @@ class MidtransController extends Controller
 
     public function webhook(Request $request)
     {
+        Log::info('Midtrans Webhook Hit: ' . json_encode($request->all()));
         try {
             $notif = new Notification();
             
