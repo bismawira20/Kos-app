@@ -21,23 +21,35 @@
     <div class="flex pt-16 h-screen overflow-hidden">
 
         <!-- SIDEBAR (NO OVERLAY, FULL HEIGHT) -->
-        <aside class="w-72 bg-white border-r border-slate-200 flex flex-col">
+        <aside class="w-72 bg-white border-r border-slate-200 flex flex-col shrink-0 h-full">
+            
+            {{-- BRAND --}}
+            @if(Auth::user()->role === 'admin')
+                @include('layouts.partials.sidebar-brand', [
+                    'dashboardUrl' => route('dashboard'),
+                    'subtitle' => 'Panel admin',
+                ])
+            @else
+                @include('layouts.partials.sidebar-brand', [
+                    'dashboardUrl' => route('dashboard.penghuni'),
+                    'subtitle' => 'Penghuni',
+                ])
+            @endif
 
             <!-- MENU SCROLL -->
             <div class="flex-1 overflow-y-auto p-4 space-y-1">
-
                 @if(Auth::user()->role === 'admin')
                     @include('layouts.partials.sidebar-admin')
                 @else
                     @include('layouts.partials.sidebar-penghuni')
                 @endif
-
             </div>
 
             <!-- PROFILE / FOOTER -->
-            <div class="border-t border-slate-200 p-4 flex justify-between items-center">
-                <a href="{{ route('profile.edit') }}" class="text-sm text-slate-600 hover:text-slate-900">
-                    Profil
+            <div class="border-t border-slate-200 p-4 flex justify-between items-center bg-white shrink-0">
+                <a href="{{ route('profile.edit') }}" class="text-sm text-slate-600 hover:text-slate-900 flex items-center gap-2">
+                    <span>⚙️</span>
+                    <span>Profil</span>
                 </a>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
@@ -52,14 +64,16 @@
         <!-- CONTENT -->
         <div class="flex-1 flex flex-col min-w-0">
 
-            @isset($header)
-                <div class="bg-white border-b border-slate-200 px-6 py-4">
-                    {{ $header }}
-                </div>
-            @endisset
-
             <main class="flex-1 overflow-y-auto p-6">
                 
+                @isset($header)
+                    <div class="bg-white border border-slate-200 rounded-2xl px-6 py-5 shadow-sm mb-6 min-h-[96px] flex items-center shrink-0">
+                        <div class="w-full">
+                            {{ $header }}
+                        </div>
+                    </div>
+                @endisset
+
                 @if (session('status'))
                     <div class="mb-4 rounded-lg bg-green-50 p-3 text-green-700">
                         {{ session('status') }}

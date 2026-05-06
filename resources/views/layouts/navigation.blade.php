@@ -1,6 +1,36 @@
 @php
     $isAdmin = Auth::user()->role === 'admin';
     $home = $isAdmin ? route('dashboard') : route('dashboard.penghuni');
+
+    // Dynamically identify the page title based on the active route
+    $pageTitle = 'E-PayKos';
+    if (request()->routeIs('dashboard') || request()->routeIs('dashboard.penghuni')) {
+        $pageTitle = 'Dashboard';
+    } elseif (request()->routeIs('services')) {
+        $pageTitle = 'Layanan';
+    } elseif (request()->routeIs('akun-penghuni.*')) {
+        $pageTitle = 'Akun Penghuni';
+    } elseif (request()->routeIs('penghuni.*')) {
+        $pageTitle = 'Data Penghuni';
+    } elseif (request()->routeIs('kamar.*')) {
+        $pageTitle = 'Data Kamar';
+    } elseif (request()->routeIs('tagihan.*')) {
+        $pageTitle = 'Tagihan';
+    } elseif (request()->routeIs('pembayaran.*')) {
+        $pageTitle = 'Pembayaran';
+    } elseif (request()->routeIs('laporan.*')) {
+        $pageTitle = 'Laporan Keuangan';
+    } elseif (request()->routeIs('transaksi-operasional.*')) {
+        $pageTitle = 'Biaya Operasional';
+    } elseif (request()->routeIs('kendala.*') || request()->routeIs('penghuni.kendala.*')) {
+        $pageTitle = 'Laporan Kendala';
+    } elseif (request()->routeIs('penghuni.tagihan.*')) {
+        $pageTitle = 'Tagihan & Pembayaran';
+    } elseif (request()->routeIs('penghuni.riwayat')) {
+        $pageTitle = 'Riwayat';
+    } elseif (request()->routeIs('profile.*')) {
+        $pageTitle = 'Profil Saya';
+    }
 @endphp
 
 <nav x-data="{ open: false }" class="fixed top-0 left-0 w-full z-50 border-b border-slate-200 bg-gradient-to-r from-slate-950 via-indigo-950 to-violet-950 text-white shadow-lg shadow-slate-950/15">
@@ -15,25 +45,10 @@
                 </a>
             </div>
 
-            <div class="hidden min-w-0 flex-1 items-center justify-center gap-2 sm:flex sm:flex-wrap sm:gap-2 lg:gap-3">
-                    @if ($isAdmin)
-                        <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                            Dashboard
-                        </x-nav-link>
-                        <x-nav-link :href="route('kamar.index')" :active="request()->routeIs('kamar.*')">
-                            Kamar
-                        </x-nav-link>
-                        <x-nav-link :href="route('penghuni.index')" :active="request()->routeIs('penghuni.*')">
-                            Penghuni
-                        </x-nav-link>
-                        <x-nav-link :href="route('pembayaran.index')" :active="request()->routeIs('pembayaran.*')">
-                            Pembayaran
-                        </x-nav-link>
-                    @else
-                        <x-nav-link :href="route('dashboard.penghuni')" :active="request()->routeIs('dashboard.penghuni')">
-                            Dashboard
-                        </x-nav-link>
-                    @endif
+            <div class="hidden sm:flex min-w-0 flex-1 items-center justify-center">
+                <span class="text-base font-semibold tracking-wider text-indigo-100 uppercase bg-white/10 px-4 py-1.5 rounded-xl border border-white/5 shadow-inner">
+                    {{ $pageTitle }}
+                </span>
             </div>
 
             <div class="hidden sm:flex sm:items-center sm:gap-3">
@@ -121,4 +136,3 @@
     </div>
 </nav>
 {{-- spacer to avoid page content being hidden under fixed navbar --}}
-<div class="h-16"></div>

@@ -1,17 +1,18 @@
-@extends('layouts.app')
-
-@section('content')
-    <div class="mx-auto max-w-6xl">
-        <div class="mb-8 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+<x-app-layout>
+    <x-slot name="header">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
                 <h2 class="text-2xl font-bold text-slate-900">Pengelolaan Akun Penghuni</h2>
                 <p class="mt-1 text-sm text-slate-600">Kelola data pengguna penghuni kos Anda</p>
             </div>
-            <a href="{{ route('akun-penghuni.create') }}" class="inline-flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2.5 font-semibold text-white shadow-lg shadow-red-600/30 transition hover:bg-red-700 hover:shadow-xl active:scale-95">
+            <a href="{{ route('akun-penghuni.create') }}" class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2.5 font-semibold text-white shadow hover:bg-indigo-700 transition active:scale-95">
                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                 <span>Buat Akun Baru</span>
             </a>
         </div>
+    </x-slot>
+
+    <div class="mx-auto max-w-6xl">
 
         @if(session('status'))
             <div class="mb-6 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900 shadow-sm" role="alert">
@@ -89,4 +90,4 @@
             </div>
         </div>
     </div>
-@endsection
+</x-app-layout>

@@ -1,15 +1,17 @@
-@extends('layouts.app')
-
-@section('content')
-    <div class="mx-auto max-w-2xl">
-        <div class="mb-8">
-            <a href="{{ route('akun-penghuni.index') }}" class="inline-flex items-center gap-1.5 text-sm font-medium text-slate-600 hover:text-slate-900 transition">
-                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
-                <span>Kembali</span>
+<x-app-layout>
+    <x-slot name="header">
+        <div class="flex items-center gap-4">
+            <a href="{{ route('akun-penghuni.index') }}" class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50 hover:text-slate-900 active:scale-95 shadow-sm">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
             </a>
-            <h2 class="mt-2 text-2xl font-bold text-slate-900">Buat Akun Penghuni Baru</h2>
-            <p class="mt-1 text-sm text-slate-600">Tambahkan pengguna penghuni baru ke sistem</p>
+            <div>
+                <h2 class="text-2xl font-bold text-slate-900">Buat Akun Penghuni Baru</h2>
+                <p class="mt-1 text-sm text-slate-600">Tambahkan pengguna penghuni baru ke sistem</p>
+            </div>
         </div>
+    </x-slot>
+
+    <div class="mx-auto max-w-2xl">
 
         @if($errors->any())
             <div class="mb-6 rounded-lg border border-rose-200 bg-rose-50 px-4 py-4 text-sm text-rose-900 shadow-sm">
@@ -91,4 +93,4 @@
             </div>
         </form>
     </div>
-@endsection
+</x-app-layout>
