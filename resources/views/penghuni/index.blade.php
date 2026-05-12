@@ -35,12 +35,48 @@
                                             <span class="text-gray-400">Belum dihubungkan</span>
                                         @endif
                                     </td>
-                                    <td class="px-4 py-3 text-right">
+                                    <td class="px-4 py-3 text-right whitespace-nowrap">
+                                        <button type="button" class="text-indigo-600 hover:text-indigo-900 font-medium mr-3" onclick="document.getElementById('detail-penghuni-{{ $p->id }}').showModal()">
+                                            Detail
+                                        </button>
+
                                         <form action="{{ route('penghuni.destroy', $p) }}" method="POST" class="inline" onsubmit="return confirm('Hapus penghuni ini? Pembayaran terkait ikut terhapus.');">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="text-red-600 hover:text-red-800">Hapus</button>
                                         </form>
+
+                                        {{-- Modal Detail --}}
+                                        <dialog id="detail-penghuni-{{ $p->id }}" class="w-full max-w-md rounded-xl p-0 shadow-2xl backdrop:bg-slate-900/40 text-left">
+                                            <div class="border-b border-gray-100 px-5 py-4 bg-gray-50">
+                                                <h3 class="text-lg font-bold text-gray-900">Profil Penghuni</h3>
+                                            </div>
+                                            <div class="px-5 py-5 space-y-4 text-sm">
+                                                <div>
+                                                    <h4 class="text-xs font-bold tracking-wider uppercase text-gray-400 mb-2">Data Utama</h4>
+                                                    <p class="text-gray-800"><span class="font-medium text-gray-500 inline-block w-24">Nama:</span> {{ $p->nama }}</p>
+                                                    <p class="text-gray-800"><span class="font-medium text-gray-500 inline-block w-24">No. HP:</span> {{ $p->no_hp }}</p>
+                                                    <p class="text-gray-800"><span class="font-medium text-gray-500 inline-block w-24">Kamar:</span> {{ $p->kamar?->nomor_kamar ?? '—' }}</p>
+                                                </div>
+                                                
+                                                <hr class="border-gray-100">
+
+                                                <div>
+                                                    <h4 class="text-xs font-bold tracking-wider uppercase text-gray-400 mb-2">Data Wali</h4>
+                                                    <p class="text-gray-800"><span class="font-medium text-gray-500 inline-block w-24">Nama Wali:</span> {{ $p->nama_wali ?? '—' }}</p>
+                                                    <p class="text-gray-800"><span class="font-medium text-gray-500 inline-block w-24">No. HP Wali:</span> {{ $p->no_hp_wali ?? '—' }}</p>
+                                                    <div class="mt-1">
+                                                        <span class="font-medium text-gray-500 inline-block w-24">Alamat:</span>
+                                                        <div class="mt-1 bg-gray-50 p-2 rounded text-gray-700 text-xs border border-gray-100 whitespace-pre-wrap">
+                                                            {{ $p->alamat_wali ?: 'Belum diisi' }}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <form method="dialog" class="border-t border-gray-100 px-5 py-3 bg-gray-50 flex justify-end">
+                                                <button class="rounded-lg bg-white border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 shadow-sm">Tutup</button>
+                                            </form>
+                                        </dialog>
                                     </td>
                                 </tr>
                             @empty

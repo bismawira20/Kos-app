@@ -11,10 +11,6 @@
     <span>Dashboard</span>
 </a>
 
-<a href="{{ route('services') }}" class="{{ $link(request()->routeIs('services')) }}">
-    <span>🛠️</span>
-    <span>Layanan</span>
-</a>
 
 <a href="{{ route('akun-penghuni.index') }}" class="{{ $link(request()->routeIs('akun-penghuni.*')) }}">
     <span>👤</span>

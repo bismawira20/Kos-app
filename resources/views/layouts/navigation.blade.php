@@ -6,8 +6,6 @@
     $pageTitle = 'E-PayKos';
     if (request()->routeIs('dashboard') || request()->routeIs('dashboard.penghuni')) {
         $pageTitle = 'Dashboard';
-    } elseif (request()->routeIs('services')) {
-        $pageTitle = 'Layanan';
     } elseif (request()->routeIs('akun-penghuni.*')) {
         $pageTitle = 'Akun Penghuni';
     } elseif (request()->routeIs('penghuni.*')) {

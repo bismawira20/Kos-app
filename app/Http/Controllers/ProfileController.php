@@ -39,6 +39,28 @@ class ProfileController extends Controller
     }
 
     /**
+     * Update the user's associated guardian information.
+     */
+    public function updateGuardian(Request $request): RedirectResponse
+    {
+        $user = $request->user();
+        
+        if (! $user->penghuni) {
+            return back()->with('error', 'Anda tidak memiliki data penghuni yang terhubung.');
+        }
+
+        $validated = $request->validate([
+            'nama_wali' => ['nullable', 'string', 'max:255'],
+            'no_hp_wali' => ['nullable', 'string', 'max:32'],
+            'alamat_wali' => ['nullable', 'string'],
+        ]);
+
+        $user->penghuni()->update($validated);
+
+        return Redirect::route('profile.edit')->with('status', 'guardian-updated');
+    }
+
+    /**
      * Delete the user's account.
      */
     public function destroy(Request $request): RedirectResponse

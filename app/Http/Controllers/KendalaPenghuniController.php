@@ -49,12 +49,12 @@ class KendalaPenghuniController extends Controller
         ];
 
         if ($request->hasFile('bukti')) {
-            if (! File::isDirectory(public_path('kendala'))) {
-                File::makeDirectory(public_path('kendala'), 0755, true);
+            if (! File::isDirectory(public_path('uploads/kendala'))) {
+                File::makeDirectory(public_path('uploads/kendala'), 0755, true);
             }
             $file = $request->file('bukti');
             $nama = time().'_'.$file->getClientOriginalName();
-            $file->move(public_path('kendala'), $nama);
+            $file->move(public_path('uploads/kendala'), $nama);
             $data['bukti'] = $nama;
         }
 
@@ -83,13 +83,13 @@ class KendalaPenghuniController extends Controller
         $data = ['deskripsi' => $validated['deskripsi']];
 
         if ($request->hasFile('bukti')) {
-            if (! File::isDirectory(public_path('kendala'))) {
-                File::makeDirectory(public_path('kendala'), 0755, true);
+            if (! File::isDirectory(public_path('uploads/kendala'))) {
+                File::makeDirectory(public_path('uploads/kendala'), 0755, true);
             }
 
             $file = $request->file('bukti');
             $nama = time().'_'.$file->getClientOriginalName();
-            $file->move(public_path('kendala'), $nama);
+            $file->move(public_path('uploads/kendala'), $nama);
             $data['bukti'] = $nama;
         }
 

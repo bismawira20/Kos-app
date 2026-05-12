@@ -37,6 +37,9 @@ class PenghuniController extends Controller
             'no_hp' => ['required', 'string', 'max:32'],
             'kamar_id' => ['required', 'exists:kamars,id'],
             'user_id' => ['nullable', 'exists:users,id'],
+            'nama_wali' => ['nullable', 'string', 'max:255'],
+            'no_hp_wali' => ['nullable', 'string', 'max:32'],
+            'alamat_wali' => ['nullable', 'string'],
         ]);
 
         $kamar = Kamar::findOrFail($validated['kamar_id']);
@@ -57,6 +60,9 @@ class PenghuniController extends Controller
                 'no_hp' => $validated['no_hp'],
                 'kamar_id' => $validated['kamar_id'],
                 'user_id' => $validated['user_id'] ?? null,
+                'nama_wali' => $validated['nama_wali'],
+                'no_hp_wali' => $validated['no_hp_wali'],
+                'alamat_wali' => $validated['alamat_wali'],
             ]);
 
             Kamar::where('id', $validated['kamar_id'])->update(['status' => 'terisi']);

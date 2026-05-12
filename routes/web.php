@@ -30,9 +30,6 @@ Route::get('/redirect', function () {
         : redirect()->route('dashboard.penghuni');
 })->middleware('auth')->name('redirect');
 
-Route::get('/services', function () {
-    return view('services');
-})->middleware('auth')->name('services');
 
 Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -62,11 +59,11 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::post('/transaksi-operasional', [TransaksiOperasionalController::class, 'store'])->name('transaksi-operasional.store');
     Route::delete('/transaksi-operasional/{transaksiOperasional}', [TransaksiOperasionalController::class, 'destroy'])->name('transaksi-operasional.destroy');
 
-    Route::get('/kendala', [KendalaLaporanController::class, 'index'])->name('kendala.index');
-    Route::get('/kendala/export', [KendalaLaporanController::class, 'export'])->name('kendala.export');
-    Route::post('/kendala/setujui-semua', [KendalaLaporanController::class, 'setujuiSemua'])->name('kendala.setujui-semua');
-    Route::post('/kendala/{id}/setujui', [KendalaLaporanController::class, 'setujui'])->name('kendala.setujui');
-    Route::post('/kendala/{id}/tolak', [KendalaLaporanController::class, 'tolak'])->name('kendala.tolak');
+    Route::get('/laporan-kendala', [KendalaLaporanController::class, 'index'])->name('kendala.index');
+    Route::get('/laporan-kendala/export', [KendalaLaporanController::class, 'export'])->name('kendala.export');
+    Route::post('/laporan-kendala/setujui-semua', [KendalaLaporanController::class, 'setujuiSemua'])->name('kendala.setujui-semua');
+    Route::post('/laporan-kendala/{id}/setujui', [KendalaLaporanController::class, 'setujui'])->name('kendala.setujui');
+    Route::post('/laporan-kendala/{id}/tolak', [KendalaLaporanController::class, 'tolak'])->name('kendala.tolak');
 });
 
 Route::middleware(['auth', 'role:penghuni'])->group(function () {
@@ -91,6 +88,7 @@ Route::middleware(['auth', 'role:penghuni'])->group(function () {
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::patch('/profile/guardian', [ProfileController::class, 'updateGuardian'])->name('profile.guardian.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 

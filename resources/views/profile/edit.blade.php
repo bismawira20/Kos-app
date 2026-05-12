@@ -30,6 +30,12 @@
             </div>
         </div>
 
+        @if ($penghuni)
+            <div class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+                @include('profile.partials.update-guardian-information-form')
+            </div>
+        @endif
+
         <div class="grid gap-6 xl:grid-cols-2">
             <div class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
                 @include('profile.partials.update-password-form')
