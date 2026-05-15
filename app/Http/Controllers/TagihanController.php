@@ -44,11 +44,14 @@ class TagihanController extends Controller
             'penghuni_id' => ['required', 'exists:penghunis,id'],
             'tahun' => ['required', 'integer', 'min:2020', 'max:2100'],
             'bulan' => ['required', 'integer', 'min:1', 'max:12'],
-            'jumlah' => ['required', 'integer', 'min:0'],
             'jatuh_tempo' => ['required', 'date'],
         ]);
 
         $penghuni = Penghuni::with('kamar')->findOrFail($validated['penghuni_id']);
+
+        if (!$penghuni->kamar) {
+            return back()->withInput()->with('error', 'Penghuni ini belum memiliki kamar.');
+        }
 
         Tagihan::updateOrCreate(
             [
@@ -58,7 +61,7 @@ class TagihanController extends Controller
             ],
             [
                 'kamar_id' => $penghuni->kamar_id,
-                'jumlah' => $validated['jumlah'],
+                'jumlah' => $penghuni->kamar->harga,
                 'jatuh_tempo' => $validated['jatuh_tempo'],
                 'status' => 'belum_bayar',
             ]

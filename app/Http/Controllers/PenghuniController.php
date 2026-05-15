@@ -33,13 +33,18 @@ class PenghuniController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'nama' => ['required', 'string', 'max:255'],
-            'no_hp' => ['required', 'string', 'max:32'],
+            'nama' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/'],
+            'no_hp' => ['required', 'string', 'digits_between:10,13'],
             'kamar_id' => ['required', 'exists:kamars,id'],
             'user_id' => ['nullable', 'exists:users,id'],
-            'nama_wali' => ['nullable', 'string', 'max:255'],
-            'no_hp_wali' => ['nullable', 'string', 'max:32'],
+            'nama_wali' => ['nullable', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/'],
+            'no_hp_wali' => ['nullable', 'string', 'digits_between:10,13'],
             'alamat_wali' => ['nullable', 'string'],
+        ], [
+            'nama.regex' => 'Nama hanya boleh berisi huruf dan spasi.',
+            'no_hp.digits_between' => 'Nomor HP harus berupa angka dengan panjang antara 10 hingga 13 digit.',
+            'nama_wali.regex' => 'Nama wali hanya boleh berisi huruf dan spasi.',
+            'no_hp_wali.digits_between' => 'Nomor HP wali harus berupa angka dengan panjang antara 10 hingga 13 digit.',
         ]);
 
         $kamar = Kamar::findOrFail($validated['kamar_id']);

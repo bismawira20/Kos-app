@@ -43,15 +43,17 @@
 
             <div>
                 <label for="email" class="block text-sm font-semibold text-slate-900 mb-2">Email</label>
-                <input
-                    type="email"
-                    name="email"
-                    id="email"
-                    value="{{ old('email') }}"
-                    required
-                    class="block w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-slate-900 shadow-sm transition focus:border-red-500 focus:ring-2 focus:ring-red-200 placeholder:text-slate-400"
-                    placeholder="penghuni@email.com"
-                />
+                    <input
+                        type="email"
+                        name="email"
+                        id="email"
+                        value="{{ old('email') }}"
+                        required
+                        pattern=".*@gmail\.com"
+                        title="Harus menggunakan domain @gmail.com"
+                        class="block w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-slate-900 shadow-sm transition focus:border-red-500 focus:ring-2 focus:ring-red-200 placeholder:text-slate-400"
+                        placeholder="penghuni@gmail.com"
+                    />
                 @error('email')<p class="mt-1 text-sm text-rose-600">{{ $message }}</p>@enderror
             </div>
 

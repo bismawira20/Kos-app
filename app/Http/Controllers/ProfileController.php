@@ -50,9 +50,12 @@ class ProfileController extends Controller
         }
 
         $validated = $request->validate([
-            'nama_wali' => ['nullable', 'string', 'max:255'],
-            'no_hp_wali' => ['nullable', 'string', 'max:32'],
+            'nama_wali' => ['nullable', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/'],
+            'no_hp_wali' => ['nullable', 'string', 'digits_between:10,13'],
             'alamat_wali' => ['nullable', 'string'],
+        ], [
+            'nama_wali.regex' => 'Nama wali hanya boleh berisi huruf dan spasi.',
+            'no_hp_wali.digits_between' => 'Nomor HP wali harus berupa angka dengan panjang antara 10 hingga 13 digit.',
         ]);
 
         $user->penghuni()->update($validated);

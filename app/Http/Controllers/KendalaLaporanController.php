@@ -42,7 +42,7 @@ class KendalaLaporanController extends Controller
         return Response::streamDownload(function () use ($rows) {
             $out = fopen('php://output', 'w');
             fprintf($out, chr(0xEF).chr(0xBB).chr(0xBF));
-            fputcsv($out, ['No', 'Nama', 'No. Telepon', 'Kamar', 'Jenis / Uraian Kendala', 'Status', 'Tanggal']);
+            fputcsv($out, ['No', 'Nama', 'No. Telepon', 'Kamar', 'Jenis / Uraian Kendala', 'Status', 'Tanggal'], ';');
             foreach ($rows as $i => $k) {
                 fputcsv($out, [
                     $i + 1,
@@ -52,7 +52,7 @@ class KendalaLaporanController extends Controller
                     $k->deskripsi,
                     $this->statusLabel($k->status),
                     $k->created_at?->format('Y-m-d H:i'),
-                ]);
+                ], ';');
             }
             fclose($out);
         }, $filename, [

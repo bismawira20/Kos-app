@@ -56,7 +56,7 @@
             <table class="min-w-full divide-y divide-slate-200 text-sm">
                 <thead class="bg-slate-50">
                     <tr>
-                        <th class="px-3 py-2 text-left">#</th>
+                        <th class="px-3 py-2 text-left">No.</th>
                         <th class="px-3 py-2 text-left">Tanggal</th>
                         <th class="px-3 py-2 text-left">Penghuni</th>
                         <th class="px-3 py-2 text-left">Kamar</th>

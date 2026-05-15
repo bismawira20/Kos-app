@@ -17,7 +17,10 @@
 
                     <div>
                         <x-input-label for="harga" value="Harga per bulan (Rp)" />
-                        <x-text-input id="harga" name="harga" type="number" min="0" class="mt-1 block w-full" :value="old('harga')" required />
+                        <x-text-input id="harga" name="harga" type="text" class="mt-1 block w-full" 
+                            :value="old('harga') ? number_format((int)str_replace('.', '', old('harga')), 0, ',', '.') : ''" 
+                            oninput="this.value = this.value.replace(/[^0-9]/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, '.')"
+                            required />
                         <x-input-error class="mt-2" :messages="$errors->get('harga')" />
                     </div>
 

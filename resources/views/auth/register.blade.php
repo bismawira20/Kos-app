@@ -7,13 +7,13 @@
 
         <div>
             <x-input-label for="name" value="Nama" />
-            <x-text-input id="name" class="mt-1 block w-full rounded-lg border-slate-300" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" />
+            <x-text-input id="name" class="mt-1 block w-full rounded-lg border-slate-300" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" pattern="^[a-zA-Z\s]+$" title="Nama hanya boleh berisi huruf dan spasi" />
             <x-input-error :messages="$errors->get('name')" class="mt-2" />
         </div>
 
         <div>
             <x-input-label for="email" value="Email" />
-            <x-text-input id="email" class="mt-1 block w-full rounded-lg border-slate-300" type="email" name="email" :value="old('email')" required autocomplete="username" />
+            <x-text-input id="email" class="mt-1 block w-full rounded-lg border-slate-300" type="email" name="email" :value="old('email')" required autocomplete="username" pattern=".*@gmail\.com" title="Harus menggunakan domain @gmail.com" />
             <x-input-error :messages="$errors->get('email')" class="mt-2" />
         </div>
 

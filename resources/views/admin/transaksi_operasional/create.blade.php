@@ -26,7 +26,10 @@
             </div>
             <div>
                 <x-input-label value="Jumlah" />
-                <x-text-input name="jumlah" type="number" class="mt-1 block w-full" :value="old('jumlah')" required />
+                <x-text-input name="jumlah" type="text" class="mt-1 block w-full" 
+                    :value="old('jumlah') ? number_format((int)str_replace('.', '', old('jumlah')), 0, ',', '.') : ''"
+                    oninput="this.value = this.value.replace(/[^0-9]/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, '.')"
+                    required />
                 <x-input-error :messages="$errors->get('jumlah')" />
             </div>
             <div class="md:col-span-2">

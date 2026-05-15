@@ -16,7 +16,10 @@
             </div>
             <div>
                 <x-input-label value="Jumlah (Rp)" />
-                <x-text-input name="jumlah" type="number" class="mt-1 w-full" required />
+                <x-text-input name="jumlah" type="text" class="mt-1 w-full" 
+                    :value="old('jumlah') ? number_format((int)str_replace('.', '', old('jumlah')), 0, ',', '.') : ''"
+                    oninput="this.value = this.value.replace(/[^0-9]/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, '.')"
+                    required />
             </div>
             <div>
                 <x-input-label value="Tanggal bayar" />

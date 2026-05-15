@@ -84,7 +84,7 @@ class LaporanController extends Controller
         return response()->streamDownload(function () use ($rows) {
             $out = fopen('php://output', 'w');
             fprintf($out, chr(0xEF).chr(0xBB).chr(0xBF));
-            fputcsv($out, ['Tanggal', 'Penghuni', 'Kamar', 'Periode Tagihan', 'Jumlah', 'Status']);
+            fputcsv($out, ['Tanggal', 'Penghuni', 'Kamar', 'Periode Tagihan', 'Jumlah', 'Status'], ';');
             foreach ($rows as $r) {
                 $periode = $r->tagihan ? $r->tagihan->labelPeriode() : '-';
                 fputcsv($out, [
@@ -94,7 +94,7 @@ class LaporanController extends Controller
                     $periode,
                     $r->jumlah,
                     $r->status,
-                ]);
+                ], ';');
             }
             fclose($out);
         }, $filename, [

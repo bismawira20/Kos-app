@@ -35,8 +35,10 @@ class AdminPenghuniAccountController extends Controller
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'max:255', 'unique:users,email'],
+            'email' => ['required', 'email', 'max:255', 'unique:users,email', 'regex:/^[a-zA-Z0-9._%+-]+@gmail\.com$/i'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ], [
+            'email.regex' => 'Email harus menggunakan domain @gmail.com.',
         ]);
 
         User::create([
@@ -73,8 +75,10 @@ class AdminPenghuniAccountController extends Controller
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'max:255', 'unique:users,email,' . $user->id],
+            'email' => ['required', 'email', 'max:255', 'unique:users,email,' . $user->id, 'regex:/^[a-zA-Z0-9._%+-]+@gmail\.com$/i'],
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
+        ], [
+            'email.regex' => 'Email harus menggunakan domain @gmail.com.',
         ]);
 
         $user->name = $validated['name'];

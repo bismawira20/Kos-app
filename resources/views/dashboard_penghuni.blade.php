@@ -52,7 +52,7 @@
 
             <article class="rounded-3xl bg-slate-950 p-5 text-white shadow-lg shadow-slate-950/20">
                 <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-300">Jatuh tempo</p>
-                @if ($tb && $tb->jatuh_tempo)
+                @if ($tb && $tb->jatuh_tempo && $tb->status !== 'lunas')
                     <p class="mt-4 text-2xl font-semibold tracking-tight">{{ $tb->jatuh_tempo->translatedFormat('d M Y') }}</p>
                     @if (is_numeric($hari))
                         <p class="mt-2 text-sm {{ $hari < 0 ? 'text-rose-300' : 'text-slate-300' }}">
@@ -101,7 +101,7 @@
                         </div>
                         <div class="flex items-center justify-between gap-4 text-sm">
                             <span class="text-violet-100">Jatuh tempo</span>
-                            <span class="font-semibold">{{ $tagihanTerbaru->jatuh_tempo?->format('d/m/Y') }}</span>
+                            <span class="font-semibold">{{ $tagihanTerbaru->status === 'lunas' ? '-' : $tagihanTerbaru->jatuh_tempo?->format('d/m/Y') }}</span>
                         </div>
                         <div class="flex items-center justify-between gap-4 text-sm">
                             <span class="text-violet-100">Status</span>

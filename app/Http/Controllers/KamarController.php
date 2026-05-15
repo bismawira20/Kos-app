@@ -23,6 +23,7 @@ class KamarController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        $request->merge(['harga' => str_replace('.', '', $request->harga)]);
         $validated = $request->validate([
             'nomor_kamar' => ['required', 'string', 'max:50'],
             'harga' => ['required', 'integer', 'min:0'],
@@ -46,6 +47,7 @@ class KamarController extends Controller
 
     public function update(Request $request, Kamar $kamar): RedirectResponse
     {
+        $request->merge(['harga' => str_replace('.', '', $request->harga)]);
         $validated = $request->validate([
             'nomor_kamar' => ['required', 'string', 'max:50'],
             'harga' => ['required', 'integer', 'min:0'],

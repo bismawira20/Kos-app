@@ -47,9 +47,13 @@
                                         <div class="text-xs text-slate-500">Kamar {{ $t->kamar?->nomor_kamar }}</div>
                                     </td>
                                     <td class="px-4 py-3">
-                                        {{ $t->jatuh_tempo?->format('d/m/Y') }}
-                                        @if ($late)
-                                            <span class="ml-1 text-xs text-red-600">Terlambat</span>
+                                        @if ($t->status === 'lunas')
+                                            -
+                                        @else
+                                            {{ $t->jatuh_tempo?->format('d/m/Y') }}
+                                            @if ($late)
+                                                <span class="ml-1 text-xs text-red-600">Terlambat</span>
+                                            @endif
                                         @endif
                                     </td>
                                     <td class="px-4 py-3 font-semibold">Rp {{ number_format($t->jumlah, 0, ',', '.') }}</td>
@@ -115,7 +119,7 @@
                         </div>
                         <div class="flex justify-between border-b border-slate-100 pb-3">
                             <span class="text-sm">Jatuh Tempo</span>
-                            <span class="font-medium text-slate-900" x-text="selectedTagihan ? new Date(selectedTagihan.jatuh_tempo).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : ''"></span>
+                            <span class="font-medium text-slate-900" x-text="selectedTagihan ? (selectedTagihan.status === 'lunas' ? '-' : new Date(selectedTagihan.jatuh_tempo).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })) : ''"></span>
                         </div>
                         
                         <template x-if="selectedTagihan && selectedTagihan.pembayaran && selectedTagihan.pembayaran.length > 0">

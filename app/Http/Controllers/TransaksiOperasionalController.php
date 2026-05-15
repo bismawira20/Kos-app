@@ -26,6 +26,7 @@ class TransaksiOperasionalController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        $request->merge(['jumlah' => str_replace('.', '', $request->jumlah)]);
         $validated = $request->validate([
             'tanggal' => ['required', 'date'],
             'jenis' => ['required', 'in:pemasukan,pengeluaran'],

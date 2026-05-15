@@ -37,6 +37,7 @@ class PembayaranController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        $request->merge(['jumlah' => str_replace('.', '', $request->jumlah)]);
         $validated = $request->validate([
             'penghuni_id' => ['required', 'exists:penghunis,id'],
             'jumlah' => ['required', 'integer', 'min:0'],

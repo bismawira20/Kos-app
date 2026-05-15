@@ -60,7 +60,7 @@
                             <td class="px-4 py-3 font-medium">{{ $t->kamar?->nomor_kamar }}</td>
                             <td class="px-4 py-3">Rp {{ number_format($t->jumlah, 0, ',', '.') }}</td>
                             <td class="px-4 py-3">{{ $t->labelPeriode() }}</td>
-                            <td class="px-4 py-3">{{ $t->jatuh_tempo?->format('d/m/Y') }}</td>
+                            <td class="px-4 py-3">{{ $t->status === 'lunas' ? '-' : $t->jatuh_tempo?->format('d/m/Y') }}</td>
                             <td class="px-4 py-3">{{ $t->penghuni?->nama }}</td>
                             <td class="px-4 py-3">
                                 <span class="rounded-full px-2 py-0.5 text-xs font-medium

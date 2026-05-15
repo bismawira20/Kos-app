@@ -21,7 +21,7 @@
     <table>
         <thead>
             <tr>
-                <th>#</th>
+                <th>No.</th>
                 <th>Tanggal</th>
                 <th>Penghuni</th>
                 <th>Kamar</th>

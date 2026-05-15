@@ -9,7 +9,7 @@
 
         <div>
             <x-input-label for="email" value="Username (email)" />
-            <x-text-input id="email" class="mt-1 block w-full rounded-lg border-slate-300" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
+            <x-text-input id="email" class="mt-1 block w-full rounded-lg border-slate-300" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" pattern=".*@gmail\.com" title="Harus menggunakan domain @gmail.com" />
             <x-input-error :messages="$errors->get('email')" class="mt-2" />
         </div>
 

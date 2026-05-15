@@ -30,10 +30,8 @@
                     </select>
                 </div>
             </div>
-            <div>
-                <x-input-label value="Jumlah (Rp)" />
-                <x-text-input name="jumlah" type="number" class="mt-1 w-full" required />
-                <x-input-error :messages="$errors->get('jumlah')" />
+            <div class="rounded-lg bg-slate-50 p-3 text-xs text-slate-600">
+                <p>Harga tagihan akan otomatis mengikuti harga kamar yang ditempati penghuni.</p>
             </div>
             <div>
                 <x-input-label value="Jatuh tempo" />
