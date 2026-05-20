@@ -54,10 +54,6 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/laporan/csv', [LaporanController::class, 'exportCsv'])->name('laporan.export');
     Route::get('/laporan/print', [LaporanController::class, 'print'])->name('laporan.print');
 
-    Route::get('/transaksi-operasional', [TransaksiOperasionalController::class, 'index'])->name('transaksi-operasional.index');
-    Route::get('/transaksi-operasional/create', [TransaksiOperasionalController::class, 'create'])->name('transaksi-operasional.create');
-    Route::post('/transaksi-operasional', [TransaksiOperasionalController::class, 'store'])->name('transaksi-operasional.store');
-    Route::delete('/transaksi-operasional/{transaksiOperasional}', [TransaksiOperasionalController::class, 'destroy'])->name('transaksi-operasional.destroy');
 
     Route::get('/laporan-kendala', [KendalaLaporanController::class, 'index'])->name('kendala.index');
     Route::get('/laporan-kendala/export', [KendalaLaporanController::class, 'export'])->name('kendala.export');
@@ -73,6 +69,8 @@ Route::middleware(['auth', 'role:penghuni'])->group(function () {
     Route::get('/penghuni/tagihan/{tagihan}/bayar', [PenghuniTagihanController::class, 'bayar'])->name('penghuni.tagihan.bayar');
     Route::post('/penghuni/tagihan/{tagihan}/bayar', [PenghuniTagihanController::class, 'kirim'])->name('penghuni.tagihan.kirim');
     Route::get('/penghuni/tagihan/{tagihan}/midtrans', [\App\Http\Controllers\MidtransController::class, 'pay'])->name('penghuni.tagihan.midtrans');
+    Route::get('/penghuni/tagihan/{tagihan}/batal-midtrans', [\App\Http\Controllers\MidtransController::class, 'cancel'])->name('penghuni.tagihan.batal-midtrans');
+    Route::get('/penghuni/tagihan/{tagihan}/sukses-midtrans', [\App\Http\Controllers\MidtransController::class, 'sukses'])->name('penghuni.tagihan.sukses-midtrans');
     Route::get('/penghuni/tagihan/{tagihan}/invoice', [PenghuniTagihanController::class, 'downloadInvoice'])->name('penghuni.tagihan.invoice');
 
     Route::get('/penghuni/riwayat', [PenghuniRiwayatController::class, 'index'])->name('penghuni.riwayat');

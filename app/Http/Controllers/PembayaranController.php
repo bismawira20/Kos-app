@@ -20,7 +20,11 @@ class PembayaranController extends Controller
             ->orderByDesc('created_at');
 
         if ($filter === 'menunggu') {
-            $q->where('status', 'menunggu');
+            $q->where('status', 'menunggu')
+              ->where(function($query) {
+                  $query->whereNull('metode_pembayaran')
+                        ->orWhere('metode_pembayaran', '!=', 'midtrans');
+              });
         }
 
         $pembayaran = $q->get();

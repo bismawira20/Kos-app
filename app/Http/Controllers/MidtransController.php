@@ -26,7 +26,10 @@ class MidtransController extends Controller
         $penghuni = Auth::user()->penghuni;
         abort_if(! $penghuni || $tagihan->penghuni_id !== $penghuni->id, 403);
 
-        if ($tagihan->status !== 'belum_bayar') {
+        $lastPembayaran = $tagihan->pembayaran()->latest()->first();
+        $isPendingMidtrans = $tagihan->status === 'menunggu' && $lastPembayaran && $lastPembayaran->metode_pembayaran === 'midtrans' && $lastPembayaran->status === 'menunggu';
+
+        if ($tagihan->status !== 'belum_bayar' && !$isPendingMidtrans) {
             return redirect()->route('penghuni.tagihan.index')->with('error', 'Tagihan ini tidak dapat dibayar (sudah lunas atau menunggu verifikasi).');
         }
 
@@ -89,6 +92,49 @@ class MidtransController extends Controller
             $tagihan->update(['status' => 'belum_bayar']);
             return redirect()->route('penghuni.tagihan.index')->with('error', 'Gagal memproses pembayaran dengan Midtrans.');
         }
+    }
+
+    public function cancel(Tagihan $tagihan)
+    {
+        $penghuni = Auth::user()->penghuni;
+        abort_if(! $penghuni || $tagihan->penghuni_id !== $penghuni->id, 403);
+
+        $pembayaran = Pembayaran::where('tagihan_id', $tagihan->id)
+            ->where('metode_pembayaran', 'midtrans')
+            ->where('status', 'menunggu')
+            ->first();
+
+        if ($pembayaran) {
+            $pembayaran->update(['status' => 'ditolak']);
+        }
+
+        $tagihan->update(['status' => 'belum_bayar']);
+
+        return redirect()->route('penghuni.tagihan.index')
+            ->with('status', 'Pembayaran Midtrans dibatalkan. Silakan pilih kembali metode pembayaran.');
+    }
+
+    public function sukses(Tagihan $tagihan)
+    {
+        $penghuni = Auth::user()->penghuni;
+        abort_if(! $penghuni || $tagihan->penghuni_id !== $penghuni->id, 403);
+
+        $pembayaran = Pembayaran::where('tagihan_id', $tagihan->id)
+            ->where('metode_pembayaran', 'midtrans')
+            ->where('status', 'menunggu')
+            ->first();
+
+        if ($pembayaran) {
+            $pembayaran->update([
+                'status' => 'lunas',
+                'tanggal_bayar' => now()->toDateString(),
+            ]);
+        }
+
+        $tagihan->update(['status' => 'lunas']);
+
+        return redirect()->route('penghuni.tagihan.index')
+            ->with('status', 'Pembayaran Midtrans berhasil! Status tagihan Anda kini Lunas.');
     }
 
     public function webhook(Request $request)

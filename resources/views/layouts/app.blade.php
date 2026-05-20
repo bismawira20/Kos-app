@@ -75,14 +75,34 @@
                 @endisset
 
                 @if (session('status'))
-                    <div class="mb-4 rounded-lg bg-green-50 p-3 text-green-700">
-                        {{ session('status') }}
+                    <div x-data="{ show: true }" 
+                         x-show="show" 
+                         x-init="setTimeout(() => show = false, 5000)"
+                         x-transition:leave="transition ease-in duration-300"
+                         x-transition:leave-start="opacity-100 transform translate-y-0"
+                         x-transition:leave-end="opacity-0 transform -translate-y-2"
+                         class="mb-4 flex items-center justify-between rounded-xl bg-emerald-50 border border-emerald-200 p-4 text-sm text-emerald-800 shadow-sm transition-all duration-300">
+                        <div class="flex items-center gap-2">
+                            <span>✅</span>
+                            <span>{{ session('status') }}</span>
+                        </div>
+                        <button @click="show = false" class="text-emerald-500 hover:text-emerald-800 font-bold ml-4 focus:outline-none">&times;</button>
                     </div>
                 @endif
 
                 @if (session('error'))
-                    <div class="mb-4 rounded-lg bg-red-50 p-3 text-red-700">
-                        {{ session('error') }}
+                    <div x-data="{ show: true }" 
+                         x-show="show" 
+                         x-init="setTimeout(() => show = false, 5000)"
+                         x-transition:leave="transition ease-in duration-300"
+                         x-transition:leave-start="opacity-100 transform translate-y-0"
+                         x-transition:leave-end="opacity-0 transform -translate-y-2"
+                         class="mb-4 flex items-center justify-between rounded-xl bg-rose-50 border border-rose-200 p-4 text-sm text-rose-800 shadow-sm transition-all duration-300">
+                        <div class="flex items-center gap-2">
+                            <span>❌</span>
+                            <span>{{ session('error') }}</span>
+                        </div>
+                        <button @click="show = false" class="text-rose-500 hover:text-rose-800 font-bold ml-4 focus:outline-none">&times;</button>
                     </div>
                 @endif
 

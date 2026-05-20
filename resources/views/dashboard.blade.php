@@ -4,11 +4,10 @@
             <div>
                 <p class="text-xs font-semibold uppercase tracking-[0.28em] text-indigo-500">Admin control center</p>
                 <h2 class="mt-2 text-3xl font-semibold tracking-tight text-slate-900">Selamat datang, admin</h2>
-                <p class="mt-2 max-w-2xl text-sm text-slate-500">Pantau okupansi, pendapatan, verifikasi pembayaran, dan transaksi operasional dari satu panel.</p>
+                <p class="mt-2 max-w-2xl text-sm text-slate-500">Pantau okupansi, pendapatan, dan verifikasi pembayaran dari satu panel.</p>
             </div>
             <div class="flex flex-wrap gap-2">
-                <a href="{{ route('transaksi-operasional.create') }}" class="inline-flex items-center justify-center rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-slate-800">Tambah transaksi</a>
-                <a href="{{ route('pembayaran.index') }}" class="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50">Verifikasi pembayaran</a>
+                <a href="{{ route('pembayaran.index') }}" class="inline-flex items-center justify-center rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-slate-800">Verifikasi pembayaran</a>
             </div>
         </div>
     </x-slot>
@@ -88,23 +87,6 @@
             </div>
 
             <div class="space-y-6">
-                <div class="rounded-3xl bg-gradient-to-br from-indigo-700 to-violet-900 p-6 text-white shadow-lg">
-                    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-200">Keuangan operasional</p>
-                    <div class="mt-5 space-y-4">
-                        <div class="rounded-2xl bg-white/10 p-4 backdrop-blur-sm">
-                            <p class="text-xs text-indigo-200">Pemasukan operasional</p>
-                            <p class="mt-1 text-2xl font-semibold">Rp {{ number_format($pemasukanOperasional, 0, ',', '.') }}</p>
-                        </div>
-                        <div class="rounded-2xl bg-white/10 p-4 backdrop-blur-sm">
-                            <p class="text-xs text-indigo-200">Pengeluaran operasional</p>
-                            <p class="mt-1 text-2xl font-semibold">Rp {{ number_format($pengeluaranOperasional, 0, ',', '.') }}</p>
-                        </div>
-                        <div class="rounded-2xl bg-white p-4 text-slate-900">
-                            <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Saldo operasional</p>
-                            <p class="mt-1 text-3xl font-semibold">Rp {{ number_format($saldoOperasional, 0, ',', '.') }}</p>
-                        </div>
-                    </div>
-                </div>
 
                 <div class="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
                     <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Ringkasan cepat</p>

@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Kamar;
 use App\Models\Pembayaran;
 use App\Models\Penghuni;
-use App\Models\TransaksiOperasional;
 use App\Models\Tagihan;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -26,24 +25,16 @@ class DashboardController extends Controller
         })->count();
         $penghuniNonaktif = max(0, $totalPenghuni - $penghuniAktif);
 
-        $menungguVerifikasi = Pembayaran::where('status', 'menunggu')->count();
+        $menungguVerifikasi = Pembayaran::where('status', 'menunggu')
+            ->where(function($query) {
+                $query->whereNull('metode_pembayaran')
+                      ->orWhere('metode_pembayaran', '!=', 'midtrans');
+            })->count();
 
         $pemasukanBulanIni = (int) Pembayaran::where('status', 'lunas')
             ->whereYear('tanggal_bayar', $tahun)
             ->whereMonth('tanggal_bayar', $bulan)
             ->sum('jumlah');
-
-        $pemasukanOperasional = (int) TransaksiOperasional::where('jenis', 'pemasukan')
-            ->whereYear('tanggal', $tahun)
-            ->whereMonth('tanggal', $bulan)
-            ->sum('jumlah');
-
-        $pengeluaranOperasional = (int) TransaksiOperasional::where('jenis', 'pengeluaran')
-            ->whereYear('tanggal', $tahun)
-            ->whereMonth('tanggal', $bulan)
-            ->sum('jumlah');
-
-        $saldoOperasional = $pemasukanBulanIni + $pemasukanOperasional - $pengeluaranOperasional;
 
         $tagihanBelumLunasBulanIni = Tagihan::where('tahun', $tahun)
             ->where('bulan', $bulan)
@@ -75,9 +66,6 @@ class DashboardController extends Controller
             'penghuniNonaktif',
             'menungguVerifikasi',
             'pemasukanBulanIni',
-            'pemasukanOperasional',
-            'pengeluaranOperasional',
-            'saldoOperasional',
             'tagihanBelumLunasBulanIni',
             'occupancy',
             'chart',

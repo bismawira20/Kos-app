@@ -69,7 +69,7 @@
                             </td>
                             <td class="px-3 py-3 max-w-[140px] text-xs text-slate-600">{{ $p->admin_komentar ?? '—' }}</td>
                             <td class="px-3 py-3 text-right space-y-1">
-                                @if ($p->status === 'menunggu')
+                                @if ($p->status === 'menunggu' && $p->metode_pembayaran !== 'midtrans')
                                     <form action="{{ route('pembayaran.acc', $p->id) }}" method="POST" class="inline">
                                         @csrf
                                         <button type="submit" class="block w-full rounded bg-emerald-600 px-2 py-1 text-xs text-white hover:bg-emerald-700">Setujui</button>

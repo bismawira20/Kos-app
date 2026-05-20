@@ -42,10 +42,6 @@
     <span>Laporan</span>
 </a>
 
-<a href="{{ route('transaksi-operasional.index') }}" class="{{ $link(request()->routeIs('transaksi-operasional.*')) }}">
-    <span>📦</span>
-    <span>Operasional</span>
-</a>
 
 <a href="{{ route('kendala.index') }}" class="{{ $link(request()->routeIs('kendala.*')) }}">
     <span>⚠️</span>

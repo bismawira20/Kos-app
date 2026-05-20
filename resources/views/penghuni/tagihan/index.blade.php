@@ -39,6 +39,8 @@
                             @forelse ($tagihans as $t)
                                 @php
                                     $late = $t->jatuh_tempo && $t->jatuh_tempo->isPast() && $t->status !== 'lunas';
+                                    $lastPembayaran = $t->pembayaran->sortByDesc('created_at')->first();
+                                    $isPendingMidtrans = $t->status === 'menunggu' && $lastPembayaran && $lastPembayaran->metode_pembayaran === 'midtrans' && $lastPembayaran->status === 'menunggu';
                                 @endphp
                                 <tr>
                                     <td class="px-4 py-3">{{ $loop->iteration }}</td>
@@ -72,6 +74,9 @@
                                             @if ($t->status === 'belum_bayar')
                                                 <a href="{{ route('penghuni.tagihan.midtrans', $t) }}" class="inline-block rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700 shadow-sm transition-all">Midtrans</a>
                                                 <a href="{{ route('penghuni.tagihan.bayar', $t) }}" class="inline-block rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-700 shadow-sm transition-all">Manual</a>
+                                            @elseif ($isPendingMidtrans)
+                                                <a href="{{ route('penghuni.tagihan.midtrans', $t) }}" class="inline-block rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700 shadow-sm transition-all">Lanjutkan</a>
+                                                <a href="{{ route('penghuni.tagihan.batal-midtrans', $t) }}" class="inline-block rounded-lg bg-rose-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-rose-700 shadow-sm transition-all">Batal</a>
                                             @endif
                                         </div>
                                     </td>

@@ -18,8 +18,7 @@
         $pageTitle = 'Pembayaran';
     } elseif (request()->routeIs('laporan.*')) {
         $pageTitle = 'Laporan Keuangan';
-    } elseif (request()->routeIs('transaksi-operasional.*')) {
-        $pageTitle = 'Biaya Operasional';
+
     } elseif (request()->routeIs('kendala.*') || request()->routeIs('penghuni.kendala.*')) {
         $pageTitle = 'Laporan Kendala';
     } elseif (request()->routeIs('penghuni.tagihan.*')) {

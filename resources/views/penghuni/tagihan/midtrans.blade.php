@@ -43,17 +43,16 @@
             document.getElementById('pay-button').onclick = function(){
                 snap.pay('{{ $snapToken }}', {
                     onSuccess: function(result){
-                        window.location.href = '{{ route("penghuni.tagihan.index") }}';
+                        window.location.href = '{{ route("penghuni.tagihan.sukses-midtrans", $tagihan) }}';
                     },
                     onPending: function(result){
                         window.location.href = '{{ route("penghuni.tagihan.index") }}';
                     },
                     onError: function(result){
-                        alert('Pembayaran gagal!');
-                        window.location.href = '{{ route("penghuni.tagihan.index") }}';
+                        window.location.href = '{{ route("penghuni.tagihan.batal-midtrans", $tagihan) }}';
                     },
                     onClose: function(){
-                        alert('Anda menutup pop-up sebelum menyelesaikan pembayaran');
+                        window.location.href = '{{ route("penghuni.tagihan.batal-midtrans", $tagihan) }}';
                     }
                 });
             };
