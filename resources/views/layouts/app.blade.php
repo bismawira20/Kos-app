@@ -78,15 +78,20 @@
                     <div x-data="{ show: true }" 
                          x-show="show" 
                          x-init="setTimeout(() => show = false, 5000)"
+                         x-transition:enter="transition ease-out duration-300"
+                         x-transition:enter-start="opacity-0 transform -translate-y-2"
+                         x-transition:enter-end="opacity-100 transform translate-y-0"
                          x-transition:leave="transition ease-in duration-300"
                          x-transition:leave-start="opacity-100 transform translate-y-0"
                          x-transition:leave-end="opacity-0 transform -translate-y-2"
-                         class="mb-4 flex items-center justify-between rounded-xl bg-emerald-50 border border-emerald-200 p-4 text-sm text-emerald-800 shadow-sm transition-all duration-300">
-                        <div class="flex items-center gap-2">
-                            <span>✅</span>
-                            <span>{{ session('status') }}</span>
+                         class="mb-6 flex items-center justify-between rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800 shadow-sm transition-all duration-300">
+                        <div class="flex items-center gap-3">
+                            <svg class="h-5 w-5 flex-shrink-0 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            <span class="font-medium text-emerald-900">{{ session('status') }}</span>
                         </div>
-                        <button @click="show = false" class="text-emerald-500 hover:text-emerald-800 font-bold ml-4 focus:outline-none">&times;</button>
+                        <button @click="show = false" class="text-emerald-500 hover:text-emerald-800 focus:outline-none transition active:scale-90">
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                        </button>
                     </div>
                 @endif
 
@@ -94,15 +99,20 @@
                     <div x-data="{ show: true }" 
                          x-show="show" 
                          x-init="setTimeout(() => show = false, 5000)"
+                         x-transition:enter="transition ease-out duration-300"
+                         x-transition:enter-start="opacity-0 transform -translate-y-2"
+                         x-transition:enter-end="opacity-100 transform translate-y-0"
                          x-transition:leave="transition ease-in duration-300"
                          x-transition:leave-start="opacity-100 transform translate-y-0"
                          x-transition:leave-end="opacity-0 transform -translate-y-2"
-                         class="mb-4 flex items-center justify-between rounded-xl bg-rose-50 border border-rose-200 p-4 text-sm text-rose-800 shadow-sm transition-all duration-300">
-                        <div class="flex items-center gap-2">
-                            <span>❌</span>
-                            <span>{{ session('error') }}</span>
+                         class="mb-6 flex items-center justify-between rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800 shadow-sm transition-all duration-300">
+                        <div class="flex items-center gap-3">
+                            <svg class="h-5 w-5 flex-shrink-0 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            <span class="font-medium text-rose-900">{{ session('error') }}</span>
                         </div>
-                        <button @click="show = false" class="text-rose-500 hover:text-rose-800 font-bold ml-4 focus:outline-none">&times;</button>
+                        <button @click="show = false" class="text-rose-500 hover:text-rose-800 focus:outline-none transition active:scale-90">
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                        </button>
                     </div>
                 @endif
 

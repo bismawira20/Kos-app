@@ -73,14 +73,18 @@ class TagihanController extends Controller
 
     public function generate(Request $request): RedirectResponse
     {
+        $tahun = (int) $request->input('tahun');
+        $bulan = (int) $request->input('bulan');
+        $maxDays = Carbon::create($tahun, $bulan, 1)->daysInMonth;
+
         $validated = $request->validate([
             'tahun' => ['required', 'integer', 'min:2020', 'max:2100'],
             'bulan' => ['required', 'integer', 'min:1', 'max:12'],
-            'hari_jatuh_tempo' => ['required', 'integer', 'min:1', 'max:28'],
+            'hari_jatuh_tempo' => ['required', 'integer', 'min:1', 'max:' . $maxDays],
+        ], [
+            'hari_jatuh_tempo.max' => "Hari jatuh tempo untuk periode ini maksimal tanggal {$maxDays}.",
         ]);
 
-        $tahun = $validated['tahun'];
-        $bulan = $validated['bulan'];
         $due = Carbon::create($tahun, $bulan, $validated['hari_jatuh_tempo'])->toDateString();
 
         $count = 0;

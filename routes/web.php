@@ -12,7 +12,6 @@ use App\Http\Controllers\PenghuniRiwayatController;
 use App\Http\Controllers\PenghuniTagihanController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TagihanController;
-use App\Http\Controllers\TransaksiOperasionalController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 

@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Penghuni extends Model
 {
-    protected $fillable = ['nama', 'no_hp', 'kamar_id', 'user_id', 'nama_wali', 'no_hp_wali', 'alamat_wali'];
+    protected $fillable = ['nama', 'no_hp', 'kamar_id', 'user_id', 'nama_wali', 'no_hp_wali', 'alamat_wali', 'tanggal_masuk'];
 
     public function kamar()
     {

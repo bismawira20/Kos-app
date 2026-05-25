@@ -50,16 +50,24 @@
 
                         <hr class="border-gray-100 my-4">
 
-                        <div>
-                            <x-input-label for="kamar_id" value="Kamar" />
-                            <select id="kamar_id" name="kamar_id" class="mt-1 block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required>
-                                @foreach ($kamar as $k)
-                                    <option value="{{ $k->id }}" @selected(old('kamar_id') == $k->id)>
-                                        {{ $k->nomor_kamar }} — Rp {{ number_format($k->harga, 0, ',', '.') }}/bln
-                                    </option>
-                                @endforeach
-                            </select>
-                            <x-input-error class="mt-2" :messages="$errors->get('kamar_id')" />
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <x-input-label for="kamar_id" value="Kamar" />
+                                <select id="kamar_id" name="kamar_id" class="mt-1 block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required>
+                                    @foreach ($kamar as $k)
+                                        <option value="{{ $k->id }}" @selected(old('kamar_id') == $k->id)>
+                                            {{ $k->nomor_kamar }} — Rp {{ number_format($k->harga, 0, ',', '.') }}/bln
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <x-input-error class="mt-2" :messages="$errors->get('kamar_id')" />
+                            </div>
+
+                            <div>
+                                <x-input-label for="tanggal_masuk" value="Tanggal Masuk Kos" />
+                                <x-text-input id="tanggal_masuk" name="tanggal_masuk" type="date" class="mt-1 block w-full" :value="old('tanggal_masuk', now()->toDateString())" />
+                                <x-input-error class="mt-2" :messages="$errors->get('tanggal_masuk')" />
+                            </div>
                         </div>
 
                         <div>

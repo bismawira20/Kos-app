@@ -62,14 +62,6 @@ class PembayaranController extends Controller
 
         Pembayaran::create($validated);
 
-        $penghuni = Penghuni::find($validated['penghuni_id']);
-        if ($penghuni && ($validated['status'] ?? '') === 'menunggu') {
-            $this->kirimWaOptional(
-                $penghuni->no_hp,
-                "Halo {$penghuni->nama}, bukti pembayaran kamu sudah diterima. Sedang menunggu verifikasi admin."
-            );
-        }
-
         return redirect()->route('pembayaran.index')->with('status', 'Pembayaran tercatat.');
     }
 
@@ -85,13 +77,6 @@ class PembayaranController extends Controller
 
         if ($p->tagihan) {
             $p->tagihan->update(['status' => 'lunas']);
-        }
-
-        if ($p->penghuni) {
-            $this->kirimWaOptional(
-                $p->penghuni->no_hp,
-                "Halo {$p->penghuni->nama}, pembayaran kamu sudah dikonfirmasi. Terima kasih."
-            );
         }
 
         return back()->with('status', 'Pembayaran dikonfirmasi.');
@@ -114,28 +99,6 @@ class PembayaranController extends Controller
             $p->tagihan->update(['status' => 'belum_bayar']);
         }
 
-        if ($p->penghuni) {
-            $this->kirimWaOptional(
-                $p->penghuni->no_hp,
-                "Halo {$p->penghuni->nama}, bukti pembayaran ditolak. Alasan: {$validated['komentar']}"
-            );
-        }
-
         return back()->with('status', 'Pembayaran ditolak.');
-    }
-
-    private function kirimWaOptional(string $nomor, string $pesan): void
-    {
-        $token = env('FONNTE_TOKEN');
-        if (! $token || trim((string) $nomor) === '') {
-            return;
-        }
-
-        Http::withHeaders([
-            'Authorization' => $token,
-        ])->post('https://api.fonnte.com/send', [
-            'target' => $nomor,
-            'message' => $pesan,
-        ]);
     }
 }

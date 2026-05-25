@@ -25,22 +25,6 @@
                         <x-input-error class="mt-2" :messages="$errors->get('harga')" />
                     </div>
 
-                    <div class="grid gap-4 sm:grid-cols-2">
-                        <div>
-                            <x-input-label for="lantai" value="Lantai" />
-                            <x-text-input id="lantai" name="lantai" type="number" min="0" class="mt-1 block w-full" :value="old('lantai', $kamar->lantai)" />
-                        </div>
-                        <div>
-                            <x-input-label for="kapasitas" value="Kapasitas orang" />
-                            <x-text-input id="kapasitas" name="kapasitas" type="number" min="1" class="mt-1 block w-full" :value="old('kapasitas', $kamar->kapasitas ?? 2)" />
-                        </div>
-                    </div>
-
-                    <div>
-                        <x-input-label for="fasilitas" value="Fasilitas" />
-                        <textarea id="fasilitas" name="fasilitas" rows="2" class="mt-1 block w-full rounded-md border-gray-300 text-sm shadow-sm">{{ old('fasilitas', $kamar->fasilitas) }}</textarea>
-                    </div>
-
                     <div>
                         <x-input-label for="status" value="Status" />
                         <select id="status" name="status" class="mt-1 block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">

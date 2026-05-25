@@ -25,12 +25,11 @@ class KamarController extends Controller
     {
         $request->merge(['harga' => str_replace('.', '', $request->harga)]);
         $validated = $request->validate([
-            'nomor_kamar' => ['required', 'string', 'max:50'],
+            'nomor_kamar' => ['required', 'string', 'max:50', 'unique:kamars,nomor_kamar'],
             'harga' => ['required', 'integer', 'min:0'],
-            'lantai' => ['nullable', 'integer', 'min:0', 'max:127'],
-            'kapasitas' => ['nullable', 'integer', 'min:1', 'max:20'],
-            'fasilitas' => ['nullable', 'string', 'max:2000'],
             'status' => ['nullable', 'in:kosong,terisi'],
+        ], [
+            'nomor_kamar.unique' => 'Kamar sudah ada sebelumnya.',
         ]);
 
         $validated['status'] = $validated['status'] ?? 'kosong';
@@ -49,12 +48,11 @@ class KamarController extends Controller
     {
         $request->merge(['harga' => str_replace('.', '', $request->harga)]);
         $validated = $request->validate([
-            'nomor_kamar' => ['required', 'string', 'max:50'],
+            'nomor_kamar' => ['required', 'string', 'max:50', 'unique:kamars,nomor_kamar,' . $kamar->id],
             'harga' => ['required', 'integer', 'min:0'],
-            'lantai' => ['nullable', 'integer', 'min:0', 'max:127'],
-            'kapasitas' => ['nullable', 'integer', 'min:1', 'max:20'],
-            'fasilitas' => ['nullable', 'string', 'max:2000'],
             'status' => ['required', 'in:kosong,terisi'],
+        ], [
+            'nomor_kamar.unique' => 'Kamar sudah ada sebelumnya.',
         ]);
 
         $kamar->update($validated);

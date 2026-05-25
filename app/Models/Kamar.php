@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Kamar extends Model
 {
-    protected $fillable = ['nomor_kamar', 'harga', 'status', 'lantai', 'kapasitas', 'fasilitas'];
+    protected $fillable = ['nomor_kamar', 'harga', 'status'];
    public function penghuni()
 {
     return $this->hasOne(Penghuni::class);

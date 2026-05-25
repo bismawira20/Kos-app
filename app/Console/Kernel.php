@@ -16,27 +16,6 @@ class Kernel extends ConsoleKernel
 
     protected function schedule(Schedule $schedule)
     {
-        $schedule->call(function () {
-
-        file_put_contents(storage_path('logs/test.txt'), "JALAN\n", FILE_APPEND);
-
-            $pembayaran = \App\Models\Pembayaran::where('status', 'belum')->get();
-
-            foreach ($pembayaran as $p) {
-                $penghuni = $p->penghuni;
-
-                if (!$penghuni) continue;
-
-                \Illuminate\Support\Facades\Http::withHeaders([
-                    'Authorization' => env('FONNTE_TOKEN')
-                ])->post('https://api.fonnte.com/send', [
-                    'target' => $penghuni->no_hp,
-                    'message' => "TEST REMINDER 🔥",
-                ]);
-
-                sleep(5);
-            }
-
-        })->cron('* * * * *');
+        // No scheduled tasks
     }
 }
