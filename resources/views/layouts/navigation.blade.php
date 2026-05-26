@@ -2,31 +2,30 @@
     $isAdmin = Auth::user()->role === 'admin';
     $home = $isAdmin ? route('dashboard') : route('dashboard.penghuni');
 
-    // Dynamically identify the page title based on the active route
+    // Dynamically identify the page title based on the active route to match sidebar menus
     $pageTitle = 'E-PayKos';
     if (request()->routeIs('dashboard') || request()->routeIs('dashboard.penghuni')) {
         $pageTitle = 'Dashboard';
     } elseif (request()->routeIs('akun-penghuni.*')) {
-        $pageTitle = 'Akun Penghuni';
-    } elseif (request()->routeIs('penghuni.*')) {
-        $pageTitle = 'Data Penghuni';
+        $pageTitle = 'Akun';
     } elseif (request()->routeIs('kamar.*')) {
-        $pageTitle = 'Data Kamar';
+        $pageTitle = 'Kamar';
     } elseif (request()->routeIs('tagihan.*')) {
         $pageTitle = 'Tagihan';
     } elseif (request()->routeIs('pembayaran.*')) {
         $pageTitle = 'Pembayaran';
     } elseif (request()->routeIs('laporan.*')) {
-        $pageTitle = 'Laporan Keuangan';
-
+        $pageTitle = 'Laporan';
     } elseif (request()->routeIs('kendala.*') || request()->routeIs('penghuni.kendala.*')) {
-        $pageTitle = 'Laporan Kendala';
+        $pageTitle = 'Kendala';
     } elseif (request()->routeIs('penghuni.tagihan.*')) {
-        $pageTitle = 'Tagihan & Pembayaran';
+        $pageTitle = 'Tagihan & pembayaran';
     } elseif (request()->routeIs('penghuni.riwayat')) {
         $pageTitle = 'Riwayat';
+    } elseif (request()->routeIs('penghuni.*')) {
+        $pageTitle = 'Penghuni';
     } elseif (request()->routeIs('profile.*')) {
-        $pageTitle = 'Profil Saya';
+        $pageTitle = 'Profil';
     }
 @endphp
 

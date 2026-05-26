@@ -15,13 +15,8 @@ class Pembayaran extends Model
         'jumlah',
         'tanggal_bayar',
         'status',
-        'last_reminder_date',
         'bukti',
         'admin_komentar',
-    ];
-
-    protected $casts = [
-        'last_reminder_date' => 'date',
     ];
 
     public function penghuni()

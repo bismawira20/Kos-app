@@ -34,7 +34,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::resource('kamar', KamarController::class)->except(['show']);
-    Route::resource('penghuni', PenghuniController::class)->except(['show', 'edit', 'update']);
+    Route::resource('penghuni', PenghuniController::class)->except(['show']);
     // Admin pengelolaan akun penghuni (only users with role 'penghuni')
     Route::get('/akun-penghuni', [App\Http\Controllers\AdminPenghuniAccountController::class, 'index'])->name('akun-penghuni.index');
     Route::get('/akun-penghuni/create', [App\Http\Controllers\AdminPenghuniAccountController::class, 'create'])->name('akun-penghuni.create');
