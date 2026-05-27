@@ -14,6 +14,7 @@
                         <th class="px-4 py-3 text-center font-semibold text-slate-700">Periode</th>
                         <th class="px-4 py-3 text-center font-semibold text-slate-700">Jumlah</th>
                         <th class="px-4 py-3 text-center font-semibold text-slate-700">Status</th>
+                        <th class="px-4 py-3 text-center font-semibold text-slate-700">Catatan</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
@@ -37,9 +38,10 @@
                                     </span>
                                 @endif
                             </td>
+                            <td class="px-4 py-3 text-center text-xs text-slate-600 max-w-[180px] truncate" title="{{ $p->admin_komentar }}">{{ $p->admin_komentar ?? '—' }}</td>
                         </tr>
                     @empty
-                        <tr><td colspan="4" class="px-4 py-8 text-center text-slate-500">Belum ada riwayat.</td></tr>
+                        <tr><td colspan="5" class="px-4 py-8 text-center text-slate-500">Belum ada riwayat.</td></tr>
                     @endforelse
                 </tbody>
             </table>
