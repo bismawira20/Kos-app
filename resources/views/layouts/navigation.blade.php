@@ -7,23 +7,25 @@
     if (request()->routeIs('dashboard') || request()->routeIs('dashboard.penghuni')) {
         $pageTitle = 'Dashboard';
     } elseif (request()->routeIs('akun-penghuni.*')) {
-        $pageTitle = 'Akun';
+        $pageTitle = 'Kelola Akun';
     } elseif (request()->routeIs('kamar.*')) {
-        $pageTitle = 'Kamar';
+        $pageTitle = 'Kelola Kamar';
+    } elseif (request()->routeIs('tipe-kamar.*')) {
+        $pageTitle = 'Harga Kamar';
     } elseif (request()->routeIs('tagihan.*')) {
-        $pageTitle = 'Tagihan';
+        $pageTitle = 'Kelola Tagihan';
     } elseif (request()->routeIs('pembayaran.*')) {
-        $pageTitle = 'Pembayaran';
+        $pageTitle = 'Kelola Pembayaran';
     } elseif (request()->routeIs('laporan.*')) {
-        $pageTitle = 'Laporan';
+        $pageTitle = 'Laporan Keuangan';
     } elseif (request()->routeIs('kendala.*') || request()->routeIs('penghuni.kendala.*')) {
-        $pageTitle = 'Kendala';
+        $pageTitle = 'Laporan Kendala';
     } elseif (request()->routeIs('penghuni.tagihan.*')) {
         $pageTitle = 'Tagihan & pembayaran';
     } elseif (request()->routeIs('penghuni.riwayat')) {
         $pageTitle = 'Riwayat';
     } elseif (request()->routeIs('penghuni.*')) {
-        $pageTitle = 'Penghuni';
+        $pageTitle = 'Kelola Penghuni';
     } elseif (request()->routeIs('profile.*')) {
         $pageTitle = 'Profil';
     }

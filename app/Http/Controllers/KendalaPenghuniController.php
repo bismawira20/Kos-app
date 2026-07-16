@@ -14,6 +14,8 @@ class KendalaPenghuniController extends Controller
 {
     public function index(): View
     {
+        KendalaLaporan::autoResolveOverdue();
+
         $penghuni = Auth::user()->penghuni;
         if (! $penghuni) {
             return view('penghuni.kendala.index', ['penghuni' => null, 'laporan' => collect()]);
@@ -22,6 +24,39 @@ class KendalaPenghuniController extends Controller
         $laporan = KendalaLaporan::where('penghuni_id', $penghuni->id)->orderByDesc('created_at')->get();
 
         return view('penghuni.kendala.index', compact('penghuni', 'laporan'));
+    }
+
+    public function konfirmasiSelesai(int $id): RedirectResponse
+    {
+        $kendala = KendalaLaporan::findOrFail($id);
+        $penghuni = Auth::user()->penghuni;
+        abort_unless($penghuni && $kendala->penghuni_id === $penghuni->id, 403);
+        abort_unless($kendala->status === 'diperbaiki', 403);
+
+        $kendala->update([
+            'status' => 'selesai',
+        ]);
+
+        return redirect()->route('penghuni.kendala.index')->with('status', 'Kendala ditandai telah selesai.');
+    }
+
+    public function laporkanUlang(Request $request, int $id): RedirectResponse
+    {
+        $kendala = KendalaLaporan::findOrFail($id);
+        $penghuni = Auth::user()->penghuni;
+        abort_unless($penghuni && $kendala->penghuni_id === $penghuni->id, 403);
+        abort_unless($kendala->status === 'diperbaiki', 403);
+
+        $validated = $request->validate([
+            'feedback_penghuni' => ['required', 'string', 'max:1000'],
+        ]);
+
+        $kendala->update([
+            'status' => 'proses', // Send it back to Sedang Dikerjakan status
+            'feedback_penghuni' => $validated['feedback_penghuni'],
+        ]);
+
+        return redirect()->route('penghuni.kendala.index')->with('status', 'Umpan balik perbaikan berhasil dikirim.');
     }
 
     public function create(): View

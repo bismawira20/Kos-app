@@ -13,6 +13,8 @@ class KendalaLaporanController extends Controller
 {
     public function index(Request $request): View
     {
+        KendalaLaporan::autoResolveOverdue();
+
         $status = $request->get('status');
 
         $q = KendalaLaporan::with('penghuni.kamar')->orderByDesc('created_at');
@@ -28,6 +30,8 @@ class KendalaLaporanController extends Controller
 
     public function export(Request $request): StreamedResponse
     {
+        KendalaLaporan::autoResolveOverdue();
+
         $status = $request->get('status');
 
         $q = KendalaLaporan::with('penghuni.kamar')->orderByDesc('created_at');
@@ -62,9 +66,10 @@ class KendalaLaporanController extends Controller
 
     public function setujuiSemua(): RedirectResponse
     {
-        $updated = KendalaLaporan::where('status', 'menunggu')->update([
+        $updated = KendalaLaporan::whereIn('status', ['menunggu', 'proses'])->update([
             'status' => 'selesai',
             'ditinjau_at' => now(),
+            'diperbaiki_at' => now(),
             'alasan_tolak' => null,
         ]);
 
@@ -73,10 +78,42 @@ class KendalaLaporanController extends Controller
             : 'Tidak ada laporan yang statusnya diproses.');
     }
 
+    public function kerjakan(int $id): RedirectResponse
+    {
+        $kendala = KendalaLaporan::findOrFail($id);
+        abort_unless(in_array($kendala->status, ['menunggu']), 403);
+
+        $kendala->update([
+            'status' => 'proses',
+            'ditinjau_at' => now(),
+        ]);
+
+        return back()->with('status', 'Laporan kendala mulai dikerjakan.');
+    }
+
+    public function diperbaiki(Request $request, int $id): RedirectResponse
+    {
+        $kendala = KendalaLaporan::findOrFail($id);
+        abort_unless(in_array($kendala->status, ['menunggu', 'proses']), 403);
+
+        $validated = $request->validate([
+            'catatan_admin' => ['nullable', 'string', 'max:1000'],
+        ]);
+
+        $kendala->update([
+            'status' => 'diperbaiki',
+            'catatan_admin' => $validated['catatan_admin'] ?? null,
+            'diperbaiki_at' => now(),
+            'alasan_tolak' => null,
+        ]);
+
+        return back()->with('status', 'Laporan ditandai sudah diperbaiki. Menunggu verifikasi penghuni.');
+    }
+
     public function setujui(Request $request, int $id): RedirectResponse
     {
         $kendala = KendalaLaporan::findOrFail($id);
-        abort_unless($kendala->status === 'menunggu', 403);
+        abort_unless(in_array($kendala->status, ['menunggu', 'proses']), 403);
 
         $validated = $request->validate([
             'catatan_admin' => ['nullable', 'string', 'max:1000'],
@@ -86,16 +123,17 @@ class KendalaLaporanController extends Controller
             'status' => 'selesai',
             'catatan_admin' => $validated['catatan_admin'] ?? null,
             'ditinjau_at' => now(),
+            'diperbaiki_at' => now(),
             'alasan_tolak' => null,
         ]);
 
-        return back()->with('status', 'Laporan ditandai sudah diperbaiki.');
+        return back()->with('status', 'Laporan disetujui langsung.');
     }
 
     public function tolak(Request $request, int $id): RedirectResponse
     {
         $kendala = KendalaLaporan::findOrFail($id);
-        abort_unless($kendala->status === 'menunggu', 403);
+        abort_unless(in_array($kendala->status, ['menunggu', 'proses']), 403);
 
         $validated = $request->validate([
             'alasan_tolak' => ['required', 'string', 'max:1000'],
@@ -113,8 +151,10 @@ class KendalaLaporanController extends Controller
     private function statusLabel(string $status): string
     {
         return match ($status) {
-            'menunggu' => 'Diproses',
-            'selesai' => 'Disetujui',
+            'menunggu' => 'Menunggu',
+            'proses' => 'Sedang Dikerjakan',
+            'diperbaiki' => 'Sudah Diperbaiki',
+            'selesai' => 'Selesai',
             'ditolak' => 'Ditolak',
             default => $status,
         };

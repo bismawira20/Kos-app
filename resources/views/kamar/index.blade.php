@@ -21,6 +21,7 @@
                         <tr class="border-b border-slate-200 bg-slate-50">
                             <th class="px-6 py-4 text-center font-semibold text-slate-700">No</th>
                             <th class="px-6 py-4 text-center font-semibold text-slate-700">Nomor Kamar</th>
+                            <th class="px-6 py-4 text-center font-semibold text-slate-700">Tipe Kamar</th>
                             <th class="px-6 py-4 text-center font-semibold text-slate-700">Harga / Bulan</th>
                             <th class="px-6 py-4 text-center font-semibold text-slate-700">Status</th>
                             <th class="px-6 py-4 text-center font-semibold text-slate-700">Aksi</th>
@@ -31,6 +32,11 @@
                             <tr class="border-b border-slate-200 transition hover:bg-slate-50">
                                 <td class="px-6 py-4 text-center text-slate-600">{{ $loop->iteration }}</td>
                                 <td class="px-6 py-4 text-center font-semibold text-slate-900">{{ $k->nomor_kamar }}</td>
+                                <td class="px-6 py-4 text-center">
+                                    <span class="inline-flex rounded-lg bg-slate-50 border border-slate-200 px-2.5 py-1 text-xs font-semibold text-slate-700">
+                                        {{ $k->tipeKamar?->nama ?? '—' }}
+                                    </span>
+                                </td>
                                 <td class="px-6 py-4 text-center font-medium text-slate-700">Rp {{ number_format($k->harga, 0, ',', '.') }}</td>
                                 <td class="px-6 py-4 text-center">
                                     <span class="inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold
@@ -76,7 +82,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="px-6 py-12 text-center text-slate-500">Belum ada data kamar.</td>
+                                <td colspan="6" class="px-6 py-12 text-center text-slate-500">Belum ada data kamar.</td>
                             </tr>
                         @endforelse
                     </tbody>

@@ -3,6 +3,7 @@
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DashboardPenghuniController;
 use App\Http\Controllers\KamarController;
+use App\Http\Controllers\TipeKamarController;
 use App\Http\Controllers\KendalaLaporanController;
 use App\Http\Controllers\KendalaPenghuniController;
 use App\Http\Controllers\LaporanController;
@@ -34,6 +35,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::resource('kamar', KamarController::class)->except(['show']);
+    Route::resource('tipe-kamar', TipeKamarController::class)->only(['index', 'edit', 'update']);
     Route::resource('penghuni', PenghuniController::class)->except(['show']);
     // Admin pengelolaan akun penghuni (only users with role 'penghuni')
     Route::get('/akun-penghuni', [App\Http\Controllers\AdminPenghuniAccountController::class, 'index'])->name('akun-penghuni.index');
@@ -59,6 +61,8 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::post('/laporan-kendala/setujui-semua', [KendalaLaporanController::class, 'setujuiSemua'])->name('kendala.setujui-semua');
     Route::post('/laporan-kendala/{id}/setujui', [KendalaLaporanController::class, 'setujui'])->name('kendala.setujui');
     Route::post('/laporan-kendala/{id}/tolak', [KendalaLaporanController::class, 'tolak'])->name('kendala.tolak');
+    Route::post('/laporan-kendala/{id}/kerjakan', [KendalaLaporanController::class, 'kerjakan'])->name('kendala.kerjakan');
+    Route::post('/laporan-kendala/{id}/diperbaiki', [KendalaLaporanController::class, 'diperbaiki'])->name('kendala.diperbaiki');
 });
 
 Route::middleware(['auth', 'role:penghuni'])->group(function () {
@@ -80,6 +84,8 @@ Route::middleware(['auth', 'role:penghuni'])->group(function () {
     Route::get('/penghuni/kendala/{kendala}/edit', [KendalaPenghuniController::class, 'edit'])->name('penghuni.kendala.edit');
     Route::put('/penghuni/kendala/{kendala}', [KendalaPenghuniController::class, 'update'])->name('penghuni.kendala.update');
     Route::delete('/penghuni/kendala/{kendala}', [KendalaPenghuniController::class, 'destroy'])->name('penghuni.kendala.destroy');
+    Route::post('/penghuni/kendala/{id}/konfirmasi', [KendalaPenghuniController::class, 'konfirmasiSelesai'])->name('penghuni.kendala.konfirmasi');
+    Route::post('/penghuni/kendala/{id}/lapor-ulang', [KendalaPenghuniController::class, 'laporkanUlang'])->name('penghuni.kendala.lapor-ulang');
 });
 
 Route::middleware('auth')->group(function () {

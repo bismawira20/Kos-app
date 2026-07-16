@@ -13,8 +13,10 @@
                 <label for="status" class="mb-1 block text-xs font-medium text-slate-600">Status</label>
                 <select id="status" name="status" class="min-w-[180px] rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
                     <option value="">Semua</option>
-                    <option value="menunggu" @selected(($filterStatus ?? '') === 'menunggu')>Diproses</option>
-                    <option value="selesai" @selected(($filterStatus ?? '') === 'selesai')>Disetujui</option>
+                    <option value="menunggu" @selected(($filterStatus ?? '') === 'menunggu')>Menunggu</option>
+                    <option value="proses" @selected(($filterStatus ?? '') === 'proses')>Sedang Dikerjakan</option>
+                    <option value="diperbaiki" @selected(($filterStatus ?? '') === 'diperbaiki')>Sudah Diperbaiki</option>
+                    <option value="selesai" @selected(($filterStatus ?? '') === 'selesai')>Selesai</option>
                     <option value="ditolak" @selected(($filterStatus ?? '') === 'ditolak')>Ditolak</option>
                 </select>
             </div>
@@ -40,8 +42,10 @@
                     @forelse ($laporan as $k)
                         @php
                             $badge = match ($k->status) {
-                                'menunggu' => ['bg-amber-50 text-amber-800 border border-amber-200', 'Diproses'],
-                                'selesai' => ['bg-emerald-50 text-emerald-800 border border-emerald-200', 'Disetujui'],
+                                'menunggu' => ['bg-amber-50 text-amber-800 border border-amber-200', 'Menunggu'],
+                                'proses' => ['bg-blue-50 text-blue-800 border border-blue-200', 'Sedang Dikerjakan'],
+                                'diperbaiki' => ['bg-indigo-50 text-indigo-800 border border-indigo-200', 'Sudah Diperbaiki'],
+                                'selesai' => ['bg-emerald-50 text-emerald-800 border border-emerald-200', 'Selesai'],
                                 'ditolak' => ['bg-rose-50 text-rose-800 border border-rose-200', 'Ditolak'],
                                 default => ['bg-slate-50 text-slate-800 border border-slate-200', $k->status],
                             };
@@ -54,6 +58,11 @@
                                 <span class="line-clamp-2" title="{{ $k->deskripsi }}">{{ \Illuminate\Support\Str::limit($k->deskripsi, 100) }}</span>
                                 @if ($k->penghuni?->kamar)
                                     <span class="mt-0.5 block text-xs text-slate-500 font-semibold">Kamar {{ $k->penghuni->kamar->nomor_kamar }}</span>
+                                @endif
+                                @if ($k->feedback_penghuni)
+                                    <div class="mt-1 text-xs text-rose-600 bg-rose-50 border border-rose-100 rounded-lg p-2 text-left">
+                                        <strong>Feedback Penghuni:</strong> {{ $k->feedback_penghuni }}
+                                    </div>
                                 @endif
                             </td>
                             <td class="px-3 py-3 text-center">
@@ -79,31 +88,61 @@
                             <td class="whitespace-nowrap px-3 py-3 text-center">
                                 <div class="flex items-center justify-center gap-2">
                                     @if ($k->status === 'menunggu')
-                                        <form action="{{ route('kendala.setujui', $k->id) }}" method="POST" class="inline">
+                                        <form action="{{ route('kendala.kerjakan', $k->id) }}" method="POST" class="inline">
                                             @csrf
-                                            <button type="submit" class="inline-flex items-center gap-1.5 rounded-lg bg-emerald-100 px-3 py-1.5 text-sm font-medium text-emerald-700 transition hover:bg-emerald-200 active:scale-95">
-                                                Setujui
+                                            <button type="submit" class="inline-flex items-center gap-1.5 rounded-lg bg-blue-100 px-3 py-1.5 text-sm font-medium text-blue-700 transition hover:bg-blue-200 active:scale-95">
+                                                Kerjakan
                                             </button>
                                         </form>
+
                                         <button type="button" class="inline-flex items-center gap-1.5 rounded-lg bg-rose-100 px-3 py-1.5 text-sm font-medium text-rose-700 transition hover:bg-rose-200 active:scale-95" onclick="document.getElementById('tolak-{{ $k->id }}').showModal()">
                                             Tolak
                                         </button>
+                                    @elseif ($k->status === 'proses')
+                                        <button type="button" class="inline-flex items-center gap-1.5 rounded-lg bg-indigo-100 px-3 py-1.5 text-sm font-medium text-indigo-700 transition hover:bg-indigo-200 active:scale-95" onclick="document.getElementById('diperbaiki-{{ $k->id }}').showModal()">
+                                            Selesai Perbaikan
+                                        </button>
 
-                                        <dialog id="tolak-{{ $k->id }}" class="w-full max-w-md rounded-xl p-0 shadow-2xl backdrop:bg-slate-900/40 text-left">
-                                            <form method="POST" action="{{ route('kendala.tolak', $k->id) }}" class="p-6">
-                                                @csrf
-                                                <h3 class="text-lg font-semibold text-slate-900">Tolak laporan</h3>
-                                                <p class="mt-1 text-sm text-slate-500">Berikan alasan penolakan kepada penghuni.</p>
-                                                <textarea name="alasan_tolak" rows="4" class="mt-3 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" required placeholder="Alasan penolakan"></textarea>
-                                                <div class="mt-4 flex justify-end gap-2">
-                                                    <button type="button" onclick="document.getElementById('tolak-{{ $k->id }}').close()" class="rounded-lg border border-slate-300 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">Batal</button>
-                                                    <button type="submit" class="rounded-lg bg-rose-600 px-4 py-2 text-sm font-medium text-white hover:bg-rose-700">Kirim</button>
-                                                </div>
-                                            </form>
-                                        </dialog>
+                                        <button type="button" class="inline-flex items-center gap-1.5 rounded-lg bg-rose-100 px-3 py-1.5 text-sm font-medium text-rose-700 transition hover:bg-rose-200 active:scale-95" onclick="document.getElementById('tolak-{{ $k->id }}').showModal()">
+                                            Tolak
+                                        </button>
+                                    @elseif ($k->status === 'diperbaiki')
+                                        <form action="{{ route('kendala.setujui', $k->id) }}" method="POST" class="inline">
+                                            @csrf
+                                            <button type="submit" class="inline-flex items-center gap-1.5 rounded-lg bg-emerald-100 px-3 py-1.5 text-sm font-medium text-emerald-700 transition hover:bg-emerald-200 active:scale-95" title="Selesaikan langsung tanpa menunggu verifikasi penghuni">
+                                                Setujui Langsung
+                                            </button>
+                                        </form>
                                     @else
                                         <span class="text-xs text-slate-400">—</span>
                                     @endif
+
+                                    {{-- Modals --}}
+                                    <dialog id="tolak-{{ $k->id }}" class="w-full max-w-md rounded-xl p-0 shadow-2xl backdrop:bg-slate-900/40 text-left">
+                                        <form method="POST" action="{{ route('kendala.tolak', $k->id) }}" class="p-6">
+                                            @csrf
+                                            <h3 class="text-lg font-semibold text-slate-900">Tolak laporan</h3>
+                                            <p class="mt-1 text-sm text-slate-500">Berikan alasan penolakan kepada penghuni.</p>
+                                            <textarea name="alasan_tolak" rows="4" class="mt-3 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500" required placeholder="Alasan penolakan"></textarea>
+                                            <div class="mt-4 flex justify-end gap-2">
+                                                <button type="button" onclick="document.getElementById('tolak-{{ $k->id }}').close()" class="rounded-lg border border-slate-300 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">Batal</button>
+                                                <button type="submit" class="rounded-lg bg-rose-600 px-4 py-2 text-sm font-medium text-white hover:bg-rose-700">Kirim</button>
+                                            </div>
+                                        </form>
+                                    </dialog>
+
+                                    <dialog id="diperbaiki-{{ $k->id }}" class="w-full max-w-md rounded-xl p-0 shadow-2xl backdrop:bg-slate-900/40 text-left">
+                                        <form method="POST" action="{{ route('kendala.diperbaiki', $k->id) }}" class="p-6">
+                                            @csrf
+                                            <h3 class="text-lg font-semibold text-slate-900">Tandai Sudah Diperbaiki</h3>
+                                            <p class="mt-1 text-sm text-slate-500">Berikan catatan pengerjaan atau detail perbaikan untuk penghuni.</p>
+                                            <textarea name="catatan_admin" rows="4" class="mt-3 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="Catatan perbaikan (opsional)"></textarea>
+                                            <div class="mt-4 flex justify-end gap-2">
+                                                <button type="button" onclick="document.getElementById('diperbaiki-{{ $k->id }}').close()" class="rounded-lg border border-slate-300 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">Batal</button>
+                                                <button type="submit" class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">Kirim</button>
+                                            </div>
+                                        </form>
+                                    </dialog>
                                 </div>
                             </td>
                         </tr>

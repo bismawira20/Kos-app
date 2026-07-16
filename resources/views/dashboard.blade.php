@@ -36,15 +36,15 @@
                 <p class="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-600">Total penghuni</p>
                 <div class="mt-4 flex items-end justify-between gap-3">
                     <p class="text-4xl font-semibold tracking-tight text-slate-900">{{ $totalPenghuni }}</p>
-                    <span class="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">{{ $penghuniAktif }} aktif</span>
+                    <span class="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">Orang</span>
                 </div>
             </article>
 
             <article class="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
-                <p class="text-xs font-semibold uppercase tracking-[0.2em] text-violet-600">Penghuni aktif</p>
+                <p class="text-xs font-semibold uppercase tracking-[0.2em] text-violet-600">Laporan Kendala</p>
                 <div class="mt-4 flex items-end justify-between gap-3">
-                    <p class="text-4xl font-semibold tracking-tight text-slate-900">{{ $penghuniAktif }}</p>
-                    <span class="rounded-full bg-violet-50 px-3 py-1 text-xs font-semibold text-violet-700">{{ $penghuniNonaktif }} nonaktif</span>
+                    <p class="text-4xl font-semibold tracking-tight text-slate-900">{{ $jumlahKendala }}</p>
+                    <span class="rounded-full bg-violet-50 px-3 py-1 text-xs font-semibold text-violet-700">Aktif</span>
                 </div>
             </article>
 
@@ -99,21 +99,7 @@
                             <span>Tingkat okupansi</span>
                             <span class="font-semibold text-indigo-700">{{ $occupancy }}%</span>
                         </li>
-                        <li class="flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3">
-                            <span>Penghuni nonaktif</span>
-                            <span class="font-semibold text-slate-900">{{ $penghuniNonaktif }}</span>
-                        </li>
                     </ul>
-                </div>
-
-                <div class="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-                    <div class="flex items-center justify-between">
-                        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Komposisi kamar</p>
-                        <span class="text-xs font-semibold text-indigo-600">{{ $totalKamar }} kamar</span>
-                    </div>
-                    <div class="mt-4 h-48 rounded-2xl bg-slate-50 p-4">
-                        <canvas id="chartOkupansi"></canvas>
-                    </div>
                 </div>
             </div>
         </section>
@@ -141,25 +127,6 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
-                }
-            });
-
-            new Chart(document.getElementById('chartOkupansi'), {
-                type: 'doughnut',
-                data: {
-                    labels: ['Terisi', 'Kosong'],
-                    datasets: [{
-                        data: [{{ $kamarTerisi }}, {{ $kamarKosong }}],
-                        backgroundColor: ['rgba(16, 185, 129, 0.85)', 'rgba(148, 163, 184, 0.6)'],
-                        borderWidth: 0,
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'bottom', labels: { boxWidth: 10 } }
-                    }
                 }
             });
         </script>

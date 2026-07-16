@@ -14,12 +14,25 @@ class KendalaLaporan extends Model
         'status',
         'alasan_tolak',
         'catatan_admin',
+        'feedback_penghuni',
         'ditinjau_at',
+        'diperbaiki_at',
     ];
 
     protected $casts = [
         'ditinjau_at' => 'datetime',
+        'diperbaiki_at' => 'datetime',
     ];
+
+    public static function autoResolveOverdue(): void
+    {
+        self::where('status', 'diperbaiki')
+            ->where('diperbaiki_at', '<=', now()->subDay())
+            ->update([
+                'status' => 'selesai',
+                'updated_at' => now(),
+            ]);
+    }
 
     public function penghuni(): BelongsTo
     {

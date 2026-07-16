@@ -14,36 +14,41 @@
 
 <a href="{{ route('akun-penghuni.index') }}" class="{{ $link(request()->routeIs('akun-penghuni.*')) }}">
     <span>👤</span>
-    <span>Akun</span>
+    <span>Kelola Akun</span>
 </a>
 
 <a href="{{ route('penghuni.index') }}" class="{{ $link(request()->routeIs('penghuni.*')) }}">
     <span>🧍</span>
-    <span>Penghuni</span>
+    <span>Kelola Penghuni</span>
 </a>
 
 <a href="{{ route('kamar.index') }}" class="{{ $link(request()->routeIs('kamar.*')) }}">
     <span>🚪</span>
-    <span>Kamar</span>
+    <span>Kelola Kamar</span>
+</a>
+
+<a href="{{ route('tipe-kamar.index') }}" class="{{ $link(request()->routeIs('tipe-kamar.*')) }}">
+    <span>🏷️</span>
+    <span>Harga Kamar</span>
 </a>
 
 <a href="{{ route('tagihan.index') }}" class="{{ $link(request()->routeIs('tagihan.*')) }}">
     <span>💳</span>
-    <span>Tagihan</span>
+    <span>Kelola Tagihan</span>
 </a>
 
 <a href="{{ route('pembayaran.index') }}" class="{{ $link(request()->routeIs('pembayaran.*')) }}">
     <span>✅</span>
-    <span>Pembayaran</span>
+    <span>Kelola Pembayaran</span>
 </a>
 
 <a href="{{ route('laporan.index') }}" class="{{ $link(request()->routeIs('laporan.*')) }}">
     <span>📊</span>
-    <span>Laporan</span>
+    <span>Laporan Keuangan</span>
 </a>
 
 
 <a href="{{ route('kendala.index') }}" class="{{ $link(request()->routeIs('kendala.*')) }}">
     <span>⚠️</span>
-    <span>Kendala</span>
+    <span>Laporan Kendala</span>
 </a>

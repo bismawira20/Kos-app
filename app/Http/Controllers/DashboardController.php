@@ -51,6 +51,8 @@ class DashboardController extends Controller
             ->orderBy('hari')
             ->pluck('total', 'hari');
 
+        $jumlahKendala = \App\Models\KendalaLaporan::whereNotIn('status', ['selesai', 'ditolak'])->count();
+
         $namaBulan = [
             1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
             5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
@@ -62,8 +64,7 @@ class DashboardController extends Controller
             'kamarKosong',
             'totalPenghuni',
             'kamarTerisi',
-            'penghuniAktif',
-            'penghuniNonaktif',
+            'jumlahKendala',
             'menungguVerifikasi',
             'pemasukanBulanIni',
             'tagihanBelumLunasBulanIni',

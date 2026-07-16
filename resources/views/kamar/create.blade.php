@@ -16,6 +16,17 @@
                     </div>
 
                     <div>
+                        <x-input-label for="tipe_kamar_id" value="Tipe Kamar" />
+                        <select id="tipe_kamar_id" name="tipe_kamar_id" class="mt-1 block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required onchange="updatePriceFromType()">
+                            <option value="">Pilih Tipe Kamar</option>
+                            @foreach ($tipeKamar as $tk)
+                                <option value="{{ $tk->id }}" @selected(old('tipe_kamar_id') == $tk->id)>{{ $tk->nama }} (Standar: Rp {{ number_format($tk->harga, 0, ',', '.') }})</option>
+                            @endforeach
+                        </select>
+                        <x-input-error class="mt-2" :messages="$errors->get('tipe_kamar_id')" />
+                    </div>
+
+                    <div>
                         <x-input-label for="harga" value="Harga per bulan (Rp)" />
                         <x-text-input id="harga" name="harga" type="text" class="mt-1 block w-full" 
                             :value="old('harga') ? number_format((int)str_replace('.', '', old('harga')), 0, ',', '.') : ''" 
@@ -41,4 +52,21 @@
             </div>
         </div>
     </div>
+
+    @push('scripts')
+        <script>
+            const typePrices = @json($tipeKamar->pluck('harga', 'id'));
+
+            function updatePriceFromType() {
+                const select = document.getElementById('tipe_kamar_id');
+                const priceInput = document.getElementById('harga');
+                const selectedId = select.value;
+
+                if (selectedId && typePrices[selectedId]) {
+                    const price = typePrices[selectedId];
+                    priceInput.value = price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+                }
+            }
+        </script>
+    @endpush
 </x-app-layout>

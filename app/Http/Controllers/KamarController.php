@@ -11,14 +11,15 @@ class KamarController extends Controller
 {
     public function index(): View
     {
-        $kamar = Kamar::orderBy('nomor_kamar')->get();
+        $kamar = Kamar::with('tipeKamar')->orderBy('nomor_kamar')->get();
 
         return view('kamar.index', compact('kamar'));
     }
 
     public function create(): View
     {
-        return view('kamar.create');
+        $tipeKamar = \App\Models\TipeKamar::orderBy('nama')->get();
+        return view('kamar.create', compact('tipeKamar'));
     }
 
     public function store(Request $request): RedirectResponse
@@ -26,6 +27,7 @@ class KamarController extends Controller
         $request->merge(['harga' => str_replace('.', '', $request->harga)]);
         $validated = $request->validate([
             'nomor_kamar' => ['required', 'string', 'max:50', 'unique:kamars,nomor_kamar'],
+            'tipe_kamar_id' => ['required', 'exists:tipe_kamars,id'],
             'harga' => ['required', 'integer', 'min:0'],
             'status' => ['nullable', 'in:kosong,terisi'],
         ], [
@@ -41,7 +43,8 @@ class KamarController extends Controller
 
     public function edit(Kamar $kamar): View
     {
-        return view('kamar.edit', compact('kamar'));
+        $tipeKamar = \App\Models\TipeKamar::orderBy('nama')->get();
+        return view('kamar.edit', compact('kamar', 'tipeKamar'));
     }
 
     public function update(Request $request, Kamar $kamar): RedirectResponse
@@ -49,6 +52,7 @@ class KamarController extends Controller
         $request->merge(['harga' => str_replace('.', '', $request->harga)]);
         $validated = $request->validate([
             'nomor_kamar' => ['required', 'string', 'max:50', 'unique:kamars,nomor_kamar,' . $kamar->id],
+            'tipe_kamar_id' => ['required', 'exists:tipe_kamars,id'],
             'harga' => ['required', 'integer', 'min:0'],
             'status' => ['required', 'in:kosong,terisi'],
         ], [
