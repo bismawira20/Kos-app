@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Tagihan;
+use App\Models\Kontrak;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
@@ -10,8 +11,10 @@ class DashboardPenghuniController extends Controller
 {
     public function index(): View
     {
+        Kontrak::autoTransition();
+        Tagihan::checkTolerance();
         $user = Auth::user();
-        $user->load('penghuni.kamar');
+        $user->load(['penghuni.kamar.tipeKamar', 'penghuni.kontraks']);
         $penghuni = $user->penghuni;
 
         if (! $penghuni) {
@@ -26,15 +29,17 @@ class DashboardPenghuniController extends Controller
         $tagihanBulanIni = Tagihan::where('penghuni_id', $penghuni->id)
             ->where('tahun', $now->year)
             ->where('bulan', $now->month)
+            ->where('status', '!=', 'menunggu_generate')
             ->first();
 
         $tagihanTerbaru = Tagihan::where('penghuni_id', $penghuni->id)
+            ->where('status', '!=', 'menunggu_generate')
             ->orderByDesc('tahun')
             ->orderByDesc('bulan')
             ->first();
 
         $tunggakan = Tagihan::where('penghuni_id', $penghuni->id)
-            ->whereIn('status', ['belum_bayar', 'menunggu'])
+            ->whereIn('status', ['belum_bayar', 'melewati_batas_toleransi', 'menunggu'])
             ->where('jatuh_tempo', '<', $now->toDateString())
             ->count();
 

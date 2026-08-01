@@ -16,7 +16,7 @@ class ProfileUpdateRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
+        $rules = [
             'name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/'],
             'email' => [
                 'required',
@@ -28,6 +28,12 @@ class ProfileUpdateRequest extends FormRequest
                 'regex:/^[a-zA-Z0-9._%+-]+@gmail\.com$/i',
             ],
         ];
+
+        if ($this->user()->penghuni) {
+            $rules['no_hp'] = ['required', 'string', 'digits_between:10,13'];
+        }
+
+        return $rules;
     }
 
     /**
@@ -40,6 +46,8 @@ class ProfileUpdateRequest extends FormRequest
         return [
             'name.regex' => 'Nama hanya boleh berisi huruf dan spasi.',
             'email.regex' => 'Email harus menggunakan domain @gmail.com.',
+            'no_hp.required' => 'Nomor HP wajib diisi.',
+            'no_hp.digits_between' => 'Nomor HP harus berupa angka dengan panjang antara 10 hingga 13 digit.',
         ];
     }
 }

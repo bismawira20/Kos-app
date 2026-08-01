@@ -5,10 +5,16 @@
                 <h2 class="text-2xl font-bold text-slate-900">Data Kamar</h2>
                 <p class="mt-1 text-sm text-slate-600">Kelola informasi nomor kamar, harga, dan ketersediaan kamar</p>
             </div>
-            <a href="{{ route('kamar.create') }}" class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2.5 font-semibold text-white shadow hover:bg-indigo-700 transition active:scale-95">
-                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                <span>Tambah Kamar</span>
-            </a>
+            <div class="flex items-center gap-3">
+                <a href="{{ route('tipe-kamar.index') }}" class="inline-flex items-center gap-2 rounded-lg bg-white border border-slate-300 px-4 py-2.5 font-semibold text-slate-700 shadow hover:bg-slate-50 transition active:scale-95">
+                    <span>🏷️</span>
+                    <span>Harga Kamar</span>
+                </a>
+                <a href="{{ route('kamar.create') }}" class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2.5 font-semibold text-white shadow hover:bg-indigo-700 transition active:scale-95">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    <span>Tambah Kamar</span>
+                </a>
+            </div>
         </div>
     </x-slot>
 
@@ -40,7 +46,7 @@
                                 <td class="px-6 py-4 text-center font-medium text-slate-700">Rp {{ number_format($k->harga, 0, ',', '.') }}</td>
                                 <td class="px-6 py-4 text-center">
                                     <span class="inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold
-                                        {{ $k->status === 'kosong' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-slate-100 text-slate-800 border border-slate-200' }}">
+                                        {{ $k->status === 'kosong' ? 'bg-rose-50 text-rose-800 border border-rose-200' : 'bg-emerald-50 text-emerald-800 border border-emerald-200' }}">
                                         {{ $k->status === 'kosong' ? 'Kosong' : 'Terisi' }}
                                     </span>
                                 </td>

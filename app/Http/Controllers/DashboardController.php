@@ -6,6 +6,7 @@ use App\Models\Kamar;
 use App\Models\Pembayaran;
 use App\Models\Penghuni;
 use App\Models\Tagihan;
+use App\Models\Kontrak;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -13,6 +14,8 @@ class DashboardController extends Controller
 {
     public function index(Request $request): View
     {
+        Kontrak::autoTransition();
+        Tagihan::checkTolerance();
         $bulan = (int) ($request->bulan ?? date('n'));
         $tahun = (int) ($request->tahun ?? date('Y'));
 
@@ -38,7 +41,7 @@ class DashboardController extends Controller
 
         $tagihanBelumLunasBulanIni = Tagihan::where('tahun', $tahun)
             ->where('bulan', $bulan)
-            ->whereIn('status', ['belum_bayar', 'menunggu'])
+            ->whereIn('status', ['belum_bayar', 'melewati_batas_toleransi', 'menunggu'])
             ->count();
 
         $occupancy = $totalKamar > 0 ? round(($kamarTerisi / $totalKamar) * 100) : 0;

@@ -23,24 +23,37 @@
                     </div>
 
                     <hr class="border-gray-100 my-4">
-                    <h3 class="text-sm font-semibold text-gray-800 mb-3">Data Wali (Opsional)</h3>
+                    <h3 class="text-sm font-semibold text-gray-800 mb-3">Kontak Darurat (Opsional)</h3>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <x-input-label for="nama_wali" value="Nama Wali" />
-                            <x-text-input id="nama_wali" name="nama_wali" type="text" class="mt-1 block w-full" :value="old('nama_wali', $penghuni->nama_wali)" placeholder="Nama orang tua / wali" pattern="^[a-zA-Z\s]+$" title="Nama hanya boleh berisi huruf dan spasi" />
+                            <x-input-label for="nama_wali" value="Nama Kontak Darurat" />
+                            <x-text-input id="nama_wali" name="nama_wali" type="text" class="mt-1 block w-full" :value="old('nama_wali', $penghuni->nama_wali)" placeholder="Nama kontak darurat" pattern="^[a-zA-Z\s]+$" title="Nama hanya boleh berisi huruf dan spasi" />
                             <x-input-error class="mt-2" :messages="$errors->get('nama_wali')" />
                         </div>
                         <div>
-                            <x-input-label for="no_hp_wali" value="No. HP Wali" />
+                            <x-input-label for="no_hp_wali" value="No. HP Kontak Darurat" />
                             <x-text-input id="no_hp_wali" name="no_hp_wali" type="text" class="mt-1 block w-full" :value="old('no_hp_wali', $penghuni->no_hp_wali)" placeholder="62812..." pattern="^[0-9]{10,13}$" minlength="10" maxlength="13" title="Nomor HP harus berupa angka dengan panjang 10 hingga 13 digit" />
                             <x-input-error class="mt-2" :messages="$errors->get('no_hp_wali')" />
                         </div>
                     </div>
 
-                    <div>
-                        <x-input-label for="alamat_wali" value="Alamat Asal / Wali" />
-                        <textarea id="alamat_wali" name="alamat_wali" rows="2" class="mt-1 block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="Alamat domisili wali">{{ old('alamat_wali', $penghuni->alamat_wali) }}</textarea>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+                        <div>
+                            <x-input-label for="hubungan" value="Hubungan" />
+                            <select id="hubungan" name="hubungan" class="mt-1 block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                <option value="">-- Pilih Hubungan --</option>
+                                @foreach (['Ayah', 'Ibu', 'Saudara', 'Suami', 'Istri', 'Teman', 'Lainnya'] as $rel)
+                                    <option value="{{ $rel }}" @selected(old('hubungan', $penghuni->hubungan) === $rel)>{{ $rel }}</option>
+                                @endforeach
+                            </select>
+                            <x-input-error class="mt-2" :messages="$errors->get('hubungan')" />
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <x-input-label for="alamat_wali" value="Alamat Lengkap Kontak Darurat" />
+                        <textarea id="alamat_wali" name="alamat_wali" rows="2" class="mt-1 block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="Alamat domisili kontak darurat">{{ old('alamat_wali', $penghuni->alamat_wali) }}</textarea>
                         <x-input-error class="mt-2" :messages="$errors->get('alamat_wali')" />
                     </div>
 
@@ -61,8 +74,22 @@
 
                         <div>
                             <x-input-label for="tanggal_masuk" value="Tanggal Masuk Kos" />
-                            <x-text-input id="tanggal_masuk" name="tanggal_masuk" type="date" class="mt-1 block w-full" :value="old('tanggal_masuk', $penghuni->tanggal_masuk)" />
+                            <x-text-input id="tanggal_masuk" name="tanggal_masuk" type="date" class="mt-1 block w-full" :value="old('tanggal_masuk', $penghuni->tanggal_masuk)" required />
                             <x-input-error class="mt-2" :messages="$errors->get('tanggal_masuk')" />
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <x-input-label for="durasi_kontrak" value="Durasi Kontrak (Bulan)" />
+                            <x-text-input id="durasi_kontrak" name="durasi_kontrak" type="number" min="1" max="120" class="mt-1 block w-full" :value="old('durasi_kontrak', $penghuni->durasi_kontrak)" required />
+                            <x-input-error class="mt-2" :messages="$errors->get('durasi_kontrak')" />
+                        </div>
+
+                        <div>
+                            <x-input-label for="hari_toleransi" value="Batas Toleransi Pembayaran (Hari)" />
+                            <x-text-input id="hari_toleransi" name="hari_toleransi" type="number" min="0" max="120" class="mt-1 block w-full" :value="old('hari_toleransi', $penghuni->kontraks()->where('status', 'aktif')->first()?->hari_toleransi ?? 21)" required />
+                            <x-input-error class="mt-2" :messages="$errors->get('hari_toleransi')" />
                         </div>
                     </div>
 
@@ -80,8 +107,8 @@
                         <x-input-error class="mt-2" :messages="$errors->get('user_id')" />
                     </div>
 
-                    <div class="flex items-center gap-3">
-                        <x-primary-button>Perbarui</x-primary-button>
+                <div class="flex items-center gap-3">
+                    <x-primary-button>Perbarui</x-primary-button>
                         <a href="{{ route('penghuni.index') }}" class="text-sm text-gray-600 hover:text-gray-900">Batal</a>
                     </div>
                 </form>

@@ -27,13 +27,20 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        $request->user()->fill($request->validated());
+        $request->user()->fill($request->safe()->only(['name', 'email']));
 
         if ($request->user()->isDirty('email')) {
             $request->user()->email_verified_at = null;
         }
 
         $request->user()->save();
+
+        if ($request->user()->penghuni) {
+            $request->user()->penghuni->update([
+                'nama' => $request->input('name'),
+                'no_hp' => $request->input('no_hp'),
+            ]);
+        }
 
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }
@@ -53,9 +60,10 @@ class ProfileController extends Controller
             'nama_wali' => ['nullable', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/'],
             'no_hp_wali' => ['nullable', 'string', 'digits_between:10,13'],
             'alamat_wali' => ['nullable', 'string'],
+            'hubungan' => ['nullable', 'string', 'in:Ayah,Ibu,Saudara,Suami,Istri,Teman,Lainnya'],
         ], [
-            'nama_wali.regex' => 'Nama wali hanya boleh berisi huruf dan spasi.',
-            'no_hp_wali.digits_between' => 'Nomor HP wali harus berupa angka dengan panjang antara 10 hingga 13 digit.',
+            'nama_wali.regex' => 'Nama kontak darurat hanya boleh berisi huruf dan spasi.',
+            'no_hp_wali.digits_between' => 'Nomor HP kontak darurat harus berupa angka dengan panjang antara 10 hingga 13 digit.',
         ]);
 
         $user->penghuni()->update($validated);

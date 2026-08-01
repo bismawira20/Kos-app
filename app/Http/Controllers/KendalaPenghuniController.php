@@ -35,6 +35,8 @@ class KendalaPenghuniController extends Controller
 
         $kendala->update([
             'status' => 'selesai',
+            // Setelah aktivitas selesai, feedback penghuni dihapus.
+            'feedback_penghuni' => null,
         ]);
 
         return redirect()->route('penghuni.kendala.index')->with('status', 'Kendala ditandai telah selesai.');

@@ -22,15 +22,14 @@
     <span>Kelola Penghuni</span>
 </a>
 
-<a href="{{ route('kamar.index') }}" class="{{ $link(request()->routeIs('kamar.*')) }}">
+<a href="{{ route('kamar.index') }}" class="{{ $link(request()->routeIs('kamar.*') || request()->routeIs('tipe-kamar.*')) }}">
     <span>🚪</span>
     <span>Kelola Kamar</span>
 </a>
 
-<a href="{{ route('tipe-kamar.index') }}" class="{{ $link(request()->routeIs('tipe-kamar.*')) }}">
-    <span>🏷️</span>
-    <span>Harga Kamar</span>
-</a>
+
+
+
 
 <a href="{{ route('tagihan.index') }}" class="{{ $link(request()->routeIs('tagihan.*')) }}">
     <span>💳</span>

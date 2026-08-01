@@ -15,7 +15,7 @@ class KendalaLaporanController extends Controller
     {
         KendalaLaporan::autoResolveOverdue();
 
-        $status = $request->get('status');
+        $status = $request->input('status');
 
         $q = KendalaLaporan::with('penghuni.kamar')->orderByDesc('created_at');
         if ($status) {
@@ -32,7 +32,7 @@ class KendalaLaporanController extends Controller
     {
         KendalaLaporan::autoResolveOverdue();
 
-        $status = $request->get('status');
+        $status = $request->input('status');
 
         $q = KendalaLaporan::with('penghuni.kamar')->orderByDesc('created_at');
         if ($status) {
@@ -71,6 +71,7 @@ class KendalaLaporanController extends Controller
             'ditinjau_at' => now(),
             'diperbaiki_at' => now(),
             'alasan_tolak' => null,
+            'feedback_penghuni' => null,
         ]);
 
         return back()->with('status', $updated > 0
@@ -96,18 +97,14 @@ class KendalaLaporanController extends Controller
         $kendala = KendalaLaporan::findOrFail($id);
         abort_unless(in_array($kendala->status, ['menunggu', 'proses']), 403);
 
-        $validated = $request->validate([
-            'catatan_admin' => ['nullable', 'string', 'max:1000'],
-        ]);
-
         $kendala->update([
             'status' => 'diperbaiki',
-            'catatan_admin' => $validated['catatan_admin'] ?? null,
+            'catatan_admin' => null,
             'diperbaiki_at' => now(),
             'alasan_tolak' => null,
         ]);
 
-        return back()->with('status', 'Laporan ditandai sudah diperbaiki. Menunggu verifikasi penghuni.');
+        return back()->with('status', 'Laporan ditandai sudah diperbaiki. Menunggu konfirmasi penghuni.');
     }
 
     public function setujui(Request $request, int $id): RedirectResponse
@@ -125,6 +122,8 @@ class KendalaLaporanController extends Controller
             'ditinjau_at' => now(),
             'diperbaiki_at' => now(),
             'alasan_tolak' => null,
+            // Setelah aktivitas selesai, feedback penghuni dihapus.
+            'feedback_penghuni' => null,
         ]);
 
         return back()->with('status', 'Laporan disetujui langsung.');
@@ -160,3 +159,5 @@ class KendalaLaporanController extends Controller
         };
     }
 }
+
+

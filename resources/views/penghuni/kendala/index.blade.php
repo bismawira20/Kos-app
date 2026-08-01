@@ -71,6 +71,31 @@
                                                 </div>
                                             </div>
                                         </dialog>
+                                    @elseif ($l->status === 'diperbaiki')
+                                        {{-- Penghuni menentukan apakah sudah selesai atau belum selesai --}}
+                                        <button type="button" class="inline-flex items-center gap-1.5 rounded-lg bg-amber-100 px-3 py-1.5 text-sm font-medium text-amber-800 transition hover:bg-amber-200 active:scale-95" onclick="document.getElementById('belum-selesai-{{ $l->id }}').showModal()">
+                                            Belum selesai
+                                        </button>
+
+                                        <form action="{{ route('penghuni.kendala.konfirmasi', $l->id) }}" method="POST" class="inline">
+                                            @csrf
+                                            <button type="submit" class="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-emerald-700 active:scale-95">
+                                                Selesai
+                                            </button>
+                                        </form>
+
+                                        <dialog id="belum-selesai-{{ $l->id }}" class="w-full max-w-md rounded-xl p-0 shadow-2xl backdrop:bg-slate-900/40 text-left">
+                                            <form method="POST" action="{{ route('penghuni.kendala.lapor-ulang', $l->id) }}" class="p-6">
+                                                @csrf
+                                                <h3 class="text-lg font-semibold text-slate-900">Berikan tanggapan</h3>
+                                                <p class="mt-1 text-sm text-slate-500">Tulis alasan/keluhan karena perbaikan belum sempurna.</p>
+                                                <textarea name="feedback_penghuni" rows="4" required class="mt-3 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="Contoh: masih ada kebocoran / suara masih bising / belum maksimal ...">{{ old('feedback_penghuni') }}</textarea>
+                                                <div class="mt-4 flex justify-end gap-2">
+                                                    <button type="button" onclick="document.getElementById('belum-selesai-{{ $l->id }}').close()" class="rounded-lg border border-slate-300 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">Batal</button>
+                                                    <button type="submit" class="rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white hover:bg-amber-700">Kirim tanggapan</button>
+                                                </div>
+                                            </form>
+                                        </dialog>
                                     @else
                                         <span class="text-xs text-slate-400 italic">Terkunci</span>
                                     @endif

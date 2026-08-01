@@ -55,6 +55,11 @@
                                             <span>Edit</span>
                                         </a>
 
+                                        <button type="button" onclick="document.getElementById('perpanjang-kontrak-{{ $p->id }}').showModal()" class="inline-flex items-center gap-1.5 rounded-lg bg-emerald-100 px-3 py-1.5 text-sm font-medium text-emerald-700 transition hover:bg-emerald-200 active:scale-95">
+                                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                                            <span>Perpanjang</span>
+                                        </button>
+
                                         <button type="button" onclick="document.getElementById('delete-penghuni-{{ $p->id }}').showModal()" class="inline-flex items-center gap-1.5 rounded-lg bg-rose-100 px-3 py-1.5 text-sm font-medium text-rose-700 transition hover:bg-rose-200 active:scale-95">
                                             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                             <span>Hapus</span>
@@ -109,10 +114,84 @@
                                                             {{ $p->alamat_wali ?: 'Belum diisi' }}
                                                         </div>
                                                     </div>
+                                                <hr class="border-slate-100">
+
+                                                <div>
+                                                    <h4 class="text-xs font-bold tracking-wider uppercase text-slate-400 mb-2 font-sans">Histori Kontrak</h4>
+                                                    <div class="space-y-2 mt-2 max-h-40 overflow-y-auto pr-1">
+                                                        @forelse ($p->kontraks->sortByDesc('tanggal_mulai') as $kontrak)
+                                                            <div class="flex items-center justify-between bg-slate-50 p-2.5 rounded border border-slate-100 text-xs">
+                                                                <div>
+                                                                    <div class="font-medium text-slate-800">
+                                                                        {{ $kontrak->tanggal_mulai->format('d M Y') }} – {{ $kontrak->tanggal_berakhir->format('d M Y') }}
+                                                                    </div>
+                                                                    <div class="text-slate-500 mt-0.5">
+                                                                        Durasi: {{ $kontrak->durasi }} bulan
+                                                                    </div>
+                                                                </div>
+                                                                <span class="inline-flex rounded-full px-2 py-0.5 text-[10px] font-semibold border
+                                                                    {{ $kontrak->status === 'aktif' ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : ($kontrak->status === 'menunggu_dimulai' ? 'bg-amber-50 text-amber-800 border-amber-200' : 'bg-slate-100 text-slate-800 border-slate-200') }}">
+                                                                    @if ($kontrak->status === 'aktif')
+                                                                        Aktif
+                                                                    @elseif ($kontrak->status === 'menunggu_dimulai')
+                                                                        Menunggu Dimulai
+                                                                    @else
+                                                                        Selesai
+                                                                    @endif
+                                                                </span>
+                                                            </div>
+                                                        @empty
+                                                            <p class="text-slate-400 italic">Tidak ada histori kontrak.</p>
+                                                        @endforelse
+                                                    </div>
                                                 </div>
                                             </div>
                                             <form method="dialog" class="border-t border-slate-100 px-5 py-3 bg-slate-50 flex justify-end">
                                                 <button class="rounded-lg bg-white border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 shadow-sm active:scale-95 transition">Tutup</button>
+                                            </form>
+                                        </dialog>
+
+                                        {{-- Perpanjang Kontrak Modal --}}
+                                        <dialog id="perpanjang-kontrak-{{ $p->id }}" class="w-full max-w-md rounded-xl p-0 shadow-2xl backdrop:bg-slate-900/40 text-left border border-slate-200">
+                                            <div class="border-b border-slate-100 px-5 py-4 bg-slate-50">
+                                                <h3 class="text-lg font-bold text-slate-900 font-sans">Perpanjang Kontrak</h3>
+                                            </div>
+                                            <form method="POST" action="{{ route('penghuni.perpanjang', $p) }}" class="px-5 py-5 space-y-4">
+                                                @csrf
+                                                <div>
+                                                    <p class="text-sm text-slate-600">Perpanjang masa sewa untuk penghuni <span class="font-semibold text-slate-800">{{ $p->nama }}</span> (Kamar {{ $p->kamar?->nomor_kamar ?? '—' }}).</p>
+                                                </div>
+
+                                                @php
+                                                    $latestKontrak = $p->kontraks->sortByDesc('tanggal_berakhir')->first();
+                                                    $nextStartDate = $latestKontrak 
+                                                        ? $latestKontrak->tanggal_berakhir->addDay() 
+                                                        : \Carbon\Carbon::parse($p->tanggal_masuk ?? now());
+                                                @endphp
+
+                                                <div class="bg-slate-50 p-3 rounded border border-slate-100 text-xs text-slate-600 space-y-1">
+                                                    <p><span class="font-medium text-slate-500 inline-block w-36">Kontrak terakhir berakhir:</span> {{ $latestKontrak ? $latestKontrak->tanggal_berakhir->format('d M Y') : '—' }}</p>
+                                                    <p><span class="font-medium text-slate-500 inline-block w-36">Kontrak baru dimulai:</span> <span class="font-semibold text-indigo-600">{{ $nextStartDate->format('d M Y') }}</span></p>
+                                                </div>
+
+                                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                    <div>
+                                                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Durasi Perpanjangan</label>
+                                                        <select name="durasi" class="w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required>
+                                                            <option value="3">3 Bulan</option>
+                                                            <option value="6">6 Bulan</option>
+                                                        </select>
+                                                    </div>
+                                                    <div>
+                                                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Batas Toleransi (Hari)</label>
+                                                        <input type="number" name="hari_toleransi" min="0" max="120" value="21" class="w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required />
+                                                    </div>
+                                                </div>
+
+                                                <div class="border-t border-slate-100 pt-4 flex justify-end gap-3">
+                                                    <button type="button" onclick="document.getElementById('perpanjang-kontrak-{{ $p->id }}').close()" class="rounded-lg bg-white border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 shadow-sm transition">Batal</button>
+                                                    <button type="submit" class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700 shadow-md transition active:scale-95">Simpan Perpanjangan</button>
+                                                </div>
                                             </form>
                                         </dialog>
                                     </div>

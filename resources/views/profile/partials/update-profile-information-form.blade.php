@@ -27,6 +27,15 @@
             <x-input-label for="email" :value="__('Email')" />
             <x-text-input id="email" name="email" type="email" class="mt-1 block w-full" :value="old('email', $user->email)" required autocomplete="username" pattern=".*@gmail\.com" title="Harus menggunakan domain @gmail.com" />
             <x-input-error class="mt-2" :messages="$errors->get('email')" />
+        </div>
+
+        @if ($user->penghuni)
+            <div>
+                <x-input-label for="no_hp" :value="__('No. HP')" />
+                <x-text-input id="no_hp" name="no_hp" type="text" class="mt-1 block w-full" :value="old('no_hp', $user->penghuni->no_hp)" required placeholder="62812..." pattern="^[0-9]{10,13}$" minlength="10" maxlength="13" title="Nomor HP harus berupa angka dengan panjang 10 hingga 13 digit" />
+                <x-input-error class="mt-2" :messages="$errors->get('no_hp')" />
+            </div>
+        @endif
 
             @if ($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! $user->hasVerifiedEmail())
                 <div>
@@ -45,7 +54,6 @@
                     @endif
                 </div>
             @endif
-        </div>
 
         <div class="flex items-center gap-4">
             <x-primary-button>{{ __('Simpan') }}</x-primary-button>

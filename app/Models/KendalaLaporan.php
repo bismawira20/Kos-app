@@ -30,6 +30,7 @@ class KendalaLaporan extends Model
             ->where('diperbaiki_at', '<=', now()->subDay())
             ->update([
                 'status' => 'selesai',
+                'feedback_penghuni' => null,
                 'updated_at' => now(),
             ]);
     }

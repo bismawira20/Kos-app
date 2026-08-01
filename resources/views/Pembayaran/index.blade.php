@@ -8,7 +8,6 @@
             <div class="flex flex-wrap gap-2">
                 <a href="{{ route('pembayaran.index', ['filter' => 'menunggu']) }}" class="rounded-lg px-3 py-2 text-sm {{ ($filter ?? '') === 'menunggu' ? 'bg-amber-100 text-amber-900' : 'bg-slate-100 text-slate-700' }}">Menunggu validasi</a>
                 <a href="{{ route('pembayaran.index') }}" class="rounded-lg px-3 py-2 text-sm {{ empty($filter) ? 'bg-indigo-100 text-indigo-900' : 'bg-slate-100 text-slate-700' }}">Semua</a>
-                <a href="{{ route('pembayaran.create') }}" class="rounded-lg bg-violet-600 px-4 py-2 text-sm font-medium text-white">+ Catat</a>
             </div>
         </div>
     </x-slot>

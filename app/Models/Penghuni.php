@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Penghuni extends Model
 {
-    protected $fillable = ['nama', 'no_hp', 'kamar_id', 'user_id', 'nama_wali', 'no_hp_wali', 'alamat_wali', 'tanggal_masuk'];
+    protected $fillable = ['nama', 'no_hp', 'kamar_id', 'user_id', 'nama_wali', 'no_hp_wali', 'alamat_wali', 'tanggal_masuk', 'hubungan', 'durasi_kontrak'];
 
     public function kamar()
     {
@@ -24,5 +24,10 @@ class Penghuni extends Model
     public function tagihan()
     {
         return $this->hasMany(Tagihan::class);
+    }
+
+    public function kontraks()
+    {
+        return $this->hasMany(Kontrak::class);
     }
 }

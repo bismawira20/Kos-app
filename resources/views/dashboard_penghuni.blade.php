@@ -28,10 +28,26 @@
             $hari = $stats['hari_jatuh_tempo'] ?? null;
         @endphp
         <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            <article class="rounded-3xl bg-gradient-to-br from-indigo-700 to-violet-900 p-5 text-white shadow-lg shadow-indigo-950/10">
-                <p class="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-200">Kamar saya</p>
-                <p class="mt-4 text-4xl font-semibold tracking-tight">{{ $penghuni->kamar?->nomor_kamar ?? '—' }}</p>
-                <p class="mt-2 text-sm text-indigo-100">Lantai {{ $penghuni->kamar?->lantai ?? '—' }}</p>
+            <article class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-700 via-indigo-800 to-violet-900 p-5 text-white shadow-lg shadow-indigo-950/10">
+                <!-- Decorative background glow -->
+                <div class="absolute right-0 top-0 -mr-4 -mt-4 h-20 w-20 rounded-full bg-white/10 blur-xl"></div>
+                
+                <div class="flex items-start justify-between">
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-[0.2em] text-indigo-200">Kamar Saya</p>
+                        <p class="mt-4 text-4xl font-extrabold tracking-tight">{{ $penghuni->kamar?->nomor_kamar ?? '—' }}</p>
+                        @if ($penghuni->kamar?->tipeKamar)
+                            <span class="mt-3 inline-flex items-center gap-1 rounded-full bg-white/20 px-2.5 py-0.5 text-[10px] font-medium text-white backdrop-blur-sm">
+                                Tipe: {{ $penghuni->kamar->tipeKamar->nama }}
+                            </span>
+                        @endif
+                    </div>
+                    <div class="rounded-2xl bg-white/10 p-2.5 backdrop-blur-md">
+                        <svg class="h-5 w-5 text-indigo-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                        </svg>
+                    </div>
+                </div>
             </article>
 
             <article class="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
@@ -70,22 +86,70 @@
                 <div class="flex items-center justify-between gap-4">
                     <div>
                         <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Ringkasan kamar</p>
-                        <h3 class="mt-1 text-lg font-semibold text-slate-900">Informasi kamar</h3>
+                        <h3 class="mt-1 text-lg font-semibold text-slate-900">Informasi Kamar</h3>
                     </div>
                     <a href="{{ route('penghuni.tagihan.index') }}" class="text-sm font-semibold text-indigo-600 hover:text-indigo-700">Lihat tagihan</a>
                 </div>
-                <dl class="mt-5 grid gap-3 text-sm sm:grid-cols-2">
-                    <div class="rounded-2xl bg-slate-50 p-4">
-                        <dt class="text-slate-500">Harga / bulan</dt>
-                        <dd class="mt-1 text-base font-semibold text-slate-900">Rp {{ number_format($penghuni->kamar?->harga ?? 0, 0, ',', '.') }}</dd>
+
+                @php
+                    $activeKontrak = $penghuni->kontraks->where('status', 'aktif')->first();
+                @endphp
+
+                <dl class="mt-5 grid gap-4 text-sm sm:grid-cols-2">
+                    <!-- Harga / Bulan Card -->
+                    <div class="flex items-center gap-4 rounded-2xl bg-slate-50 p-4 transition-all hover:bg-slate-100/70">
+                        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <dt class="text-xs font-medium text-slate-500">Harga / Bulan</dt>
+                            <dd class="mt-0.5 text-base font-bold text-slate-950">Rp {{ number_format($penghuni->kamar?->harga ?? 0, 0, ',', '.') }}</dd>
+                        </div>
                     </div>
-                    <div class="rounded-2xl bg-slate-50 p-4">
-                        <dt class="text-slate-500">Kapasitas</dt>
-                        <dd class="mt-1 text-base font-semibold text-slate-900">{{ $penghuni->kamar?->kapasitas ?? '—' }} orang</dd>
+
+                    <!-- Status Kontrak Card -->
+                    <div class="flex items-center gap-4 rounded-2xl bg-slate-50 p-4 transition-all hover:bg-slate-100/70">
+                        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <dt class="text-xs font-medium text-slate-500">Status Sewa</dt>
+                            <dd class="mt-0.5 text-sm font-bold text-emerald-700">Aktif Tersewa</dd>
+                        </div>
                     </div>
-                    <div class="rounded-2xl bg-slate-50 p-4 sm:col-span-2">
-                        <dt class="text-slate-500">Fasilitas</dt>
-                        <dd class="mt-1 text-slate-900">{{ $penghuni->kamar?->fasilitas ?: '—' }}</dd>
+
+                    <!-- Durasi Kontrak Card -->
+                    <div class="flex items-center gap-4 rounded-2xl bg-slate-50 p-4 transition-all hover:bg-slate-100/70">
+                        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <dt class="text-xs font-medium text-slate-500">Mulai Kontrak</dt>
+                            <dd class="mt-0.5 text-sm font-bold text-slate-950">
+                                {{ $activeKontrak ? $activeKontrak->tanggal_mulai->format('d M Y') : ($penghuni->tanggal_masuk ? \Carbon\Carbon::parse($penghuni->tanggal_masuk)->format('d M Y') : '—') }}
+                            </dd>
+                        </div>
+                    </div>
+
+                    <!-- Berakhir Kontrak Card -->
+                    <div class="flex items-center gap-4 rounded-2xl bg-slate-50 p-4 transition-all hover:bg-slate-100/70">
+                        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-rose-50 text-rose-600">
+                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <dt class="text-xs font-medium text-slate-500">Berakhir Kontrak</dt>
+                            <dd class="mt-0.5 text-sm font-bold text-slate-950">
+                                {{ $activeKontrak ? $activeKontrak->tanggal_berakhir->format('d M Y') : '—' }}
+                            </dd>
+                        </div>
                     </div>
                 </dl>
             </div>

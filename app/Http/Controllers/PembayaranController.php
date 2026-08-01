@@ -73,11 +73,19 @@ class PembayaranController extends Controller
         $p->status = 'lunas';
         $p->tanggal_bayar = $p->tanggal_bayar ?? now()->toDateString();
         $p->admin_komentar = null;
-        $p->save();
 
         if ($p->tagihan) {
-            $p->tagihan->update(['status' => 'lunas']);
+            $isOverTolerance = ($p->tagihan->status === 'melewati_batas_toleransi') || 
+                               ($p->tagihan->batas_toleransi && \Carbon\Carbon::parse($p->tanggal_bayar)->gt($p->tagihan->batas_toleransi));
+            
+            if ($isOverTolerance) {
+                $p->melewati_toleransi = true;
+                $p->tagihan->melewati_toleransi = true;
+            }
+            $p->tagihan->status = 'lunas';
+            $p->tagihan->save();
         }
+        $p->save();
 
         return back()->with('status', 'Pembayaran dikonfirmasi.');
     }

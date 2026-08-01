@@ -37,6 +37,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::resource('kamar', KamarController::class)->except(['show']);
     Route::resource('tipe-kamar', TipeKamarController::class)->only(['index', 'edit', 'update']);
     Route::resource('penghuni', PenghuniController::class)->except(['show']);
+    Route::post('/penghuni/{penghuni}/perpanjang', [PenghuniController::class, 'perpanjang'])->name('penghuni.perpanjang');
     // Admin pengelolaan akun penghuni (only users with role 'penghuni')
     Route::get('/akun-penghuni', [App\Http\Controllers\AdminPenghuniAccountController::class, 'index'])->name('akun-penghuni.index');
     Route::get('/akun-penghuni/create', [App\Http\Controllers\AdminPenghuniAccountController::class, 'create'])->name('akun-penghuni.create');
@@ -44,7 +45,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/akun-penghuni/{user}/edit', [App\Http\Controllers\AdminPenghuniAccountController::class, 'edit'])->name('akun-penghuni.edit');
     Route::put('/akun-penghuni/{user}', [App\Http\Controllers\AdminPenghuniAccountController::class, 'update'])->name('akun-penghuni.update');
     Route::delete('/akun-penghuni/{user}', [App\Http\Controllers\AdminPenghuniAccountController::class, 'destroy'])->name('akun-penghuni.destroy');
-    Route::resource('tagihan', TagihanController::class)->only(['index', 'create', 'store', 'destroy']);
+    Route::resource('tagihan', TagihanController::class)->only(['index']);
     Route::post('/tagihan/generate', [TagihanController::class, 'generate'])->name('tagihan.generate');
 
     Route::resource('pembayaran', PembayaranController::class)->only(['index', 'create', 'store']);

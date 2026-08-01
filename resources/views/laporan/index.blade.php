@@ -22,7 +22,8 @@
             </select>
         </div>
         <button type="submit" class="rounded-lg bg-violet-600 px-4 py-2 text-sm font-medium text-white">Filter</button>
-        <a href="{{ route('laporan.export', request()->query()) }}" class="rounded-lg bg-teal-600 px-4 py-2 text-sm font-medium text-white">Excel (CSV)</a>
+        <a href="{{ route('laporan.export', array_merge(request()->query(), ['tipe' => 'lunas'])) }}" class="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white">Unduh Laporan Lunas</a>
+        <a href="{{ route('laporan.export', array_merge(request()->query(), ['tipe' => 'belum_bayar'])) }}" class="rounded-lg bg-rose-600 px-4 py-2 text-sm font-medium text-white">Unduh Laporan Belum Bayar</a>
         <a href="{{ route('laporan.print', request()->query()) }}" target="_blank" class="rounded-lg bg-sky-500 px-4 py-2 text-sm font-medium text-white">Cetak</a>
     </form>
 

@@ -28,10 +28,17 @@
 
                     <div>
                         <x-input-label for="harga" value="Harga per bulan (Rp)" />
-                        <x-text-input id="harga" name="harga" type="text" class="mt-1 block w-full" 
-                            :value="old('harga') ? number_format((int)str_replace('.', '', old('harga')), 0, ',', '.') : ''" 
-                            oninput="this.value = this.value.replace(/[^0-9]/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, '.')"
-                            required />
+
+                        {{-- Tampilkan harga, namun tidak bisa diubah saat tambah kamar --}}
+                        <x-text-input id="harga_display" type="text" class="mt-1 block w-full" 
+                            disabled
+                            :value="old('harga') ? number_format((int)str_replace('.', '', old('harga')), 0, ',', '.') : ''"
+                            oninput="this.value = this.value.replace(/[^0-9]/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, '.')" />
+
+                        {{-- Hidden input yang benar-benar dikirim ke backend --}}
+                        <input type="hidden" id="harga" name="harga" 
+                            value="{{ old('harga') ? str_replace('.', '', old('harga')) : '' }}" required />
+
                         <x-input-error class="mt-2" :messages="$errors->get('harga')" />
                     </div>
 
@@ -59,14 +66,29 @@
 
             function updatePriceFromType() {
                 const select = document.getElementById('tipe_kamar_id');
-                const priceInput = document.getElementById('harga');
+                const hiddenPrice = document.getElementById('harga');
+                const display = document.getElementById('harga_display');
                 const selectedId = select.value;
 
                 if (selectedId && typePrices[selectedId]) {
-                    const price = typePrices[selectedId];
-                    priceInput.value = price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+                    const price = typePrices[selectedId]; // integer
+
+                    if (display) {
+                        display.value = price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+                    }
+
+                    // Kirim nilai angka (tanpa titik) ke backend
+                    hiddenPrice.value = String(price);
+                } else {
+                    if (display) display.value = '';
+                    if (hiddenPrice) hiddenPrice.value = '';
                 }
             }
+
+            // Saat halaman reload (mis. validation error), sinkronkan tampilan & hidden harga
+            window.addEventListener('DOMContentLoaded', () => {
+                updatePriceFromType();
+            });
         </script>
     @endpush
 </x-app-layout>

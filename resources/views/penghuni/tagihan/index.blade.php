@@ -17,12 +17,29 @@
 
             <div class="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200">
                 <div class="overflow-x-auto">
+                    @php
+                        $statusLabels = [
+                            'menunggu_generate' => 'Menunggu Generate',
+                            'belum_bayar' => 'Belum Dibayar',
+                            'menunggu' => 'Menunggu Verifikasi',
+                            'lunas' => 'Lunas',
+                            'melewati_batas_toleransi' => 'Melewati Batas Toleransi',
+                        ];
+                        $statusClasses = [
+                            'menunggu_generate' => 'bg-slate-100 text-slate-800 border border-slate-200',
+                            'belum_bayar' => 'bg-amber-100 text-amber-800 border border-amber-200',
+                            'menunggu' => 'bg-indigo-100 text-indigo-800 border border-indigo-200',
+                            'lunas' => 'bg-emerald-100 text-emerald-800 border border-emerald-200',
+                            'melewati_batas_toleransi' => 'bg-rose-100 text-rose-800 border border-rose-200',
+                        ];
+                    @endphp
                     <table class="min-w-full divide-y divide-slate-200 text-sm">
                         <thead class="bg-slate-50">
                             <tr>
                                 <th class="px-4 py-3 text-center font-semibold text-slate-700">No</th>
                                 <th class="px-4 py-3 text-center font-semibold text-slate-700">Periode</th>
                                 <th class="px-4 py-3 text-center font-semibold text-slate-700">Jatuh tempo</th>
+                                <th class="px-4 py-3 text-center font-semibold text-slate-700">Batas Toleransi</th>
                                 <th class="px-4 py-3 text-center font-semibold text-slate-700">Jumlah</th>
                                 <th class="px-4 py-3 text-center font-semibold text-slate-700">Status</th>
                                 <th class="px-4 py-3 text-center font-semibold text-slate-700">Aksi</th>
@@ -31,7 +48,7 @@
                         <tbody class="divide-y divide-slate-100">
                             @forelse ($tagihans as $t)
                                 @php
-                                    $late = $t->jatuh_tempo && $t->jatuh_tempo->isPast() && $t->status !== 'lunas';
+                                    $late = $t->jatuh_tempo && $t->jatuh_tempo->isPast() && !in_array($t->status, ['lunas', 'melewati_batas_toleransi']);
                                     $lastPembayaran = $t->pembayaran->sortByDesc('created_at')->first();
                                     $isPendingMidtrans = $t->status === 'menunggu' && $lastPembayaran && $lastPembayaran->metode_pembayaran === 'midtrans' && $lastPembayaran->status === 'menunggu';
                                 @endphp
@@ -51,12 +68,21 @@
                                             @endif
                                         @endif
                                     </td>
+                                    <td class="px-4 py-3 text-center text-slate-600">
+                                        @if ($t->status === 'lunas')
+                                            -
+                                        @else
+                                            {{ $t->batas_toleransi ? $t->batas_toleransi->format('d/m/Y') : '—' }}
+                                        @endif
+                                    </td>
                                     <td class="px-4 py-3 text-center font-semibold text-slate-950">Rp {{ number_format($t->jumlah, 0, ',', '.') }}</td>
                                     <td class="px-4 py-3 text-center">
-                                        <span class="rounded-full px-3 py-0.5 text-xs font-semibold
-                                            {{ $t->status === 'lunas' ? 'bg-emerald-100 text-emerald-800' : ($t->status === 'menunggu' ? 'bg-amber-100 text-amber-800' : 'bg-red-100 text-red-800') }}">
-                                            {{ strtoupper(str_replace('_', ' ', $t->status)) }}
+                                        <span class="rounded-full px-3 py-0.5 text-xs font-semibold {{ $statusClasses[$t->status] ?? 'bg-slate-100' }}">
+                                            {{ $statusLabels[$t->status] ?? $t->status }}
                                         </span>
+                                        @if ($t->melewati_toleransi)
+                                            <div class="mt-1 text-[10px] text-rose-600 font-semibold italic">Melewati Toleransi</div>
+                                        @endif
                                     </td>
                                     <td class="px-4 py-3 text-center">
                                         <div class="flex items-center justify-center gap-2">
@@ -65,9 +91,9 @@
                                                     <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                                                     <span>Unduh Invoice</span>
                                                 </a>
-                                            @elseif ($t->status === 'belum_bayar')
+                                            @elseif (in_array($t->status, ['belum_bayar', 'melewati_batas_toleransi']))
                                                 <a href="{{ route('penghuni.tagihan.midtrans', $t) }}" class="inline-flex items-center gap-1 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-blue-700 active:scale-95 shadow-sm transition-all">Midtrans</a>
-                                                <a href="{{ route('penghuni.tagihan.bayar', $t) }}" class="inline-flex items-center gap-1 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-emerald-700 active:scale-95 shadow-sm transition-all">Manual</a>
+                                                <a href="{{ route('penghuni.tagihan.bayar', $t) }}" class="inline-flex items-center gap-1 rounded-lg bg-slate-100 border border-slate-200 px-3 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-200 active:scale-95 transition-all">Other</a>
                                             @elseif ($isPendingMidtrans)
                                                 <a href="{{ route('penghuni.tagihan.midtrans', $t) }}" class="inline-flex items-center gap-1 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-blue-700 active:scale-95 shadow-sm transition-all">Lanjutkan</a>
                                                 <a href="{{ route('penghuni.tagihan.batal-midtrans', $t) }}" class="inline-flex items-center gap-1 rounded-lg bg-rose-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-rose-700 active:scale-95 shadow-sm transition-all">Batal</a>
@@ -78,7 +104,7 @@
                                     </td>
                                 </tr>
                             @empty
-                                <tr><td colspan="6" class="px-4 py-8 text-center text-slate-500">Belum ada tagihan.</td></tr>
+                                <tr><td colspan="7" class="px-4 py-8 text-center text-slate-500">Belum ada tagihan.</td></tr>
                             @endforelse
                         </tbody>
                     </table>

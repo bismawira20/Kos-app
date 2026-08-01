@@ -29,7 +29,7 @@ class MidtransController extends Controller
         $lastPembayaran = $tagihan->pembayaran()->latest()->first();
         $isPendingMidtrans = $tagihan->status === 'menunggu' && $lastPembayaran && $lastPembayaran->metode_pembayaran === 'midtrans' && $lastPembayaran->status === 'menunggu';
 
-        if ($tagihan->status !== 'belum_bayar' && !$isPendingMidtrans) {
+        if (!in_array($tagihan->status, ['belum_bayar', 'melewati_batas_toleransi']) && !$isPendingMidtrans) {
             return redirect()->route('penghuni.tagihan.index')->with('error', 'Tagihan ini tidak dapat dibayar (sudah lunas atau menunggu verifikasi).');
         }
 
@@ -125,10 +125,17 @@ class MidtransController extends Controller
             ->first();
 
         if ($pembayaran) {
+            $isOverTolerance = ($tagihan->status === 'melewati_batas_toleransi') || 
+                               ($tagihan->batas_toleransi && now()->gt($tagihan->batas_toleransi));
             $pembayaran->update([
                 'status' => 'lunas',
                 'tanggal_bayar' => now()->toDateString(),
+                'melewati_toleransi' => $isOverTolerance,
             ]);
+
+            if ($isOverTolerance) {
+                $tagihan->melewati_toleransi = true;
+            }
         }
 
         $tagihan->update(['status' => 'lunas']);
@@ -162,13 +169,29 @@ class MidtransController extends Controller
                         $pembayaran->update(['status' => 'menunggu']);
                     }
                     else {
-                        $pembayaran->update(['status' => 'lunas']);
-                        $tagihan->update(['status' => 'lunas']);
+                        $isOverTolerance = ($tagihan->status === 'melewati_batas_toleransi') || 
+                                           ($tagihan->batas_toleransi && now()->gt($tagihan->batas_toleransi));
+                        $pembayaran->update([
+                            'status' => 'lunas',
+                            'melewati_toleransi' => $isOverTolerance,
+                        ]);
+                        $tagihan->update([
+                            'status' => 'lunas',
+                            'melewati_toleransi' => $isOverTolerance,
+                        ]);
                     }
                 }
             } else if ($transaction == 'settlement'){
-                $pembayaran->update(['status' => 'lunas']);
-                $tagihan->update(['status' => 'lunas']);
+                $isOverTolerance = ($tagihan->status === 'melewati_batas_toleransi') || 
+                                   ($tagihan->batas_toleransi && now()->gt($tagihan->batas_toleransi));
+                $pembayaran->update([
+                    'status' => 'lunas',
+                    'melewati_toleransi' => $isOverTolerance,
+                ]);
+                $tagihan->update([
+                    'status' => 'lunas',
+                    'melewati_toleransi' => $isOverTolerance,
+                ]);
             } else if($transaction == 'pending'){
                 $pembayaran->update(['status' => 'menunggu']);
             } else if ($transaction == 'deny' || $transaction == 'expire' || $transaction == 'cancel') {

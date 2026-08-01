@@ -37,6 +37,11 @@
                 <x-input-label value="Jatuh tempo" />
                 <x-text-input name="jatuh_tempo" type="date" class="mt-1 w-full" :value="old('jatuh_tempo', now()->addDays(10)->format('Y-m-d'))" required />
             </div>
+            <div>
+                <x-input-label value="Batas toleransi" />
+                <x-text-input name="batas_toleransi" type="date" class="mt-1 w-full" :value="old('batas_toleransi', now()->addDays(31)->format('Y-m-d'))" required />
+                <x-input-error :messages="$errors->get('batas_toleransi')" />
+            </div>
             <div class="flex gap-3">
                 <x-primary-button>Simpan</x-primary-button>
                 <a href="{{ route('tagihan.index') }}" class="text-sm text-slate-600 hover:underline">Batal</a>
