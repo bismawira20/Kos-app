@@ -15,15 +15,11 @@ class Tagihan extends Model
         'bulan',
         'jumlah',
         'jatuh_tempo',
-        'batas_toleransi',
         'status',
-        'melewati_toleransi',
     ];
 
     protected $casts = [
         'jatuh_tempo' => 'date',
-        'batas_toleransi' => 'date',
-        'melewati_toleransi' => 'boolean',
     ];
 
     public function penghuni(): BelongsTo
@@ -50,15 +46,5 @@ class Tagihan extends Model
         ];
 
         return ($nama[$this->bulan] ?? $this->bulan).' '.$this->tahun;
-    }
-
-    public static function checkTolerance()
-    {
-        $today = now()->toDateString();
-        
-        self::where('status', 'belum_bayar')
-            ->whereNotNull('batas_toleransi')
-            ->where('batas_toleransi', '<', $today)
-            ->update(['status' => 'melewati_batas_toleransi']);
     }
 }

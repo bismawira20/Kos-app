@@ -59,37 +59,46 @@
 
                     <hr class="border-gray-100 my-4">
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <x-input-label for="kamar_id" value="Kamar" />
-                            <select id="kamar_id" name="kamar_id" class="mt-1 block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required>
-                                @foreach ($kamar as $k)
-                                    <option value="{{ $k->id }}" @selected(old('kamar_id', $penghuni->kamar_id) == $k->id)>
-                                        {{ $k->nomor_kamar }} — Rp {{ number_format($k->harga, 0, ',', '.') }}/bln
-                                    </option>
-                                @endforeach
-                            </select>
-                            <x-input-error class="mt-2" :messages="$errors->get('kamar_id')" />
-                        </div>
-
-                        <div>
-                            <x-input-label for="tanggal_masuk" value="Tanggal Masuk Kos" />
-                            <x-text-input id="tanggal_masuk" name="tanggal_masuk" type="date" class="mt-1 block w-full" :value="old('tanggal_masuk', $penghuni->tanggal_masuk)" required />
-                            <x-input-error class="mt-2" :messages="$errors->get('tanggal_masuk')" />
-                        </div>
+                    <div>
+                        <x-input-label for="kamar_id" value="Kamar" />
+                        <select id="kamar_id" name="kamar_id" class="mt-1 block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required>
+                            @foreach ($kamar as $k)
+                                <option value="{{ $k->id }}" @selected(old('kamar_id', $penghuni->kamar_id) == $k->id)>
+                                    {{ $k->nomor_kamar }} — Rp {{ number_format($k->harga, 0, ',', '.') }}/bln
+                                </option>
+                            @endforeach
+                        </select>
+                        <x-input-error class="mt-2" :messages="$errors->get('kamar_id')" />
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div>
-                            <x-input-label for="durasi_kontrak" value="Durasi Kontrak (Bulan)" />
-                            <x-text-input id="durasi_kontrak" name="durasi_kontrak" type="number" min="1" max="120" class="mt-1 block w-full" :value="old('durasi_kontrak', $penghuni->durasi_kontrak)" required />
+                            <x-input-label for="tanggal_masuk" value="Tanggal Masuk" />
+                            <x-text-input id="tanggal_masuk" name="tanggal_masuk" type="date" class="mt-1 block w-full" :value="old('tanggal_masuk', $penghuni->tanggal_masuk ? $penghuni->tanggal_masuk->toDateString() : '')" required onchange="updateTanggalSelesai()" />
+                            <x-input-error class="mt-2" :messages="$errors->get('tanggal_masuk')" />
+                        </div>
+
+                        <div>
+                            <x-input-label for="durasi_kontrak" value="Durasi Sewa" />
+                            <select id="durasi_kontrak" name="durasi_kontrak" class="mt-1 block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required onchange="updateTanggalSelesai()">
+                                @php
+                                    $currentDur = (int) $penghuni->durasi_kontrak;
+                                    $standardDurs = [3, 6, 12];
+                                @endphp
+                                @if(!in_array($currentDur, $standardDurs))
+                                    <option value="{{ $currentDur }}" selected>{{ $currentDur }} Bulan</option>
+                                @endif
+                                <option value="3" @selected(old('durasi_kontrak', $currentDur) == 3)>3 Bulan</option>
+                                <option value="6" @selected(old('durasi_kontrak', $currentDur) == 6)>6 Bulan</option>
+                                <option value="12" @selected(old('durasi_kontrak', $currentDur) == 12)>12 Bulan</option>
+                            </select>
                             <x-input-error class="mt-2" :messages="$errors->get('durasi_kontrak')" />
                         </div>
 
                         <div>
-                            <x-input-label for="hari_toleransi" value="Batas Toleransi Pembayaran (Hari)" />
-                            <x-text-input id="hari_toleransi" name="hari_toleransi" type="number" min="0" max="120" class="mt-1 block w-full" :value="old('hari_toleransi', $penghuni->kontraks()->where('status', 'aktif')->first()?->hari_toleransi ?? 21)" required />
-                            <x-input-error class="mt-2" :messages="$errors->get('hari_toleransi')" />
+                            <x-input-label for="tanggal_selesai" value="Tanggal Berakhir Masa Sewa" />
+                            <x-text-input id="tanggal_selesai" name="tanggal_selesai" type="date" class="mt-1 block w-full" :value="old('tanggal_selesai', $penghuni->tanggal_selesai ? $penghuni->tanggal_selesai->toDateString() : '')" required />
+                            <x-input-error class="mt-2" :messages="$errors->get('tanggal_selesai')" />
                         </div>
                     </div>
 
@@ -107,12 +116,37 @@
                         <x-input-error class="mt-2" :messages="$errors->get('user_id')" />
                     </div>
 
-                <div class="flex items-center gap-3">
-                    <x-primary-button>Perbarui</x-primary-button>
+                    <div class="flex items-center gap-3">
+                        <x-primary-button>Perbarui</x-primary-button>
                         <a href="{{ route('penghuni.index') }}" class="text-sm text-gray-600 hover:text-gray-900">Batal</a>
                     </div>
                 </form>
             </div>
         </div>
     </div>
+
+    <script>
+        function updateTanggalSelesai() {
+            const tglMasukInput = document.getElementById('tanggal_masuk');
+            const durasiInput = document.getElementById('durasi_kontrak');
+            const tglSelesaiInput = document.getElementById('tanggal_selesai');
+
+            if (!tglMasukInput || !durasiInput || !tglSelesaiInput) return;
+
+            const startVal = tglMasukInput.value;
+            const durasiVal = parseInt(durasiInput.value);
+
+            if (!startVal || isNaN(durasiVal)) return;
+
+            let date = new Date(startVal);
+            date.setMonth(date.getMonth() + durasiVal);
+            date.setDate(date.getDate() - 1);
+
+            const yyyy = date.getFullYear();
+            const mm = String(date.getMonth() + 1).padStart(2, '0');
+            const dd = String(date.getDate()).padStart(2, '0');
+
+            tglSelesaiInput.value = `${yyyy}-${mm}-${dd}`;
+        }
+    </script>
 </x-app-layout>

@@ -60,13 +60,26 @@
                             <td class="px-3 py-3 text-center">
                                 @php
                                     $cls = match ($p->status) {
-                                        'lunas' => 'bg-emerald-100 text-emerald-800',
-                                        'menunggu' => 'bg-amber-100 text-amber-800',
-                                        'ditolak' => 'bg-red-100 text-red-800',
+                                        'lunas' => 'bg-emerald-100 text-emerald-800 border border-emerald-200',
+                                        'menunggu' => 'bg-amber-100 text-amber-850 border border-amber-200',
+                                        'ditolak' => 'bg-red-100 text-red-800 border border-red-200',
+                                        'batal' => 'bg-slate-100 text-slate-700 border border-slate-200',
                                         default => 'bg-slate-100 text-slate-800',
                                     };
                                 @endphp
-                                <span class="rounded-full px-2 py-0.5 text-xs font-medium {{ $cls }}">{{ $p->status }}</span>
+                                <span class="rounded-full px-2.5 py-0.5 text-xs font-semibold {{ $cls }}">
+                                    @if ($p->status === 'lunas')
+                                        Lunas
+                                    @elseif ($p->status === 'menunggu')
+                                        Menunggu Verifikasi
+                                    @elseif ($p->status === 'ditolak')
+                                        Ditolak
+                                    @elseif ($p->status === 'batal')
+                                        Batal
+                                    @else
+                                        {{ ucfirst($p->status) }}
+                                    @endif
+                                </span>
                             </td>
                             <td class="px-3 py-3 text-center max-w-[140px] text-xs text-slate-600">{{ $p->admin_komentar ?? '—' }}</td>
                             <td class="px-3 py-3 text-center">

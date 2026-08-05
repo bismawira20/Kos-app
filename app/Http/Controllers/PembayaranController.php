@@ -17,6 +17,17 @@ class PembayaranController extends Controller
         $filter = $request->get('filter');
 
         $q = Pembayaran::with(['penghuni.kamar', 'tagihan'])
+            ->where('status', '!=', 'batal')
+            ->where(function($query) {
+                $query->where('status', '!=', 'menunggu')
+                      ->orWhere(function($sub) {
+                          $sub->where('status', 'menunggu')
+                              ->where(function($sub2) {
+                                  $sub2->whereNull('metode_pembayaran')
+                                       ->orWhere('metode_pembayaran', '!=', 'midtrans');
+                              });
+                      });
+            })
             ->orderByDesc('created_at');
 
         if ($filter === 'menunggu') {
@@ -75,13 +86,6 @@ class PembayaranController extends Controller
         $p->admin_komentar = null;
 
         if ($p->tagihan) {
-            $isOverTolerance = ($p->tagihan->status === 'melewati_batas_toleransi') || 
-                               ($p->tagihan->batas_toleransi && \Carbon\Carbon::parse($p->tanggal_bayar)->gt($p->tagihan->batas_toleransi));
-            
-            if ($isOverTolerance) {
-                $p->melewati_toleransi = true;
-                $p->tagihan->melewati_toleransi = true;
-            }
             $p->tagihan->status = 'lunas';
             $p->tagihan->save();
         }

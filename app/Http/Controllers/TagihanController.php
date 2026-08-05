@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Penghuni;
 use App\Models\Tagihan;
-use App\Models\Kontrak;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -14,9 +13,6 @@ class TagihanController extends Controller
 {
     public function index(Request $request): View
     {
-        Kontrak::autoTransition();
-        Tagihan::checkTolerance();
-        
         $bulan = (int) $request->get('bulan', now()->month);
         $tahun = (int) $request->get('tahun', now()->year);
 
@@ -74,7 +70,6 @@ class TagihanController extends Controller
             'tahun' => ['required', 'integer', 'min:2020', 'max:2100'],
             'bulan' => ['required', 'integer', 'min:1', 'max:12'],
             'jatuh_tempo' => ['required', 'date'],
-            'batas_toleransi' => ['required', 'date', 'after_or_equal:jatuh_tempo'],
         ]);
 
         $penghuni = Penghuni::with('kamar')->findOrFail($validated['penghuni_id']);
@@ -93,7 +88,6 @@ class TagihanController extends Controller
                 'kamar_id' => $penghuni->kamar_id,
                 'jumlah' => $penghuni->kamar->harga,
                 'jatuh_tempo' => $validated['jatuh_tempo'],
-                'batas_toleransi' => $validated['batas_toleransi'],
                 'status' => 'belum_bayar',
             ]
         );
@@ -112,15 +106,68 @@ class TagihanController extends Controller
         $bulan = (int) $validated['bulan'];
         $tahun = (int) $validated['tahun'];
 
-        $tagihans = Tagihan::where('status', 'menunggu_generate')
-            ->where('bulan', $bulan)
-            ->where('tahun', $tahun)
-            ->get();
-
+        // Get all active tenants
+        $penghunis = Penghuni::with('kamar')->get();
         $count = 0;
-        foreach ($tagihans as $t) {
-            $t->update(['status' => 'belum_bayar']);
-            $count++;
+
+        foreach ($penghunis as $penghuni) {
+            if (!$penghuni->kamar) {
+                continue;
+            }
+
+            $startDate = Carbon::parse($penghuni->tanggal_masuk)->startOfDay();
+            $duration = (int) $penghuni->durasi_kontrak;
+
+            $shouldHaveBill = false;
+            $due = null;
+            $amount = 0;
+
+            for ($i = 0; $i < $duration; $i += 6) {
+                $monthsInTerm = min(6, $duration - $i);
+                $termStart = $startDate->copy()->addMonths($i);
+                
+                if ($termStart->month === $bulan && $termStart->year === $tahun) {
+                    $shouldHaveBill = true;
+                    $due = $termStart->toDateString();
+                    $amount = $penghuni->kamar->harga * $monthsInTerm;
+                    break;
+                }
+            }
+
+            if ($shouldHaveBill) {
+                // Check if a bill already exists in database
+                $existingTagihan = Tagihan::where('penghuni_id', $penghuni->id)
+                    ->where('tahun', $tahun)
+                    ->where('bulan', $bulan)
+                    ->first();
+
+                if (!$existingTagihan) {
+                    // Check if there is an orphaned lunas payment for this period
+                    $pembayaranLunas = \App\Models\Pembayaran::where('penghuni_id', $penghuni->id)
+                        ->whereNull('tagihan_id')
+                        ->where('status', 'lunas')
+                        ->first();
+
+                    $newTagihan = Tagihan::create([
+                        'penghuni_id' => $penghuni->id,
+                        'kamar_id' => $penghuni->kamar_id,
+                        'tahun' => $tahun,
+                        'bulan' => $bulan,
+                        'jumlah' => $amount,
+                        'jatuh_tempo' => $due,
+                        'status' => $pembayaranLunas ? 'lunas' : 'belum_bayar',
+                    ]);
+
+                    if ($pembayaranLunas) {
+                        $pembayaranLunas->update(['tagihan_id' => $newTagihan->id]);
+                    }
+
+                    $count++;
+                } else if ($existingTagihan->status === 'menunggu_generate') {
+                    $existingTagihan->update(['status' => 'belum_bayar']);
+                    $count++;
+                }
+            }
         }
 
         if ($count > 0) {

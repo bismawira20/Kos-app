@@ -12,7 +12,7 @@ class AdminPenghuniAccountController extends Controller
 {
     public function index(): View
     {
-        $users = User::where('role', 'penghuni')->orderBy('name')->get();
+        $users = User::with('penghuni')->where('role', 'penghuni')->orderBy('name')->get();
 
         return view('admin.akun_penghuni.index', compact('users'));
     }

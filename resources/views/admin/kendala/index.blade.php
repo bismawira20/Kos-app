@@ -145,12 +145,6 @@
 
         {{-- Footer aksi seperti referensi --}}
         <div class="flex flex-wrap items-center gap-3 border-t border-slate-200 bg-white px-4 py-4 sm:px-6">
-            <form method="POST" action="{{ route('kendala.setujui-semua') }}" onsubmit="return confirm('Setujui semua laporan yang masih Diproses?');">
-                @csrf
-                <button type="submit" class="inline-flex items-center rounded-md bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white shadow hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-1">
-                    Setujui Semua
-                </button>
-            </form>
             <a href="{{ route('kendala.export', request()->query()) }}" class="inline-flex items-center rounded-md bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white shadow hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-1">
                 Export Excel
             </a>

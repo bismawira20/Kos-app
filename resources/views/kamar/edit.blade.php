@@ -29,10 +29,16 @@
 
                     <div>
                         <x-input-label for="harga" value="Harga per bulan (Rp)" />
-                        <x-text-input id="harga" name="harga" type="text" class="mt-1 block w-full" 
-                            :value="number_format((int)old('harga', $kamar->harga), 0, ',', '.')" 
-                            oninput="this.value = this.value.replace(/[^0-9]/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, '.')"
-                            required />
+                        
+                        {{-- Tampilkan harga, namun tidak bisa diubah --}}
+                        <x-text-input id="harga_display" type="text" class="mt-1 block w-full bg-slate-100 cursor-not-allowed" 
+                            readonly
+                            :value="old('harga', $kamar->harga) ? number_format((int)str_replace('.', '', old('harga', $kamar->harga)), 0, ',', '.') : ''" />
+
+                        {{-- Hidden input yang benar-benar dikirim ke backend --}}
+                        <input type="hidden" id="harga" name="harga" 
+                            value="{{ old('harga', $kamar->harga) ? str_replace('.', '', old('harga', $kamar->harga)) : '' }}" required />
+
                         <x-input-error class="mt-2" :messages="$errors->get('harga')" />
                     </div>
 
@@ -60,14 +66,27 @@
 
             function updatePriceFromType() {
                 const select = document.getElementById('tipe_kamar_id');
-                const priceInput = document.getElementById('harga');
+                const hiddenPrice = document.getElementById('harga');
+                const display = document.getElementById('harga_display');
                 const selectedId = select.value;
 
                 if (selectedId && typePrices[selectedId]) {
                     const price = typePrices[selectedId];
-                    priceInput.value = price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+                    if (display) {
+                        display.value = price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+                    }
+                    if (hiddenPrice) {
+                        hiddenPrice.value = String(price);
+                    }
+                } else {
+                    if (display) display.value = '';
+                    if (hiddenPrice) hiddenPrice.value = '';
                 }
             }
+
+            window.addEventListener('DOMContentLoaded', () => {
+                updatePriceFromType();
+            });
         </script>
     @endpush
 </x-app-layout>

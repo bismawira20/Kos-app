@@ -32,6 +32,10 @@
                                     <span class="inline-flex rounded-full bg-amber-50 border border-amber-200 px-3 py-1 text-xs font-bold tracking-wide text-amber-800 uppercase shadow-sm">
                                         MENUNGGU
                                     </span>
+                                @elseif($p->status === 'batal')
+                                    <span class="inline-flex rounded-full bg-slate-100 border border-slate-200 px-3 py-1 text-xs font-bold tracking-wide text-slate-700 uppercase shadow-sm">
+                                        BATAL
+                                    </span>
                                 @else
                                     <span class="inline-flex rounded-full bg-rose-50 border border-rose-200 px-3 py-1 text-xs font-bold tracking-wide text-rose-800 uppercase shadow-sm">
                                         {{ strtoupper($p->status) }}

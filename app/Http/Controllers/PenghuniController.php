@@ -6,7 +6,6 @@ use App\Models\Kamar;
 use App\Models\Penghuni;
 use App\Models\User;
 use App\Models\Tagihan;
-use App\Models\Kontrak;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -16,7 +15,6 @@ class PenghuniController extends Controller
 {
     public function index(): View
     {
-        Kontrak::autoTransition();
         $penghuni = Penghuni::with(['kamar', 'user'])->orderBy('nama')->get();
 
         return view('penghuni.index', compact('penghuni'));
@@ -41,8 +39,8 @@ class PenghuniController extends Controller
             'kamar_id' => ['required', 'exists:kamars,id'],
             'user_id' => ['nullable', 'exists:users,id'],
             'tanggal_masuk' => ['required', 'date'],
+            'tanggal_selesai' => ['required', 'date', 'after_or_equal:tanggal_masuk'],
             'durasi_kontrak' => ['required', 'integer', 'min:1', 'max:120'],
-            'hari_toleransi' => ['required', 'integer', 'min:0', 'max:120'],
             'nama_wali' => ['nullable', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/'],
             'no_hp_wali' => ['nullable', 'string', 'digits_between:10,13'],
             'alamat_wali' => ['nullable', 'string'],
@@ -67,34 +65,25 @@ class PenghuniController extends Controller
         }
 
         DB::transaction(function () use ($validated) {
+            $start = $validated['tanggal_masuk'];
+            $duration = $validated['durasi_kontrak'];
+            $end = $validated['tanggal_selesai'];
+
             $penghuni = Penghuni::create([
                 'nama' => $validated['nama'],
                 'no_hp' => $validated['no_hp'],
                 'kamar_id' => $validated['kamar_id'],
                 'user_id' => $validated['user_id'] ?? null,
-                'tanggal_masuk' => $validated['tanggal_masuk'] ?? null,
-                'durasi_kontrak' => $validated['durasi_kontrak'],
+                'tanggal_masuk' => $start,
+                'tanggal_selesai' => $end,
+                'durasi_kontrak' => $duration,
                 'nama_wali' => $validated['nama_wali'],
                 'no_hp_wali' => $validated['no_hp_wali'],
                 'alamat_wali' => $validated['alamat_wali'],
                 'hubungan' => $validated['hubungan'] ?? null,
             ]);
 
-            // Create initial contract
-            $start = $validated['tanggal_masuk'];
-            $duration = $validated['durasi_kontrak'];
-            $end = date('Y-m-d', strtotime("+{$duration} months -1 day", strtotime($start)));
-            
-            $kontrak = Kontrak::create([
-                'penghuni_id' => $penghuni->id,
-                'tanggal_mulai' => $start,
-                'tanggal_berakhir' => $end,
-                'durasi' => $duration,
-                'hari_toleransi' => $validated['hari_toleransi'],
-                'status' => 'aktif',
-            ]);
-
-            Kontrak::generateBillingForContract($kontrak);
+            $penghuni->generateBilling($start, $duration);
 
             Kamar::where('id', $validated['kamar_id'])->update(['status' => 'terisi']);
         });
@@ -104,8 +93,28 @@ class PenghuniController extends Controller
 
     public function destroy(Penghuni $penghuni): RedirectResponse
     {
+        // Check if there are any unpaid bills (belum_bayar)
+        $unpaidCount = Tagihan::where('penghuni_id', $penghuni->id)
+            ->where('status', 'belum_bayar')
+            ->count();
+
+        if ($unpaidCount > 0) {
+            return back()->with('error', 'Penghuni tidak dapat dihapus karena masih memiliki tagihan yang belum diselesaikan.');
+        }
+
         DB::transaction(function () use ($penghuni) {
+            // Free the room
             Kamar::where('id', $penghuni->kamar_id)->update(['status' => 'kosong']);
+
+            // Delete associated login user account if exists
+            if ($penghuni->user_id) {
+                User::where('id', $penghuni->user_id)->delete();
+            }
+
+            // Delete all the tenant's bills
+            Tagihan::where('penghuni_id', $penghuni->id)->delete();
+
+            // Delete the tenant
             $penghuni->delete();
         });
 
@@ -138,8 +147,8 @@ class PenghuniController extends Controller
             'kamar_id' => ['required', 'exists:kamars,id'],
             'user_id' => ['nullable', 'exists:users,id'],
             'tanggal_masuk' => ['required', 'date'],
+            'tanggal_selesai' => ['required', 'date', 'after_or_equal:tanggal_masuk'],
             'durasi_kontrak' => ['required', 'integer', 'min:1', 'max:120'],
-            'hari_toleransi' => ['required', 'integer', 'min:0', 'max:120'],
             'nama_wali' => ['nullable', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/'],
             'no_hp_wali' => ['nullable', 'string', 'digits_between:10,13'],
             'alamat_wali' => ['nullable', 'string'],
@@ -169,39 +178,30 @@ class PenghuniController extends Controller
         }
 
         DB::transaction(function () use ($validated, $penghuni, $oldKamarId, $newKamarId) {
+            $start = $validated['tanggal_masuk'];
+            $duration = $validated['durasi_kontrak'];
+            $end = $validated['tanggal_selesai'];
+
             $penghuni->update([
                 'nama' => $validated['nama'],
                 'no_hp' => $validated['no_hp'],
                 'kamar_id' => $newKamarId,
                 'user_id' => $validated['user_id'] ?? null,
-                'tanggal_masuk' => $validated['tanggal_masuk'] ?? null,
-                'durasi_kontrak' => $validated['durasi_kontrak'],
+                'tanggal_masuk' => $start,
+                'tanggal_selesai' => $end,
+                'durasi_kontrak' => $duration,
                 'nama_wali' => $validated['nama_wali'],
                 'no_hp_wali' => $validated['no_hp_wali'],
                 'alamat_wali' => $validated['alamat_wali'],
                 'hubungan' => $validated['hubungan'] ?? null,
             ]);
 
-            // Update active contract details if exists
-            $activeContract = $penghuni->kontraks()->where('status', 'aktif')->first();
-            if ($activeContract) {
-                $start = $validated['tanggal_masuk'];
-                $duration = $validated['durasi_kontrak'];
-                $end = date('Y-m-d', strtotime("+{$duration} months -1 day", strtotime($start)));
-                $activeContract->update([
-                    'tanggal_mulai' => $start,
-                    'tanggal_berakhir' => $end,
-                    'durasi' => $duration,
-                    'hari_toleransi' => $validated['hari_toleransi'],
-                ]);
+            // Regenerate billing terms that are waiting to be generated
+            Tagihan::where('penghuni_id', $penghuni->id)
+                ->where('status', 'menunggu_generate')
+                ->delete();
 
-                // Regenerate billing terms
-                Tagihan::where('penghuni_id', $penghuni->id)
-                    ->where('status', 'menunggu_generate')
-                    ->delete();
-
-                Kontrak::generateBillingForContract($activeContract);
-            }
+            $penghuni->generateBilling($start, $duration);
 
             if ($oldKamarId != $newKamarId) {
                 Kamar::where('id', $oldKamarId)->update(['status' => 'kosong']);
@@ -210,52 +210,5 @@ class PenghuniController extends Controller
         });
 
         return redirect()->route('penghuni.index')->with('status', 'Data penghuni berhasil diperbarui.');
-    }
-
-    public function perpanjang(Request $request, Penghuni $penghuni): RedirectResponse
-    {
-        $validated = $request->validate([
-            'durasi' => ['required', 'integer', 'in:3,6'],
-            'hari_toleransi' => ['required', 'integer', 'min:0', 'max:120'],
-        ]);
-
-        $duration = (int) $validated['durasi'];
-        $toleransi = (int) $validated['hari_toleransi'];
-
-        DB::transaction(function () use ($penghuni, $duration, $toleransi) {
-            // Find latest contract to determine start date
-            $latestContract = Kontrak::where('penghuni_id', $penghuni->id)
-                ->orderByDesc('tanggal_berakhir')
-                ->first();
-
-            $start = $latestContract
-                ? \Carbon\Carbon::parse($latestContract->tanggal_berakhir)->addDay()->toDateString()
-                : \Carbon\Carbon::parse($penghuni->tanggal_masuk ?? now())->toDateString();
-
-            $end = \Carbon\Carbon::parse($start)->addMonths($duration)->subDay()->toDateString();
-
-            // Check if there is an active contract currently
-            $hasActive = Kontrak::where('penghuni_id', $penghuni->id)
-                ->where('status', 'aktif')
-                ->exists();
-
-            $status = $hasActive ? 'menunggu_dimulai' : 'aktif';
-
-            $newContract = Kontrak::create([
-                'penghuni_id' => $penghuni->id,
-                'tanggal_mulai' => $start,
-                'tanggal_berakhir' => $end,
-                'durasi' => $duration,
-                'hari_toleransi' => $toleransi,
-                'status' => $status,
-            ]);
-
-            // If it becomes active immediately, generate its billing schedules
-            if ($status === 'aktif') {
-                Kontrak::generateBillingForContract($newContract);
-            }
-        });
-
-        return redirect()->route('penghuni.index')->with('status', 'Kontrak penghuni berhasil diperpanjang.');
     }
 }

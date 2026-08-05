@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Tagihan;
-use App\Models\Kontrak;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
@@ -11,10 +10,8 @@ class DashboardPenghuniController extends Controller
 {
     public function index(): View
     {
-        Kontrak::autoTransition();
-        Tagihan::checkTolerance();
         $user = Auth::user();
-        $user->load(['penghuni.kamar.tipeKamar', 'penghuni.kontraks']);
+        $user->load(['penghuni.kamar.tipeKamar']);
         $penghuni = $user->penghuni;
 
         if (! $penghuni) {
@@ -39,7 +36,7 @@ class DashboardPenghuniController extends Controller
             ->first();
 
         $tunggakan = Tagihan::where('penghuni_id', $penghuni->id)
-            ->whereIn('status', ['belum_bayar', 'melewati_batas_toleransi', 'menunggu'])
+            ->whereIn('status', ['belum_bayar', 'menunggu'])
             ->where('jatuh_tempo', '<', $now->toDateString())
             ->count();
 

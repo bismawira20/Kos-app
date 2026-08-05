@@ -37,7 +37,6 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::resource('kamar', KamarController::class)->except(['show']);
     Route::resource('tipe-kamar', TipeKamarController::class)->only(['index', 'edit', 'update']);
     Route::resource('penghuni', PenghuniController::class)->except(['show']);
-    Route::post('/penghuni/{penghuni}/perpanjang', [PenghuniController::class, 'perpanjang'])->name('penghuni.perpanjang');
     // Admin pengelolaan akun penghuni (only users with role 'penghuni')
     Route::get('/akun-penghuni', [App\Http\Controllers\AdminPenghuniAccountController::class, 'index'])->name('akun-penghuni.index');
     Route::get('/akun-penghuni/create', [App\Http\Controllers\AdminPenghuniAccountController::class, 'create'])->name('akun-penghuni.create');

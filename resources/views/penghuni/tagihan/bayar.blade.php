@@ -19,9 +19,9 @@
             @csrf
             <div>
                 <x-input-label value="Jumlah dibayar (Rp)" />
-                <x-text-input name="jumlah" type="text" class="mt-1 w-full" 
+                <x-text-input name="jumlah" type="text" class="mt-1 w-full bg-slate-100 cursor-not-allowed" 
                     :value="number_format((int)old('jumlah', $tagihan->jumlah), 0, ',', '.')" 
-                    oninput="this.value = this.value.replace(/[^0-9]/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, '.')"
+                    readonly
                     required />
                 <x-input-error :messages="$errors->get('jumlah')" />
             </div>

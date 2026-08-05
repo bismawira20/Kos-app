@@ -13,7 +13,7 @@
                         @endfor
                     </select>
                     <select name="tahun" onchange="this.form.submit()" class="rounded-lg border-slate-300 text-sm focus:border-indigo-500 focus:ring-indigo-500">
-                        @for ($y = now()->year; $y >= now()->year - 3; $y--)
+                        @for ($y = now()->year; $y <= now()->year + 3; $y++)
                             <option value="{{ $y }}" @selected($tahun === $y)>{{ $y }}</option>
                         @endfor
                     </select>
@@ -43,7 +43,6 @@
                             <th class="px-6 py-4 text-center font-semibold text-slate-700">Harga</th>
                             <th class="px-6 py-4 text-center font-semibold text-slate-700">Periode</th>
                             <th class="px-6 py-4 text-center font-semibold text-slate-700">Jatuh Tempo</th>
-                            <th class="px-6 py-4 text-center font-semibold text-slate-700">Batas Toleransi</th>
                             <th class="px-6 py-4 text-center font-semibold text-slate-700">Penghuni</th>
                             <th class="px-6 py-4 text-center font-semibold text-slate-700">Status</th>
                         </tr>
@@ -55,39 +54,33 @@
                                 <td class="px-6 py-4 text-center font-semibold text-slate-900">Kamar {{ $t->kamar?->nomor_kamar }}</td>
                                 <td class="px-6 py-4 text-center font-semibold text-slate-900">Rp {{ number_format($t->jumlah, 0, ',', '.') }}</td>
                                 <td class="px-6 py-4 text-center text-slate-600 font-medium">
-                                    {{ $t->labelPeriode() }}
-                                    @if ($t->is_tunggakan)
-                                        <span class="ml-1 inline-flex rounded-full bg-rose-100 border border-rose-200 px-2 py-0.5 text-[10px] font-bold text-rose-700 uppercase tracking-wide">
-                                            Tunggakan
-                                        </span>
-                                    @endif
-                                </td>
+                                     {{ $t->labelPeriode() }}
+                                     @if ($t->is_tunggakan)
+                                         <span class="ml-1 inline-flex rounded-full bg-rose-100 border border-rose-200 px-2 py-0.5 text-[10px] font-bold text-rose-700 uppercase tracking-wide">
+                                             Tunggakan
+                                         </span>
+                                     @endif
+                                 </td>
                                 <td class="px-6 py-4 text-center text-slate-600 font-medium">{{ $t->status === 'lunas' ? '-' : $t->jatuh_tempo?->format('d/m/Y') }}</td>
-                                <td class="px-6 py-4 text-center text-slate-600 font-medium">{{ $t->status === 'lunas' ? '-' : ($t->batas_toleransi ? $t->batas_toleransi->format('d/m/Y') : '—') }}</td>
                                 <td class="px-6 py-4 text-center font-semibold text-slate-900">{{ $t->penghuni?->nama }}</td>
                                 <td class="px-6 py-4 text-center">
                                     <span class="inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold border
-                                        {{ $t->status === 'lunas' ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : ($t->status === 'menunggu' ? 'bg-amber-50 text-amber-800 border-amber-200' : ($t->status === 'menunggu_generate' ? 'bg-slate-100 text-slate-800 border-slate-200' : ($t->status === 'melewati_batas_toleransi' ? 'bg-rose-50 text-rose-800 border-rose-200' : 'bg-red-50 text-red-800 border-red-200'))) }}">
+                                        {{ $t->status === 'lunas' ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : ($t->status === 'menunggu' ? 'bg-amber-50 text-amber-800 border-amber-200' : ($t->status === 'menunggu_generate' ? 'bg-slate-100 text-slate-800 border-slate-200' : 'bg-red-50 text-red-800 border-red-200')) }}">
                                         @if ($t->status === 'belum_bayar')
                                             Belum Dibayar
                                         @elseif ($t->status === 'menunggu_generate')
                                             Menunggu Generate
                                         @elseif ($t->status === 'menunggu')
                                             Menunggu Verifikasi
-                                        @elseif ($t->status === 'melewati_batas_toleransi')
-                                            Melewati Batas Toleransi
                                         @else
                                             {{ ucfirst($t->status) }}
                                         @endif
                                     </span>
-                                    @if ($t->melewati_toleransi)
-                                        <div class="mt-1 text-[10px] text-rose-600 font-semibold italic">Melewati Toleransi</div>
-                                    @endif
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="8" class="px-6 py-12 text-center text-slate-500">Belum ada tagihan untuk periode ini.</td>
+                                <td colspan="7" class="px-6 py-12 text-center text-slate-500">Belum ada tagihan untuk periode ini.</td>
                             </tr>
                         @endforelse
                     </tbody>

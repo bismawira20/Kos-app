@@ -105,7 +105,7 @@ class MidtransController extends Controller
             ->first();
 
         if ($pembayaran) {
-            $pembayaran->update(['status' => 'ditolak']);
+            $pembayaran->update(['status' => 'batal']);
         }
 
         $tagihan->update(['status' => 'belum_bayar']);
@@ -167,35 +167,26 @@ class MidtransController extends Controller
                 if ($type == 'credit_card'){
                     if($fraud == 'challenge'){
                         $pembayaran->update(['status' => 'menunggu']);
-                    }
-                    else {
-                        $isOverTolerance = ($tagihan->status === 'melewati_batas_toleransi') || 
-                                           ($tagihan->batas_toleransi && now()->gt($tagihan->batas_toleransi));
+                    } else {
                         $pembayaran->update([
                             'status' => 'lunas',
-                            'melewati_toleransi' => $isOverTolerance,
                         ]);
                         $tagihan->update([
                             'status' => 'lunas',
-                            'melewati_toleransi' => $isOverTolerance,
                         ]);
                     }
                 }
             } else if ($transaction == 'settlement'){
-                $isOverTolerance = ($tagihan->status === 'melewati_batas_toleransi') || 
-                                   ($tagihan->batas_toleransi && now()->gt($tagihan->batas_toleransi));
                 $pembayaran->update([
                     'status' => 'lunas',
-                    'melewati_toleransi' => $isOverTolerance,
                 ]);
                 $tagihan->update([
                     'status' => 'lunas',
-                    'melewati_toleransi' => $isOverTolerance,
                 ]);
             } else if($transaction == 'pending'){
                 $pembayaran->update(['status' => 'menunggu']);
             } else if ($transaction == 'deny' || $transaction == 'expire' || $transaction == 'cancel') {
-                $pembayaran->update(['status' => 'ditolak']);
+                $pembayaran->update(['status' => 'batal']);
                 $tagihan->update(['status' => 'belum_bayar']);
             }
 

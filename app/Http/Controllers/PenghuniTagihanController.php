@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Pembayaran;
 use App\Models\Tagihan;
-use App\Models\Kontrak;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -15,8 +14,6 @@ class PenghuniTagihanController extends Controller
 {
     public function index(): View
     {
-        Kontrak::autoTransition();
-        Tagihan::checkTolerance();
         $user = Auth::user();
         $penghuni = $user->penghuni;
         if (! $penghuni) {
@@ -36,10 +33,9 @@ class PenghuniTagihanController extends Controller
     public function bayar(Tagihan $tagihan): View
     {
         $this->authorizeTagihan($tagihan);
-        Tagihan::checkTolerance();
         $tagihan->refresh();
 
-        abort_unless(in_array($tagihan->status, ['belum_bayar', 'melewati_batas_toleransi']), 403);
+        abort_unless($tagihan->status === 'belum_bayar', 403);
 
         $tagihan->load('kamar', 'penghuni');
 
@@ -50,10 +46,9 @@ class PenghuniTagihanController extends Controller
     {
         $this->authorizeTagihan($tagihan);
 
-        Tagihan::checkTolerance();
         $tagihan->refresh();
 
-        if (!in_array($tagihan->status, ['belum_bayar', 'melewati_batas_toleransi'])) {
+        if ($tagihan->status !== 'belum_bayar') {
             return redirect()->route('penghuni.tagihan.index')->with('error', 'Tagihan ini tidak dapat dibayar (sudah lunas atau menunggu verifikasi).');
         }
 

@@ -91,10 +91,6 @@
                     <a href="{{ route('penghuni.tagihan.index') }}" class="text-sm font-semibold text-indigo-600 hover:text-indigo-700">Lihat tagihan</a>
                 </div>
 
-                @php
-                    $activeKontrak = $penghuni->kontraks->where('status', 'aktif')->first();
-                @endphp
-
                 <dl class="mt-5 grid gap-4 text-sm sm:grid-cols-2">
                     <!-- Harga / Bulan Card -->
                     <div class="flex items-center gap-4 rounded-2xl bg-slate-50 p-4 transition-all hover:bg-slate-100/70">
@@ -130,9 +126,9 @@
                             </svg>
                         </div>
                         <div>
-                            <dt class="text-xs font-medium text-slate-500">Mulai Kontrak</dt>
+                            <dt class="text-xs font-medium text-slate-500">Mulai Sewa</dt>
                             <dd class="mt-0.5 text-sm font-bold text-slate-950">
-                                {{ $activeKontrak ? $activeKontrak->tanggal_mulai->format('d M Y') : ($penghuni->tanggal_masuk ? \Carbon\Carbon::parse($penghuni->tanggal_masuk)->format('d M Y') : '—') }}
+                                {{ $penghuni->tanggal_masuk ? $penghuni->tanggal_masuk->format('d M Y') : '—' }}
                             </dd>
                         </div>
                     </div>
@@ -145,9 +141,9 @@
                             </svg>
                         </div>
                         <div>
-                            <dt class="text-xs font-medium text-slate-500">Berakhir Kontrak</dt>
+                            <dt class="text-xs font-medium text-slate-500">Akhir Sewa</dt>
                             <dd class="mt-0.5 text-sm font-bold text-slate-950">
-                                {{ $activeKontrak ? $activeKontrak->tanggal_berakhir->format('d M Y') : '—' }}
+                                {{ $penghuni->tanggal_selesai ? $penghuni->tanggal_selesai->format('d M Y') : '—' }}
                             </dd>
                         </div>
                     </div>
