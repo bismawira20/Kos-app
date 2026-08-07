@@ -13,27 +13,7 @@
     </x-slot>
 
     <div class="mx-auto max-w-6xl py-8">
-        <script>
-            function calculateNewEnd(tenantId, oldEndStr) {
-                const select = document.getElementById('ext-duration-' + tenantId);
-                const input = document.getElementById('ext-new-end-' + tenantId);
-                if (!select || !input) return;
-                const months = parseInt(select.value);
-                
-                let date = new Date(oldEndStr);
-                if (isNaN(date.getTime())) {
-                    return;
-                }
-                
-                // Add months to the date
-                date.setMonth(date.getMonth() + months);
-                
-                const yyyy = date.getFullYear();
-                const monthsName = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-                
-                input.value = `${date.getDate()} ${monthsName[date.getMonth()]} ${yyyy}`;
-            }
-        </script>
+
 
         <div class="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
             <div class="overflow-x-auto">
@@ -83,33 +63,36 @@
 
                                         {{-- Delete Modal --}}
                                         <dialog id="delete-penghuni-{{ $p->id }}" class="w-full max-w-sm rounded-2xl p-0 shadow-2xl backdrop:bg-slate-900/50 border border-slate-100 overflow-hidden">
-                                            <div class="p-8 text-center">
-                                                <div class="mx-auto flex h-20 w-20 items-center justify-center rounded-full border-4 border-amber-400 text-amber-400 mb-6">
-                                                    <span class="text-5xl font-light leading-none -mt-1">!</span>
+                                            <div class="p-6 text-center">
+                                                <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-rose-100 text-rose-600 mb-4">
+                                                    <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                                 </div>
-                                                <h3 class="text-2xl font-bold text-slate-800 tracking-wider uppercase mb-2">HAPUS PENGHUNI</h3>
-                                                <p class="text-slate-600 mb-8">Apakah Anda yakin ingin menghapus data penghuni <span class="font-semibold">{{ $p->nama }}</span>?</p>
-                                                <div class="flex items-center justify-center gap-4">
+                                                <h3 class="text-lg font-bold text-slate-900 mb-2">Hapus Data Penghuni</h3>
+                                                <p class="text-sm text-slate-600 mb-6">Apakah Anda yakin ingin menghapus data penghuni ini?</p>
+                                                <div class="flex items-center justify-center gap-3">
+                                                    <button type="button" onclick="document.getElementById('delete-penghuni-{{ $p->id }}').close()" class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition active:scale-95">
+                                                        Batal
+                                                    </button>
                                                     <form action="{{ route('penghuni.destroy', $p) }}" method="POST" class="inline">
                                                         @csrf
                                                         @method('DELETE')
-                                                        <button type="submit" class="rounded-lg bg-rose-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-rose-700 shadow-md transition active:scale-95">
-                                                            Hapus
+                                                        <button type="submit" class="rounded-xl bg-rose-600 px-4 py-2 text-sm font-semibold text-white hover:bg-rose-700 shadow-sm transition active:scale-95">
+                                                            Ya, Lanjutkan
                                                         </button>
                                                     </form>
-                                                    <button type="button" onclick="document.getElementById('delete-penghuni-{{ $p->id }}').close()" class="rounded-lg bg-slate-400 px-6 py-2.5 text-sm font-semibold text-white hover:bg-slate-500 shadow-md transition active:scale-95">
-                                                        Batal
-                                                    </button>
                                                 </div>
                                             </div>
                                         </dialog>
 
                                         {{-- Modal Detail --}}
-                                        <dialog id="detail-penghuni-{{ $p->id }}" class="w-full max-w-md rounded-xl p-0 shadow-2xl backdrop:bg-slate-900/40 text-left border border-slate-200">
-                                            <div class="border-b border-slate-100 px-5 py-4 bg-slate-50">
-                                                <h3 class="text-lg font-bold text-slate-900">Profil Penghuni</h3>
+                                        <dialog id="detail-penghuni-{{ $p->id }}" class="w-full max-w-md rounded-2xl p-0 shadow-2xl backdrop:bg-slate-900/40 text-left border border-slate-200 overflow-hidden">
+                                            <div class="border-b border-slate-100 px-5 py-4 bg-slate-50 flex items-center justify-between">
+                                                <h3 class="text-lg font-bold text-slate-900">Detail Penghuni</h3>
+                                                <form method="dialog">
+                                                    <button class="text-slate-400 hover:text-slate-600 text-sm font-semibold">✕</button>
+                                                </form>
                                             </div>
-                                            <div class="px-5 py-5 space-y-4 text-sm">
+                                            <div class="px-5 py-5 space-y-4 text-sm max-h-[75vh] overflow-y-auto">
                                                 <div>
                                                     <h4 class="text-xs font-bold tracking-wider uppercase text-slate-400 mb-2">Data Utama</h4>
                                                     <p class="text-slate-800"><span class="font-medium text-slate-500 inline-block w-24">Nama:</span> {{ $p->nama }}</p>
@@ -123,6 +106,23 @@
                                                     <p class="text-slate-800"><span class="font-medium text-slate-500 inline-block w-24">Durasi:</span> {{ $p->durasi_kontrak }} Bulan</p>
                                                 </div>
                                                 
+                                                <hr class="border-slate-100">
+
+                                                <div>
+                                                    <h4 class="text-xs font-bold tracking-wider uppercase text-slate-400 mb-2">Akun Login &amp; Keamanan</h4>
+                                                    @if ($p->user_id && $p->user)
+                                                        <p class="text-slate-800"><span class="font-medium text-slate-500 inline-block w-24">Email:</span> <span class="font-semibold text-indigo-700">{{ $p->user->email }}</span></p>
+                                                        <div class="mt-3">
+                                                            <button type="button" onclick="document.getElementById('detail-penghuni-{{ $p->id }}').close(); document.getElementById('reset-password-{{ $p->id }}').showModal()" class="inline-flex items-center gap-1.5 rounded-lg bg-amber-50 border border-amber-300 px-3 py-1.5 text-xs font-bold text-amber-800 hover:bg-amber-100 transition active:scale-95 shadow-sm">
+                                                                <svg class="h-4 w-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 0121 9z" /></svg>
+                                                                <span>Reset Password</span>
+                                                            </button>
+                                                        </div>
+                                                    @else
+                                                        <p class="text-slate-400 italic">Belum terhubung ke akun login.</p>
+                                                    @endif
+                                                </div>
+
                                                 <hr class="border-slate-100">
 
                                                 <div>
@@ -142,6 +142,33 @@
                                                 <button class="rounded-lg bg-white border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 shadow-sm active:scale-95 transition">Tutup</button>
                                             </form>
                                         </dialog>
+
+                                        {{-- Modal Reset Password --}}
+                                        @if ($p->user_id && $p->user)
+                                            <dialog id="reset-password-{{ $p->id }}" class="w-full max-w-md rounded-2xl p-0 shadow-2xl backdrop:bg-slate-900/50 border border-slate-100 overflow-hidden text-left">
+                                                <form action="{{ route('penghuni.reset-password', $p) }}" method="POST">
+                                                    @csrf
+                                                    <div class="border-b border-slate-100 px-6 py-4 bg-slate-50">
+                                                        <h3 class="text-lg font-bold text-slate-900">Reset Password Penghuni</h3>
+                                                        <p class="text-xs text-slate-500 mt-0.5">Penghuni: <span class="font-semibold text-slate-800">{{ $p->nama }}</span> ({{ $p->user->email }})</p>
+                                                    </div>
+                                                    <div class="p-6 space-y-4">
+                                                        <div>
+                                                            <label for="pass-{{ $p->id }}" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Password Baru</label>
+                                                            <input type="password" id="pass-{{ $p->id }}" name="password" required minlength="8" class="w-full rounded-lg border-slate-300 text-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="Masukkan password baru (min. 8 karakter)">
+                                                        </div>
+                                                        <div>
+                                                            <label for="pass-confirm-{{ $p->id }}" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Konfirmasi Password Baru</label>
+                                                            <input type="password" id="pass-confirm-{{ $p->id }}" name="password_confirmation" required minlength="8" class="w-full rounded-lg border-slate-300 text-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="Ketik ulang password baru">
+                                                        </div>
+                                                    </div>
+                                                    <div class="border-t border-slate-100 px-6 py-4 bg-slate-50 flex items-center justify-end gap-3">
+                                                        <button type="button" onclick="document.getElementById('reset-password-{{ $p->id }}').close()" class="rounded-lg bg-white border border-slate-300 px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50">Batal</button>
+                                                        <button type="submit" class="rounded-lg bg-amber-600 px-4 py-2 text-xs font-bold text-white hover:bg-amber-700 shadow-sm transition active:scale-95">Simpan Password Baru</button>
+                                                    </div>
+                                                </form>
+                                            </dialog>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>

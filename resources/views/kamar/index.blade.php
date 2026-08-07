@@ -63,23 +63,23 @@
 
                                         {{-- Delete Modal --}}
                                         <dialog id="delete-kamar-{{ $k->id }}" class="w-full max-w-sm rounded-2xl p-0 shadow-2xl backdrop:bg-slate-900/50 border border-slate-100 overflow-hidden">
-                                            <div class="p-8 text-center">
-                                                <div class="mx-auto flex h-20 w-20 items-center justify-center rounded-full border-4 border-amber-400 text-amber-400 mb-6">
-                                                    <span class="text-5xl font-light leading-none -mt-1">!</span>
+                                            <div class="p-6 text-center">
+                                                <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-rose-100 text-rose-600 mb-4">
+                                                    <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                                 </div>
-                                                <h3 class="text-2xl font-bold text-slate-800 tracking-wider uppercase mb-2">DELETE</h3>
-                                                <p class="text-slate-600 mb-8">Hapus Data Kamar : <span class="font-semibold">{{ $k->nomor_kamar }}</span> ?</p>
-                                                <div class="flex items-center justify-center gap-4">
+                                                <h3 class="text-lg font-bold text-slate-900 mb-2">Hapus Data Kamar</h3>
+                                                <p class="text-sm text-slate-600 mb-6">Apakah Anda yakin ingin menghapus data kamar ini?</p>
+                                                <div class="flex items-center justify-center gap-3">
+                                                    <button type="button" onclick="document.getElementById('delete-kamar-{{ $k->id }}').close()" class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition active:scale-95">
+                                                        Batal
+                                                    </button>
                                                     <form action="{{ route('kamar.destroy', $k) }}" method="POST" class="inline">
                                                         @csrf
                                                         @method('DELETE')
-                                                        <button type="submit" class="rounded-lg bg-rose-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-rose-700 shadow-md transition active:scale-95">
-                                                            Yes, delete!
+                                                        <button type="submit" class="rounded-xl bg-rose-600 px-4 py-2 text-sm font-semibold text-white hover:bg-rose-700 shadow-sm transition active:scale-95">
+                                                            Ya, Lanjutkan
                                                         </button>
                                                     </form>
-                                                    <button type="button" onclick="document.getElementById('delete-kamar-{{ $k->id }}').close()" class="rounded-lg bg-slate-400 px-6 py-2.5 text-sm font-semibold text-white hover:bg-slate-500 shadow-md transition active:scale-95">
-                                                        Cancel
-                                                    </button>
                                                 </div>
                                             </div>
                                         </dialog>

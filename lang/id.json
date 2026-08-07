@@ -1,0 +1,20 @@
+{
+    "Log in": "Masuk",
+    "Register": "Daftar",
+    "Email": "Email",
+    "Password": "Kata sandi",
+    "Confirm Password": "Konfirmasi kata sandi",
+    "Already registered?": "Sudah punya akun?",
+    "Forgot your password?": "Lupa kata sandi Anda?",
+    "Remember me": "Ingat saya",
+    "Name": "Nama",
+    "Profile": "Profil",
+    "Log Out": "Keluar",
+    "Dashboard": "Dashboard",
+    "Save": "Simpan",
+    "Saved.": "Tersimpan.",
+    "Cancel": "Batal",
+    "Whoops! Something went wrong.": "Ups! Terjadi kesalahan.",
+    "These credentials do not match our records.": "Email atau kata sandi yang Anda masukkan salah.",
+    "The provided password was incorrect.": "Kata sandi yang Anda masukkan salah."
+}

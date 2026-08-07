@@ -17,19 +17,10 @@ class PenghuniRiwayatController extends Controller
             return view('penghuni.riwayat', ['penghuni' => null, 'pembayaran' => collect()]);
         }
 
-        $pembayaran = Pembayaran::with(['tagihan.kamar'])
+        $pembayaran = Pembayaran::with(['tagihan.kamar', 'penghuni'])
             ->where('penghuni_id', $penghuni->id)
-            ->where('status', '!=', 'batal')
-            ->where(function($query) {
-                $query->where('status', '!=', 'menunggu')
-                      ->orWhere(function($sub) {
-                          $sub->where('status', 'menunggu')
-                              ->where(function($sub2) {
-                                  $sub2->whereNull('metode_pembayaran')
-                                       ->orWhere('metode_pembayaran', '!=', 'midtrans');
-                              });
-                      });
-            })
+            ->where('status', 'lunas')
+            ->orderByDesc('tanggal_bayar')
             ->orderByDesc('created_at')
             ->get();
 

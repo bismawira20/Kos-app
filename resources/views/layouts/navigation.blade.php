@@ -6,8 +6,6 @@
     $pageTitle = 'E-PayKos';
     if (request()->routeIs('dashboard') || request()->routeIs('dashboard.penghuni')) {
         $pageTitle = 'Dashboard';
-    } elseif (request()->routeIs('akun-penghuni.*')) {
-        $pageTitle = 'Kelola Akun';
     } elseif (request()->routeIs('kamar.*')) {
         $pageTitle = 'Kelola Kamar';
     } elseif (request()->routeIs('tipe-kamar.*')) {
@@ -67,13 +65,9 @@
                             Profil
                         </x-dropdown-link>
 
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-                            <x-dropdown-link :href="route('logout')"
-                                onclick="event.preventDefault(); this.closest('form').submit();">
-                                Keluar
-                            </x-dropdown-link>
-                        </form>
+                        <button type="button" onclick="document.getElementById('logout-modal').showModal()" class="block w-full px-4 py-2 text-start text-sm leading-5 text-gray-700 hover:bg-gray-100 focus:outline-none transition duration-150 ease-in-out">
+                            Keluar
+                        </button>
                     </x-slot>
                 </x-dropdown>
             </div>
@@ -108,6 +102,17 @@
                 <x-responsive-nav-link :href="route('dashboard.penghuni')" :active="request()->routeIs('dashboard.penghuni')">
                     Dashboard
                 </x-responsive-nav-link>
+                @if (Auth::user()->penghuni)
+                    <x-responsive-nav-link :href="route('penghuni.tagihan.index')" :active="request()->routeIs('penghuni.tagihan.*')">
+                        Tagihan
+                    </x-responsive-nav-link>
+                    <x-responsive-nav-link :href="route('penghuni.riwayat')" :active="request()->routeIs('penghuni.riwayat')">
+                        Riwayat
+                    </x-responsive-nav-link>
+                    <x-responsive-nav-link :href="route('penghuni.kendala.index')" :active="request()->routeIs('penghuni.kendala.*')">
+                        Kendala
+                    </x-responsive-nav-link>
+                @endif
             @endif
         </div>
 
@@ -122,13 +127,9 @@
                     Profil
                 </x-responsive-nav-link>
 
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <x-responsive-nav-link :href="route('logout')"
-                        onclick="event.preventDefault(); this.closest('form').submit();">
-                        Keluar
-                    </x-responsive-nav-link>
-                </form>
+                <button type="button" onclick="document.getElementById('logout-modal').showModal()" class="block w-full w-full text-start ps-3 pe-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-300 hover:text-white hover:bg-white/10 transition">
+                    Keluar
+                </button>
             </div>
         </div>
     </div>

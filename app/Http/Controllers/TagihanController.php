@@ -2,50 +2,100 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Kamar;
 use App\Models\Penghuni;
 use App\Models\Tagihan;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class TagihanController extends Controller
 {
+    /**
+     * Hitung daftar virtual penghuni yang berada pada kondisi "Menunggu Generate"
+     * untuk periode (bulan & tahun) yang dipilih.
+     */
+    public static function getPendingGenerationForPeriod(int $bulan, int $tahun): \Illuminate\Support\Collection
+    {
+        $penghunis = Penghuni::with('kamar')->whereNotNull('kamar_id')->get();
+        $pendingList = collect();
+
+        foreach ($penghunis as $penghuni) {
+            if (!$penghuni->kamar || !$penghuni->tanggal_masuk) {
+                continue;
+            }
+
+            $startDate = Carbon::parse($penghuni->tanggal_masuk)->startOfDay();
+            $duration = (int) ($penghuni->durasi_kontrak ?? 12);
+            $step = ($duration === 12) ? 6 : $duration;
+
+            // Cek setiap istilah/termin pembayaran penghuni
+            for ($termIdx = 0; $termIdx < 24; $termIdx++) {
+                $termStart = $startDate->copy()->addMonths($termIdx * $step);
+
+                if ((int)$termStart->month === $bulan && (int)$termStart->year === $tahun) {
+                    // Cek apakah record tagihan SUDAH ADA di database
+                    $exists = Tagihan::where('penghuni_id', $penghuni->id)
+                        ->where('tahun', $tahun)
+                        ->where('bulan', $bulan)
+                        ->exists();
+
+                    if (!$exists) {
+                        $amount = $penghuni->kamar->harga * $step;
+                        $due = $termStart->toDateString();
+
+                        $item = new Tagihan([
+                            'penghuni_id' => $penghuni->id,
+                            'kamar_id' => $penghuni->kamar_id,
+                            'tahun' => $tahun,
+                            'bulan' => $bulan,
+                            'jumlah' => $amount,
+                            'jatuh_tempo' => $due,
+                            'status' => 'menunggu_generate', // Status tampilan virtual saja
+                        ]);
+                        $item->setRelation('penghuni', $penghuni);
+                        $item->setRelation('kamar', $penghuni->kamar);
+                        $item->is_menunggu_generate = true;
+
+                        $pendingList->push($item);
+                    }
+                    break;
+                }
+            }
+        }
+
+        return $pendingList;
+    }
+
     public function index(Request $request): View
     {
         $bulan = (int) $request->get('bulan', now()->month);
         $tahun = (int) $request->get('tahun', now()->year);
 
-        // Fetch bills for current selected month/year
-        $currentPeriodTagihans = Tagihan::with(['penghuni', 'kamar'])
-            ->where('bulan', $bulan)
-            ->where('tahun', $tahun)
-            ->orderBy('kamar_id')
+        // 1. Ambil seluruh tagihan di database yang belum lunas (Belum Bayar, Menunggu Verifikasi, Ditolak)
+        $activeTagihansDB = Tagihan::with(['penghuni', 'kamar'])
+            ->whereIn('status', ['belum_bayar', 'menunggu', 'ditolak'])
+            ->orderBy('tahun', 'asc')
+            ->orderBy('bulan', 'asc')
+            ->orderBy('kamar_id', 'asc')
             ->get();
 
-        // Fetch past unpaid bills
-        $pastUnpaidTagihans = Tagihan::with(['penghuni', 'kamar'])
-            ->where(function ($query) use ($bulan, $tahun) {
-                $query->where('tahun', '<', $tahun)
-                      ->orWhere(function ($q) use ($bulan, $tahun) {
-                          $q->where('tahun', $tahun)
-                            ->where('bulan', '<', $bulan);
-                      });
-            })
-            ->whereIn('status', ['belum_bayar', 'melewati_batas_toleransi', 'menunggu'])
-            ->orderBy('tahun')
-            ->orderBy('bulan')
-            ->orderBy('kamar_id')
-            ->get();
-
-        foreach ($currentPeriodTagihans as $t) {
-            $t->is_tunggakan = false;
-        }
-        foreach ($pastUnpaidTagihans as $t) {
-            $t->is_tunggakan = true;
+        foreach ($activeTagihansDB as $t) {
+            $t->is_tunggakan = ($t->tahun < $tahun) || ($t->tahun === $tahun && $t->bulan < $bulan);
+            $t->is_menunggu_generate = false;
         }
 
-        $tagihans = $currentPeriodTagihans->concat($pastUnpaidTagihans);
+        // 2. Ambil daftar kondisi "Menunggu Generate" khusus periode bulan & tahun yang dipilih
+        $pendingGenerateList = self::getPendingGenerationForPeriod($bulan, $tahun);
+
+        // 3. Gabungkan dan urutkan berdasarkan periode paling lama terlebih dahulu (ascending)
+        $tagihans = $pendingGenerateList->concat($activeTagihansDB)->sortBy([
+            ['tahun', 'asc'],
+            ['bulan', 'asc'],
+            ['kamar_id', 'asc'],
+        ]);
 
         $namaBulan = [
             1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
@@ -53,7 +103,15 @@ class TagihanController extends Controller
             9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember',
         ];
 
-        return view('tagihan.index', compact('tagihans', 'bulan', 'tahun', 'namaBulan'));
+        $jumlahMenungguGenerate = $pendingGenerateList->count();
+
+        return view('tagihan.index', compact(
+            'tagihans',
+            'bulan',
+            'tahun',
+            'namaBulan',
+            'jumlahMenungguGenerate'
+        ));
     }
 
     public function create(): View
@@ -106,69 +164,31 @@ class TagihanController extends Controller
         $bulan = (int) $validated['bulan'];
         $tahun = (int) $validated['tahun'];
 
-        // Get all active tenants
-        $penghunis = Penghuni::with('kamar')->get();
+        // Ambil daftar penghuni pada kondisi "Menunggu Generate" khusus periode yang dipilih
+        $pendingItems = self::getPendingGenerationForPeriod($bulan, $tahun);
         $count = 0;
 
-        foreach ($penghunis as $penghuni) {
-            if (!$penghuni->kamar) {
-                continue;
-            }
+        DB::transaction(function () use ($pendingItems, &$count) {
+            foreach ($pendingItems as $item) {
+                $exists = Tagihan::where('penghuni_id', $item->penghuni_id)
+                    ->where('tahun', $item->tahun)
+                    ->where('bulan', $item->bulan)
+                    ->exists();
 
-            $startDate = Carbon::parse($penghuni->tanggal_masuk)->startOfDay();
-            $duration = (int) $penghuni->durasi_kontrak;
-
-            $shouldHaveBill = false;
-            $due = null;
-            $amount = 0;
-
-            for ($i = 0; $i < $duration; $i += 6) {
-                $monthsInTerm = min(6, $duration - $i);
-                $termStart = $startDate->copy()->addMonths($i);
-                
-                if ($termStart->month === $bulan && $termStart->year === $tahun) {
-                    $shouldHaveBill = true;
-                    $due = $termStart->toDateString();
-                    $amount = $penghuni->kamar->harga * $monthsInTerm;
-                    break;
-                }
-            }
-
-            if ($shouldHaveBill) {
-                // Check if a bill already exists in database
-                $existingTagihan = Tagihan::where('penghuni_id', $penghuni->id)
-                    ->where('tahun', $tahun)
-                    ->where('bulan', $bulan)
-                    ->first();
-
-                if (!$existingTagihan) {
-                    // Check if there is an orphaned lunas payment for this period
-                    $pembayaranLunas = \App\Models\Pembayaran::where('penghuni_id', $penghuni->id)
-                        ->whereNull('tagihan_id')
-                        ->where('status', 'lunas')
-                        ->first();
-
-                    $newTagihan = Tagihan::create([
-                        'penghuni_id' => $penghuni->id,
-                        'kamar_id' => $penghuni->kamar_id,
-                        'tahun' => $tahun,
-                        'bulan' => $bulan,
-                        'jumlah' => $amount,
-                        'jatuh_tempo' => $due,
-                        'status' => $pembayaranLunas ? 'lunas' : 'belum_bayar',
+                if (!$exists) {
+                    Tagihan::create([
+                        'penghuni_id' => $item->penghuni_id,
+                        'kamar_id' => $item->kamar_id,
+                        'tahun' => $item->tahun,
+                        'bulan' => $item->bulan,
+                        'jumlah' => $item->jumlah,
+                        'jatuh_tempo' => $item->jatuh_tempo,
+                        'status' => 'belum_bayar',
                     ]);
-
-                    if ($pembayaranLunas) {
-                        $pembayaranLunas->update(['tagihan_id' => $newTagihan->id]);
-                    }
-
-                    $count++;
-                } else if ($existingTagihan->status === 'menunggu_generate') {
-                    $existingTagihan->update(['status' => 'belum_bayar']);
                     $count++;
                 }
             }
-        }
+        });
 
         if ($count > 0) {
             return redirect()->route('tagihan.index', ['bulan' => $bulan, 'tahun' => $tahun])

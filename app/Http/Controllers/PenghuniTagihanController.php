@@ -12,6 +12,25 @@ use Illuminate\View\View;
 
 class PenghuniTagihanController extends Controller
 {
+    /**
+     * Memeriksa apakah penghuni masih memiliki tagihan pada periode sebelumnya
+     * yang belum berstatus Lunas (yaitu status: belum_bayar, menunggu, atau ditolak).
+     */
+    public static function hasEarlierUnpaidTagihan(Tagihan $tagihan): bool
+    {
+        return Tagihan::where('penghuni_id', $tagihan->penghuni_id)
+            ->where('id', '!=', $tagihan->id)
+            ->whereIn('status', ['belum_bayar', 'menunggu', 'ditolak'])
+            ->where(function ($query) use ($tagihan) {
+                $query->where('tahun', '<', $tagihan->tahun)
+                    ->orWhere(function ($q) use ($tagihan) {
+                        $q->where('tahun', $tagihan->tahun)
+                          ->where('bulan', '<', $tagihan->bulan);
+                    });
+            })
+            ->exists();
+    }
+
     public function index(): View
     {
         $user = Auth::user();
@@ -22,20 +41,27 @@ class PenghuniTagihanController extends Controller
 
         $tagihans = Tagihan::with(['kamar', 'pembayaran'])
             ->where('penghuni_id', $penghuni->id)
-            ->where('status', '!=', 'menunggu_generate')
-            ->orderByDesc('tahun')
-            ->orderByDesc('bulan')
+            ->whereIn('status', ['belum_bayar', 'menunggu', 'ditolak'])
+            ->orderBy('tahun', 'asc')
+            ->orderBy('bulan', 'asc')
             ->get();
 
         return view('penghuni.tagihan.index', compact('penghuni', 'tagihans'));
     }
 
-    public function bayar(Tagihan $tagihan): View
+    public function bayar(Tagihan $tagihan): View|RedirectResponse
     {
         $this->authorizeTagihan($tagihan);
         $tagihan->refresh();
 
-        abort_unless($tagihan->status === 'belum_bayar', 403);
+        // Validasi FIFO sisi server: tolakan jika masih ada tagihan periode sebelumnya yang belum lunas
+        if (self::hasEarlierUnpaidTagihan($tagihan)) {
+            return redirect()->route('penghuni.tagihan.index')->with('error', 'Anda masih memiliki tagihan pada periode sebelumnya yang belum diselesaikan. Silakan selesaikan tagihan tersebut terlebih dahulu sebelum melakukan pembayaran tagihan berikutnya.');
+        }
+
+        if ($tagihan->status !== 'belum_bayar') {
+            return redirect()->route('penghuni.tagihan.index')->with('error', 'Tagihan ini tidak dapat dibayar (sudah lunas atau menunggu verifikasi).');
+        }
 
         $tagihan->load('kamar', 'penghuni');
 
@@ -45,8 +71,12 @@ class PenghuniTagihanController extends Controller
     public function kirim(Request $request, Tagihan $tagihan): RedirectResponse
     {
         $this->authorizeTagihan($tagihan);
-
         $tagihan->refresh();
+
+        // Validasi FIFO sisi server saat pengiriman bukti pembayaran
+        if (self::hasEarlierUnpaidTagihan($tagihan)) {
+            return redirect()->route('penghuni.tagihan.index')->with('error', 'Anda masih memiliki tagihan pada periode sebelumnya yang belum diselesaikan. Silakan selesaikan tagihan tersebut terlebih dahulu sebelum melakukan pembayaran tagihan berikutnya.');
+        }
 
         if ($tagihan->status !== 'belum_bayar') {
             return redirect()->route('penghuni.tagihan.index')->with('error', 'Tagihan ini tidak dapat dibayar (sudah lunas atau menunggu verifikasi).');
@@ -79,8 +109,6 @@ class PenghuniTagihanController extends Controller
 
         return redirect()->route('penghuni.tagihan.index')->with('status', 'Bukti pembayaran dikirim. Menunggu verifikasi admin.');
     }
-
-
 
     public function downloadInvoice(Tagihan $tagihan)
     {

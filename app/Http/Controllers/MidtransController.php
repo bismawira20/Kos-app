@@ -26,6 +26,10 @@ class MidtransController extends Controller
         $penghuni = Auth::user()->penghuni;
         abort_if(! $penghuni || $tagihan->penghuni_id !== $penghuni->id, 403);
 
+        if (\App\Http\Controllers\PenghuniTagihanController::hasEarlierUnpaidTagihan($tagihan)) {
+            return redirect()->route('penghuni.tagihan.index')->with('error', 'Anda masih memiliki tagihan pada periode sebelumnya yang belum diselesaikan. Silakan selesaikan tagihan tersebut terlebih dahulu sebelum melakukan pembayaran tagihan berikutnya.');
+        }
+
         $lastPembayaran = $tagihan->pembayaran()->latest()->first();
         $isPendingMidtrans = $tagihan->status === 'menunggu' && $lastPembayaran && $lastPembayaran->metode_pembayaran === 'midtrans' && $lastPembayaran->status === 'menunggu';
 
@@ -140,8 +144,8 @@ class MidtransController extends Controller
 
         $tagihan->update(['status' => 'lunas']);
 
-        return redirect()->route('penghuni.tagihan.index')
-            ->with('status', 'Pembayaran Midtrans berhasil! Status tagihan Anda kini Lunas.');
+        return redirect()->route('penghuni.riwayat')
+            ->with('status', 'Pembayaran Midtrans berhasil! Status tagihan Anda kini Lunas dan dapat dilihat di Riwayat Pembayaran.');
     }
 
     public function webhook(Request $request)

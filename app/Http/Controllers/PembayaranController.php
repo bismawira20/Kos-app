@@ -7,27 +7,16 @@ use App\Models\Penghuni;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Http;
 use Illuminate\View\View;
 
 class PembayaranController extends Controller
 {
     public function index(Request $request): View
     {
-        $filter = $request->get('filter');
+        $filter = $request->get('filter', 'menunggu'); // Default to 'menunggu' for admin verification
 
         $q = Pembayaran::with(['penghuni.kamar', 'tagihan'])
             ->where('status', '!=', 'batal')
-            ->where(function($query) {
-                $query->where('status', '!=', 'menunggu')
-                      ->orWhere(function($sub) {
-                          $sub->where('status', 'menunggu')
-                              ->where(function($sub2) {
-                                  $sub2->whereNull('metode_pembayaran')
-                                       ->orWhere('metode_pembayaran', '!=', 'midtrans');
-                              });
-                      });
-            })
             ->orderByDesc('created_at');
 
         if ($filter === 'menunggu') {
@@ -36,6 +25,8 @@ class PembayaranController extends Controller
                   $query->whereNull('metode_pembayaran')
                         ->orWhere('metode_pembayaran', '!=', 'midtrans');
               });
+        } elseif ($filter === 'lunas') {
+            $q->where('status', 'lunas');
         }
 
         $pembayaran = $q->get();
@@ -91,7 +82,7 @@ class PembayaranController extends Controller
         }
         $p->save();
 
-        return back()->with('status', 'Pembayaran dikonfirmasi.');
+        return back()->with('status', 'Pembayaran dikonfirmasi. Status tagihan menjadi Lunas dan dipindahkan ke Riwayat Pembayaran.');
     }
 
     public function tolak(Request $request, int $id): RedirectResponse

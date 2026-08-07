@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
 class Penghuni extends Model
@@ -21,18 +22,38 @@ class Penghuni extends Model
     {
         return $this->belongsTo(Kamar::class); 
     }
+
     public function pembayaran()
     {
-    return $this->hasMany(Pembayaran::class);
+        return $this->hasMany(Pembayaran::class);
     }
+
     public function user()
-{
-    return $this->belongsTo(\App\Models\User::class);
-}
+    {
+        return $this->belongsTo(\App\Models\User::class);
+    }
 
     public function tagihan()
     {
         return $this->hasMany(Tagihan::class);
+    }
+
+    /**
+     * Memeriksa apakah penghuni sudah tergolong "Penghuni Lama".
+     * Penghuni dianggap sebagai penghuni lama apabila telah menyelesaikan
+     * pembayaran 2 tahap (2x tagihan 6 bulan) atau telah tinggal selama 12 bulan.
+     */
+    public function isPenghuniLama(): bool
+    {
+        $lunasCount = $this->tagihan()->where('status', 'lunas')->count();
+        $monthsStayed = $this->tanggal_masuk ? (int) $this->tanggal_masuk->diffInMonths(now()) : 0;
+
+        return $lunasCount >= 2 || $monthsStayed >= 12 || ($this->durasi_kontrak != 12 && $this->durasi_kontrak != null);
+    }
+
+    public function getStatusPenghuniAttribute(): string
+    {
+        return $this->isPenghuniLama() ? 'Penghuni Lama' : 'Penghuni Baru';
     }
 
     public function generateBilling($startDateString, $duration)
@@ -43,11 +64,14 @@ class Penghuni extends Model
             return;
         }
 
-        $startDate = \Carbon\Carbon::parse($startDateString);
+        $startDate = Carbon::parse($startDateString);
         $duration = (int) $duration;
 
-        for ($i = 0; $i < $duration; $i += 6) {
-            $monthsInTerm = min(6, $duration - $i);
+        // Jika 12 bulan (penghuni baru), buat 2 tahap @ 6 bulan
+        $step = ($duration === 12) ? 6 : $duration;
+
+        for ($i = 0; $i < $duration; $i += $step) {
+            $monthsInTerm = min($step, $duration - $i);
             $termStart = $startDate->copy()->addMonths($i);
             $due = $termStart->toDateString();
             $tahun = $termStart->year;

@@ -12,14 +12,30 @@ use Illuminate\View\View;
 class ProfileController extends Controller
 {
     /**
-     * Display the user's profile form.
+     * Display the user's profile form with tab support.
      */
     public function edit(Request $request): View
     {
-        return view('profile.edit', [
-            'user' => $request->user(),
-            'penghuni' => $request->user()?->loadMissing('penghuni.kamar')->penghuni,
-        ]);
+        $user = $request->user();
+        $penghuni = $user?->loadMissing('penghuni.kamar')->penghuni;
+
+        $tab = $request->get('tab', 'pribadi');
+
+        // Auto-select tab if redirected back with errors
+        if (session()->has('errors')) {
+            $errors = session('errors');
+            if ($errors->hasBag('updatePassword') && $errors->updatePassword->any()) {
+                $tab = 'keamanan';
+            } elseif ($errors->has('nama_wali') || $errors->has('no_hp_wali') || $errors->has('alamat_wali') || $errors->has('hubungan')) {
+                $tab = 'wali';
+            }
+        }
+
+        if (! in_array($tab, ['pribadi', 'wali', 'keamanan'])) {
+            $tab = 'pribadi';
+        }
+
+        return view('profile.edit', compact('user', 'penghuni', 'tab'));
     }
 
     /**
@@ -42,7 +58,7 @@ class ProfileController extends Controller
             ]);
         }
 
-        return Redirect::route('profile.edit')->with('status', 'profile-updated');
+        return Redirect::route('profile.edit', ['tab' => 'pribadi'])->with('status', 'profile-updated');
     }
 
     /**
@@ -68,7 +84,7 @@ class ProfileController extends Controller
 
         $user->penghuni()->update($validated);
 
-        return Redirect::route('profile.edit')->with('status', 'guardian-updated');
+        return Redirect::route('profile.edit', ['tab' => 'wali'])->with('status', 'guardian-updated');
     }
 
     /**

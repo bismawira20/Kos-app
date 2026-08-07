@@ -51,12 +51,9 @@
                     <span>⚙️</span>
                     <span>Profil</span>
                 </a>
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <button type="submit" class="text-sm text-red-600 hover:text-red-900 font-medium">
-                        Logout
-                    </button>
-                </form>
+                <button type="button" onclick="document.getElementById('logout-modal').showModal()" class="text-sm text-red-600 hover:text-red-900 font-medium">
+                    Logout
+                </button>
             </div>
 
         </aside>
@@ -126,5 +123,27 @@
     </div>
 
     @stack('scripts')
+
+    <!-- LOGOUT CONFIRMATION MODAL -->
+    <dialog id="logout-modal" class="w-full max-w-sm rounded-2xl p-0 shadow-2xl backdrop:bg-slate-900/50 border border-slate-100 overflow-hidden">
+        <div class="p-6 text-center">
+            <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-rose-100 text-rose-600 mb-4">
+                <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+            </div>
+            <h3 class="text-lg font-bold text-slate-900 mb-2">Konfirmasi Logout</h3>
+            <p class="text-sm text-slate-600 mb-6">Apakah Anda yakin ingin logout?</p>
+            <div class="flex items-center justify-center gap-3">
+                <button type="button" onclick="document.getElementById('logout-modal').close()" class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition active:scale-95">
+                    Batal
+                </button>
+                <form method="POST" action="{{ route('logout') }}" class="inline">
+                    @csrf
+                    <button type="submit" class="rounded-xl bg-rose-600 px-4 py-2 text-sm font-semibold text-white hover:bg-rose-700 shadow-sm transition active:scale-95">
+                        Ya, Lanjutkan
+                    </button>
+                </form>
+            </div>
+        </div>
+    </dialog>
 </body>
 </html>

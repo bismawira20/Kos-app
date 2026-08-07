@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Kamar;
+use App\Models\Penghuni;
+use App\Models\TipeKamar;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -18,7 +20,7 @@ class KamarController extends Controller
 
     public function create(): View
     {
-        $tipeKamar = \App\Models\TipeKamar::orderBy('nama')->get();
+        $tipeKamar = TipeKamar::orderBy('nama')->get();
         return view('kamar.create', compact('tipeKamar'));
     }
 
@@ -43,7 +45,7 @@ class KamarController extends Controller
 
     public function edit(Kamar $kamar): View
     {
-        $tipeKamar = \App\Models\TipeKamar::orderBy('nama')->get();
+        $tipeKamar = TipeKamar::orderBy('nama')->get();
         return view('kamar.edit', compact('kamar', 'tipeKamar'));
     }
 
@@ -59,6 +61,11 @@ class KamarController extends Controller
             'nomor_kamar.unique' => 'Kamar sudah ada sebelumnya.',
         ]);
 
+        // Validasi: Sebelum status kamar diubah menjadi "Kosong", sistem harus mengecek apakah kamar masih digunakan oleh data penghuni.
+        if ($validated['status'] === 'kosong' && Penghuni::where('kamar_id', $kamar->id)->exists()) {
+            return redirect()->route('kamar.index')->with('error', 'Status kamar tidak dapat diubah menjadi kosong karena masih ditempati penghuni. Silakan hapus atau pindahkan data penghuni terlebih dahulu.');
+        }
+
         $kamar->update($validated);
 
         return redirect()->route('kamar.index')->with('status', 'Data kamar diperbarui.');
@@ -66,8 +73,8 @@ class KamarController extends Controller
 
     public function destroy(Kamar $kamar): RedirectResponse
     {
-        if ($kamar->status === 'terisi') {
-            return redirect()->route('kamar.index')->with('error', 'Tidak bisa menghapus kamar yang masih terisi.');
+        if ($kamar->status === 'terisi' || Penghuni::where('kamar_id', $kamar->id)->exists()) {
+            return redirect()->route('kamar.index')->with('error', 'Status kamar tidak dapat diubah menjadi kosong karena masih ditempati penghuni. Silakan hapus atau pindahkan data penghuni terlebih dahulu.');
         }
 
         $kamar->delete();

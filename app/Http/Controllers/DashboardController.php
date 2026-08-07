@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Kamar;
+use App\Models\KendalaLaporan;
 use App\Models\Pembayaran;
 use App\Models\Penghuni;
 use App\Models\Tagihan;
@@ -20,29 +21,29 @@ class DashboardController extends Controller
         $kamarKosong = Kamar::where('status', 'kosong')->count();
         $totalPenghuni = Penghuni::count();
         $kamarTerisi = Kamar::where('status', 'terisi')->count();
-        $penghuniAktif = Penghuni::whereHas('kamar', function ($query) {
-            $query->where('status', 'terisi');
-        })->count();
-        $penghuniNonaktif = max(0, $totalPenghuni - $penghuniAktif);
 
-        $menungguVerifikasi = Pembayaran::where('status', 'menunggu')
-            ->where(function($query) {
-                $query->whereNull('metode_pembayaran')
-                      ->orWhere('metode_pembayaran', '!=', 'midtrans');
-            })->count();
+        // 1. Laporan Kendala Baru (hanya status 'menunggu')
+        $jumlahKendalaBaru = KendalaLaporan::where('status', 'menunggu')->count();
 
+        // 2. Pembayaran menunggu verifikasi
+        $menungguVerifikasi = Pembayaran::where('status', 'menunggu')->count();
+
+        // 3. Pemasukan bulan ini
         $pemasukanBulanIni = (int) Pembayaran::where('status', 'lunas')
             ->whereYear('tanggal_bayar', $tahun)
             ->whereMonth('tanggal_bayar', $bulan)
             ->sum('jumlah');
 
-        $tagihanBelumLunasBulanIni = Tagihan::where('tahun', $tahun)
-            ->where('bulan', $bulan)
-            ->whereIn('status', ['belum_bayar', 'menunggu'])
-            ->count();
+        // 4. Tagihan Belum Lunas (Seluruh tagihan aktif yang belum lunas)
+        $tagihanBelumLunas = Tagihan::whereIn('status', ['belum_bayar', 'menunggu', 'ditolak'])->count();
 
+        // 5. Menunggu Generate untuk periode bulan/tahun ini
+        $jumlahMenungguGenerate = TagihanController::getPendingGenerationForPeriod($bulan, $tahun)->count();
+
+        // 6. Tingkat Okupansi
         $occupancy = $totalKamar > 0 ? round(($kamarTerisi / $totalKamar) * 100) : 0;
 
+        // Grafik Pembayaran Lunas per Hari
         $chart = Pembayaran::selectRaw('DAY(created_at) as hari, COUNT(*) as total')
             ->whereYear('created_at', $tahun)
             ->whereMonth('created_at', $bulan)
@@ -50,8 +51,6 @@ class DashboardController extends Controller
             ->groupBy('hari')
             ->orderBy('hari')
             ->pluck('total', 'hari');
-
-        $jumlahKendala = \App\Models\KendalaLaporan::whereNotIn('status', ['selesai', 'ditolak'])->count();
 
         $namaBulan = [
             1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
@@ -64,10 +63,11 @@ class DashboardController extends Controller
             'kamarKosong',
             'totalPenghuni',
             'kamarTerisi',
-            'jumlahKendala',
+            'jumlahKendalaBaru',
             'menungguVerifikasi',
             'pemasukanBulanIni',
-            'tagihanBelumLunasBulanIni',
+            'tagihanBelumLunas',
+            'jumlahMenungguGenerate',
             'occupancy',
             'chart',
             'bulan',

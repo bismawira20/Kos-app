@@ -12,11 +12,6 @@
 </a>
 
 
-<a href="{{ route('akun-penghuni.index') }}" class="{{ $link(request()->routeIs('akun-penghuni.*')) }}">
-    <span>👤</span>
-    <span>Kelola Akun</span>
-</a>
-
 <a href="{{ route('penghuni.index') }}" class="{{ $link(request()->routeIs('penghuni.*')) }}">
     <span>🧍</span>
     <span>Kelola Penghuni</span>

@@ -99,12 +99,30 @@
                                             Tolak
                                         </button>
                                     @elseif ($k->status === 'proses')
-                                        <form action="{{ route('kendala.diperbaiki', $k->id) }}" method="POST" class="inline">
-                                            @csrf
-                                            <button type="submit" class="inline-flex items-center gap-1.5 rounded-lg bg-indigo-100 px-3 py-1.5 text-sm font-medium text-indigo-700 transition hover:bg-indigo-200 active:scale-95">
-                                                Selesai Perbaikan
-                                            </button>
-                                        </form>
+                                        <button type="button" onclick="document.getElementById('diperbaiki-{{ $k->id }}').showModal()" class="inline-flex items-center gap-1.5 rounded-lg bg-indigo-100 px-3 py-1.5 text-sm font-medium text-indigo-700 transition hover:bg-indigo-200 active:scale-95">
+                                            Selesai Perbaikan
+                                        </button>
+
+                                        <dialog id="diperbaiki-{{ $k->id }}" class="w-full max-w-sm rounded-2xl p-0 shadow-2xl backdrop:bg-slate-900/50 border border-slate-100 overflow-hidden text-left whitespace-normal">
+                                            <div class="p-6 text-center">
+                                                <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-indigo-100 text-indigo-600 mb-4">
+                                                    <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                                </div>
+                                                <h3 class="text-lg font-bold text-slate-900 mb-2">Selesaikan Laporan Kendala</h3>
+                                                <p class="text-sm text-slate-600 mb-6">Apakah Anda yakin laporan kendala telah selesai dikerjakan?</p>
+                                                <div class="flex items-center justify-center gap-3">
+                                                    <button type="button" onclick="document.getElementById('diperbaiki-{{ $k->id }}').close()" class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition active:scale-95">
+                                                        Batal
+                                                    </button>
+                                                    <form action="{{ route('kendala.diperbaiki', $k->id) }}" method="POST" class="inline">
+                                                        @csrf
+                                                        <button type="submit" class="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700 shadow-sm transition active:scale-95">
+                                                            Ya, Lanjutkan
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </dialog>
 
                                         <button type="button" class="inline-flex items-center gap-1.5 rounded-lg bg-rose-100 px-3 py-1.5 text-sm font-medium text-rose-700 transition hover:bg-rose-200 active:scale-95" onclick="document.getElementById('tolak-{{ $k->id }}').showModal()">
                                             Tolak
@@ -118,15 +136,29 @@
                                     @endif
 
                                     {{-- Modals --}}
-                                    <dialog id="tolak-{{ $k->id }}" class="w-full max-w-md rounded-xl p-0 shadow-2xl backdrop:bg-slate-900/40 text-left">
-                                        <form method="POST" action="{{ route('kendala.tolak', $k->id) }}" class="p-6">
+                                    <dialog id="tolak-{{ $k->id }}" class="w-full max-w-md rounded-2xl p-0 shadow-2xl backdrop:bg-slate-900/50 border border-slate-100 overflow-hidden text-left whitespace-normal">
+                                        <form method="POST" action="{{ route('kendala.tolak', $k->id) }}">
                                             @csrf
-                                            <h3 class="text-lg font-semibold text-slate-900">Tolak laporan</h3>
-                                            <p class="mt-1 text-sm text-slate-500">Berikan alasan penolakan kepada penghuni.</p>
-                                            <textarea name="alasan_tolak" rows="4" class="mt-3 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500" required placeholder="Alasan penolakan"></textarea>
-                                            <div class="mt-4 flex justify-end gap-2">
-                                                <button type="button" onclick="document.getElementById('tolak-{{ $k->id }}').close()" class="rounded-lg border border-slate-300 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">Batal</button>
-                                                <button type="submit" class="rounded-lg bg-rose-600 px-4 py-2 text-sm font-medium text-white hover:bg-rose-700">Kirim</button>
+                                            <div class="p-6 text-center">
+                                                <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-rose-100 text-rose-600 mb-4">
+                                                    <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                                </div>
+                                                <h3 class="text-lg font-bold text-slate-900 mb-2">Tolak Laporan Kendala</h3>
+                                                <p class="text-sm text-slate-600 mb-4">Apakah Anda yakin ingin menolak laporan kendala ini?</p>
+                                                
+                                                <div class="text-left mb-6">
+                                                    <label for="alasan-{{ $k->id }}" class="block text-xs font-semibold text-slate-700 mb-1">Alasan Penolakan</label>
+                                                    <textarea id="alasan-{{ $k->id }}" name="alasan_tolak" rows="3" class="w-full rounded-xl border-slate-300 text-sm focus:border-rose-500 focus:ring-rose-500" placeholder="Masukkan alasan penolakan" required></textarea>
+                                                </div>
+
+                                                <div class="flex items-center justify-center gap-3">
+                                                    <button type="button" onclick="document.getElementById('tolak-{{ $k->id }}').close()" class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition active:scale-95">
+                                                        Batal
+                                                    </button>
+                                                    <button type="submit" class="rounded-xl bg-rose-600 px-4 py-2 text-sm font-semibold text-white hover:bg-rose-700 shadow-sm transition active:scale-95">
+                                                        Ya, Lanjutkan
+                                                    </button>
+                                                </div>
                                             </div>
                                         </form>
                                     </dialog>
