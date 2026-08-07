@@ -4,16 +4,22 @@
             <div>
                 <p class="text-xs font-semibold uppercase tracking-[0.28em] text-indigo-500">Admin Control Center</p>
                 <h2 class="mt-2 text-3xl font-semibold tracking-tight text-slate-900">Selamat Datang, Admin</h2>
-                <p class="mt-2 max-w-2xl text-sm text-slate-500">Pantau okupansi, pendapatan, verifikasi pembayaran, dan laporan kendala dari satu panel.</p>
+                <p class="mt-2 max-w-2xl text-sm text-slate-500">Pantau okupansi, pendapatan, penerbitan tagihan, verifikasi pembayaran, dan laporan kendala dari satu panel.</p>
             </div>
             <div class="flex flex-wrap gap-2">
+                @if ($jumlahMenungguGenerate > 0)
+                    <a href="{{ route('tagihan.index', ['bulan' => $bulan, 'tahun' => $tahun]) }}" class="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 transition active:scale-95">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                        <span>Generate Tagihan ({{ $jumlahMenungguGenerate }})</span>
+                    </a>
+                @endif
                 <a href="{{ route('pembayaran.index') }}" class="inline-flex items-center justify-center rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-slate-800 transition active:scale-95">Verifikasi Pembayaran</a>
             </div>
         </div>
     </x-slot>
 
     <div class="space-y-6">
-        <!-- Grid Ringkasan Utam (6 Cards) -->
+        <!-- Grid Ringkasan Utama (6 Cards) -->
         <section class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             <!-- Card 1: Total Kamar -->
             <article class="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
@@ -44,7 +50,7 @@
                 </div>
             </article>
 
-            <!-- Card 4: Laporan Kendala Baru (Updated per Rule 1) -->
+            <!-- Card 4: Laporan Kendala Baru -->
             <article class="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
                 <p class="text-xs font-semibold uppercase tracking-[0.2em] text-violet-600">Laporan Kendala Baru</p>
                 <div class="mt-4 flex items-end justify-between gap-3">
@@ -53,9 +59,9 @@
                 </div>
             </article>
 
-            <!-- Card 5: Pemasukan Bulan Ini -->
+            <!-- Card 5: Pendapatan / Pemasukan Bulan Ini -->
             <article class="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
-                <p class="text-xs font-semibold uppercase tracking-[0.2em] text-amber-600">Pemasukan Bulan Ini</p>
+                <p class="text-xs font-semibold uppercase tracking-[0.2em] text-amber-600">Pendapatan Bulan Ini</p>
                 <p class="mt-4 text-3xl font-semibold tracking-tight text-slate-900">Rp {{ number_format($pemasukanBulanIni, 0, ',', '.') }}</p>
                 <p class="mt-2 text-xs text-slate-500">{{ $namaBulan[(int) $bulan] ?? '' }} {{ $tahun }}</p>
             </article>
@@ -90,26 +96,33 @@
                         </select>
                     </form>
                 </div>
-                <!-- Proportionally Resized Chart Container (Rule 3) -->
                 <div class="mt-6 h-56 rounded-2xl bg-gradient-to-br from-slate-50 to-slate-100 p-4">
                     <canvas id="chartPembayaran"></canvas>
                 </div>
             </div>
 
-            <!-- Ringkasan Cepat (Updated per Rule 2) -->
+            <!-- Ringkasan Cepat -->
             <div class="space-y-6">
                 <div class="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
                     <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Ringkasan Cepat</p>
                     <ul class="mt-4 space-y-3 text-sm">
-                        <!-- 1. Tagihan Belum Lunas -->
+                        <!-- 1. Total Penghuni -->
                         <li class="flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3">
-                            <span class="font-medium text-slate-700">Tagihan Belum Lunas</span>
-                            <span class="font-bold text-rose-700 bg-rose-50 px-3 py-1 rounded-full text-xs border border-rose-200">
-                                {{ $tagihanBelumLunas }} Tagihan
+                            <span class="font-medium text-slate-700">Total Penghuni</span>
+                            <span class="font-bold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full text-xs border border-emerald-200">
+                                {{ $totalPenghuni }} Orang
                             </span>
                         </li>
 
-                        <!-- 2. Menunggu Generate -->
+                        <!-- 2. Kamar Kosong -->
+                        <li class="flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3">
+                            <span class="font-medium text-slate-700">Kamar Kosong</span>
+                            <span class="font-bold text-indigo-700 bg-indigo-50 px-3 py-1 rounded-full text-xs border border-indigo-200">
+                                {{ $kamarKosong }} Kamar
+                            </span>
+                        </li>
+
+                        <!-- 3. Menunggu Generate -->
                         <li class="flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3">
                             <span class="font-medium text-slate-700">Menunggu Generate</span>
                             <span class="font-bold text-indigo-700 bg-indigo-50 px-3 py-1 rounded-full text-xs border border-indigo-200">
@@ -117,7 +130,7 @@
                             </span>
                         </li>
 
-                        <!-- 2. Pembayaran Menunggu Verifikasi -->
+                        <!-- 4. Menunggu Verifikasi -->
                         <li class="flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3">
                             <span class="font-medium text-slate-700">Menunggu Verifikasi</span>
                             <span class="font-bold text-amber-700 bg-amber-50 px-3 py-1 rounded-full text-xs border border-amber-200">
@@ -125,19 +138,19 @@
                             </span>
                         </li>
 
-                        <!-- 3. Laporan Kendala Baru -->
+                        <!-- 5. Pendapatan Bulan Ini -->
+                        <li class="flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3">
+                            <span class="font-medium text-slate-700">Pendapatan Bulan Ini</span>
+                            <span class="font-bold text-amber-800 bg-amber-50 px-3 py-1 rounded-full text-xs border border-amber-200">
+                                Rp {{ number_format($pemasukanBulanIni, 0, ',', '.') }}
+                            </span>
+                        </li>
+
+                        <!-- 6. Laporan Kendala Baru -->
                         <li class="flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3">
                             <span class="font-medium text-slate-700">Laporan Kendala Baru</span>
                             <span class="font-bold text-violet-700 bg-violet-50 px-3 py-1 rounded-full text-xs border border-violet-200">
                                 {{ $jumlahKendalaBaru }} Laporan
-                            </span>
-                        </li>
-
-                        <!-- 4. Tingkat Okupansi -->
-                        <li class="flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3">
-                            <span class="font-medium text-slate-700">Tingkat Okupansi</span>
-                            <span class="font-bold text-indigo-700 bg-indigo-50 px-3 py-1 rounded-full text-xs border border-indigo-200">
-                                {{ $occupancy }}% ({{ $kamarTerisi }}/{{ $totalKamar }} Kamar)
                             </span>
                         </li>
                     </ul>

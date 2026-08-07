@@ -4,13 +4,8 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Baris Bahasa untuk Validasi
+    | Baris Bahasa untuk Validasi Sistem E-Kos
     |--------------------------------------------------------------------------
-    |
-    | Baris bahasa berikut berisi instruksi pesan kesalahan standar yang digunakan
-    | oleh kelas validator. Beberapa aturan memiliki beberapa versi seperti
-    | aturan ukuran. Silakan sesuaikan setiap pesan di sini.
-    |
     */
 
     'accepted' => ':attribute harus diterima.',
@@ -47,7 +42,7 @@ return [
     'ends_with' => ':attribute harus diakhiri dengan salah satu dari berikut: :values.',
     'enum' => ':attribute yang dipilih tidak valid.',
     'exists' => ':attribute yang dipilih tidak valid.',
-    'file' => ':attribute harus berupa file.',
+    'file' => ':attribute harus berupa file yang valid.',
     'filled' => ':attribute wajib diisi.',
     'gt' => [
         'array' => ':attribute harus memiliki lebih dari :value item.',
@@ -61,7 +56,7 @@ return [
         'numeric' => ':attribute harus lebih besar atau sama dengan :value.',
         'string' => ':attribute harus lebih panjang atau sama dengan :value karakter.',
     ],
-    'image' => ':attribute harus berupa gambar (jpg, png, jpeg, webp).',
+    'image' => ':attribute harus berupa file gambar (JPG, PNG, JPEG, atau WEBP).',
     'in' => ':attribute yang dipilih tidak valid.',
     'in_array' => ':attribute tidak ada di dalam :other.',
     'integer' => ':attribute harus berupa bilangan bulat.',
@@ -129,27 +124,32 @@ return [
         'string' => ':attribute harus berukuran :size karakter.',
     ],
     'starts_with' => ':attribute harus diawali dengan salah satu dari berikut: :values.',
-    'string' => ':attribute harus berupa teks / string.',
+    'string' => ':attribute harus berupa teks yang valid.',
     'timezone' => ':attribute harus berupa zona waktu yang valid.',
-    'unique' => ':attribute sudah terdaftar / digunakan.',
+    'unique' => ':attribute sudah terdaftar atau digunakan.',
     'uploaded' => ':attribute gagal diunggah.',
     'url' => ':attribute harus berupa URL yang valid.',
     'uuid' => ':attribute harus berupa UUID yang valid.',
 
     /*
     |--------------------------------------------------------------------------
-    | Custom Validation Attributes & Messages
+    | Pesan Validasi Khusus (Custom Validation Messages)
     |--------------------------------------------------------------------------
     */
     'custom' => [
         'email' => [
-            'regex' => 'Email harus menggunakan domain @gmail.com',
+            'regex' => 'Alamat email wajib menggunakan domain @gmail.com.',
         ],
         'current_password' => [
             'current_password' => 'Kata sandi saat ini tidak cocok.',
         ],
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Nama Atribut Kustom (Custom Validation Attributes)
+    |--------------------------------------------------------------------------
+    */
     'attributes' => [
         'name' => 'Nama',
         'nama' => 'Nama lengkap',
@@ -165,7 +165,7 @@ return [
         'kamar_id' => 'Kamar',
         'user_id' => 'Akun penghuni',
         'tanggal_masuk' => 'Tanggal masuk',
-        'durasi_kontrak' => 'Durasi pembayaran',
+        'durasi_kontrak' => 'Durasi sewa',
         'tanggal_selesai' => 'Tanggal berakhir sewa',
         'nama_wali' => 'Nama kontak darurat',
         'no_hp_wali' => 'Nomor HP kontak darurat',
@@ -178,6 +178,12 @@ return [
         'deskripsi' => 'Deskripsi laporan',
         'feedback_penghuni' => 'Umpan balik perbaikan',
         'tanggapan' => 'Tanggapan admin',
+        'alasan_tolak' => 'Alasan penolakan',
+        'catatan_admin' => 'Catatan admin',
+        'komentar' => 'Alasan penolakan',
+        'tahun' => 'Tahun',
+        'bulan' => 'Bulan',
+        'jatuh_tempo' => 'Tanggal jatuh tempo',
     ],
 
 ];

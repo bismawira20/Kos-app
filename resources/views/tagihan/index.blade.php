@@ -18,40 +18,58 @@
                         @endfor
                     </select>
                 </form>
-                <button type="button" onclick="document.getElementById('generate-tagihan-modal').showModal()" class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2.5 font-semibold text-white shadow hover:bg-indigo-700 transition active:scale-95">
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
-                    <span>Generate Tagihan</span>
-                </button>
 
-                <dialog id="generate-tagihan-modal" class="w-full max-w-sm rounded-2xl p-0 shadow-2xl backdrop:bg-slate-900/50 border border-slate-100 overflow-hidden text-left">
-                    <div class="p-6 text-center">
-                        <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-indigo-100 text-indigo-600 mb-4">
-                            <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
-                        </div>
-                        <h3 class="text-lg font-bold text-slate-900 mb-2">Generate Tagihan Bulanan</h3>
-                        <p class="text-sm text-slate-600 mb-6">Apakah Anda yakin ingin melakukan generate tagihan untuk periode {{ $namaBulan[$bulan] ?? $bulan }} {{ $tahun }}?</p>
-                        <div class="flex items-center justify-center gap-3">
-                            <button type="button" onclick="document.getElementById('generate-tagihan-modal').close()" class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition active:scale-95">
-                                Batal
-                            </button>
-                            <form method="POST" action="{{ route('tagihan.generate') }}" class="inline">
-                                @csrf
-                                <input type="hidden" name="bulan" value="{{ $bulan }}">
-                                <input type="hidden" name="tahun" value="{{ $tahun }}">
-                                <button type="submit" class="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700 shadow-sm transition active:scale-95">
-                                    Ya, Lanjutkan
+                @if ($isFuturePeriod)
+                    <button type="button" disabled title="Tagihan hanya dapat diterbitkan sesuai periode yang sedang berjalan atau periode sebelumnya." class="inline-flex items-center gap-2 rounded-lg bg-slate-200 px-4 py-2.5 font-semibold text-slate-400 cursor-not-allowed shadow-none">
+                        <svg class="h-5 w-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                        <span>Generate Tagihan (Masa Depan)</span>
+                    </button>
+                @else
+                    <button type="button" onclick="document.getElementById('generate-tagihan-modal').showModal()" class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2.5 font-semibold text-white shadow hover:bg-indigo-700 transition active:scale-95">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+                        <span>Generate Tagihan</span>
+                    </button>
+
+                    <dialog id="generate-tagihan-modal" class="w-full max-w-sm rounded-2xl p-0 shadow-2xl backdrop:bg-slate-900/50 border border-slate-100 overflow-hidden text-left">
+                        <div class="p-6 text-center">
+                            <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-indigo-100 text-indigo-600 mb-4">
+                                <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+                            </div>
+                            <h3 class="text-lg font-bold text-slate-900 mb-2">Generate Tagihan Bulanan</h3>
+                            <p class="text-sm text-slate-600 mb-6">Apakah Anda yakin ingin melakukan generate tagihan untuk periode {{ $namaBulan[$bulan] ?? $bulan }} {{ $tahun }}?</p>
+                            <div class="flex items-center justify-center gap-3">
+                                <button type="button" onclick="document.getElementById('generate-tagihan-modal').close()" class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition active:scale-95">
+                                    Batal
                                 </button>
-                            </form>
+                                <form method="POST" action="{{ route('tagihan.generate') }}" class="inline">
+                                    @csrf
+                                    <input type="hidden" name="bulan" value="{{ $bulan }}">
+                                    <input type="hidden" name="tahun" value="{{ $tahun }}">
+                                    <button type="submit" class="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700 shadow-sm transition active:scale-95">
+                                        Ya, Lanjutkan
+                                    </button>
+                                </form>
+                            </div>
                         </div>
-                    </div>
-                </dialog>
+                    </dialog>
+                @endif
             </div>
         </div>
     </x-slot>
 
     <div class="mx-auto max-w-6xl py-8 space-y-6">
 
-        @if ($jumlahMenungguGenerate > 0)
+        @if ($isFuturePeriod)
+            <div class="rounded-2xl border border-amber-200 bg-amber-50/90 p-4 text-amber-900 flex items-center gap-3 shadow-sm">
+                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500 text-white">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                </div>
+                <div class="text-sm">
+                    <p class="font-bold text-amber-950">Periode Masa Depan ({{ $namaBulan[$bulan] ?? $bulan }} {{ $tahun }})</p>
+                    <p class="text-amber-800 text-xs">Tagihan untuk periode masa depan belum dapat diterbitkan. Tagihan hanya dapat diterbitkan sesuai periode yang sedang berjalan atau periode sebelumnya.</p>
+                </div>
+            </div>
+        @elseif ($jumlahMenungguGenerate > 0)
             <div class="rounded-2xl border border-indigo-200 bg-indigo-50/80 p-4 text-indigo-900 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm">
                 <div class="flex items-center gap-3">
                     <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-600 text-white">

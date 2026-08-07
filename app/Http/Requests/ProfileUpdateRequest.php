@@ -31,6 +31,7 @@ class ProfileUpdateRequest extends FormRequest
 
         if ($this->user()->penghuni) {
             $rules['no_hp'] = ['required', 'string', 'digits_between:10,13'];
+            $rules['alamat'] = ['nullable', 'string'];
         }
 
         return $rules;

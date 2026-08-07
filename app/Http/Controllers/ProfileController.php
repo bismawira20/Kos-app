@@ -55,6 +55,7 @@ class ProfileController extends Controller
             $request->user()->penghuni->update([
                 'nama' => $request->input('name'),
                 'no_hp' => $request->input('no_hp'),
+                'alamat' => $request->input('alamat'),
             ]);
         }
 

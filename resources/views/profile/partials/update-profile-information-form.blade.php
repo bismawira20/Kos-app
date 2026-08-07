@@ -4,7 +4,7 @@
             Data Pribadi
         </h3>
         <p class="mt-1 text-sm text-slate-500">
-            Perbarui informasi nama lengkap, alamat email, dan nomor telepon Anda.
+            Perbarui informasi nama lengkap, alamat email, nomor telepon, dan alamat domisili Anda.
         </p>
     </header>
 
@@ -33,6 +33,15 @@
                 <x-input-label for="no_hp" :value="__('No. Telepon / HP')" />
                 <x-text-input id="no_hp" name="no_hp" type="text" class="mt-1 block w-full" :value="old('no_hp', $user->penghuni->no_hp)" required placeholder="Contoh: 081234567890" pattern="^[0-9]{10,13}$" minlength="10" maxlength="13" title="Nomor HP harus berupa angka dengan panjang 10 hingga 13 digit" />
                 <x-input-error class="mt-2" :messages="$errors->get('no_hp')" />
+            </div>
+
+            <div>
+                <x-input-label for="alamat" :value="__('Alamat Penghuni (Opsional)')" />
+                <textarea id="alamat" name="alamat" rows="3" class="mt-1 block w-full rounded-lg border-slate-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 placeholder:text-slate-400" placeholder="Masukkan alamat asal atau domisili (opsional)">{{ old('alamat', $user->penghuni->alamat) }}</textarea>
+                <p class="mt-1 text-xs text-slate-500">
+                    Status saat ini: <strong class="font-semibold text-slate-700">{{ $user->penghuni->alamat ? 'Tersedia' : 'Belum diisi' }}</strong>
+                </p>
+                <x-input-error class="mt-2" :messages="$errors->get('alamat')" />
             </div>
         @endif
 

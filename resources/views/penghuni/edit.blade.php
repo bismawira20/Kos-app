@@ -3,7 +3,7 @@
         <div class="flex items-center justify-between">
             <div>
                 <h2 class="text-2xl font-bold text-slate-900">Ubah Data Penghuni</h2>
-                <p class="mt-1 text-sm text-slate-600">Perbarui data diri, tanggal masuk, dan durasi pembayaran penghuni</p>
+                <p class="mt-1 text-sm text-slate-600">Perbarui data identitas diri, kamar, kontak darurat, dan akun login penghuni</p>
             </div>
             <a href="{{ route('penghuni.index') }}" class="rounded-lg bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-200 transition">
                 Kembali
@@ -18,29 +18,6 @@
                     @csrf
                     @method('PUT')
 
-                    <!-- Status Indicator Banner -->
-                    @if ($penghuni->isPenghuniLama())
-                        <div class="rounded-xl border border-emerald-200 bg-emerald-50/70 p-4 text-sm text-emerald-900 mb-2">
-                            <div class="flex items-center gap-2 font-bold text-emerald-900 mb-1">
-                                <svg class="h-5 w-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                <span>Status: Penghuni Lama</span>
-                            </div>
-                            <p class="text-xs text-emerald-800">
-                                Penghuni telah menyelesaikan masa sewa awal (12 Bulan / 2 tahap pembayaran @ 6 Bulan). Anda dapat memilih durasi pembayaran berikutnya yaitu <strong>3 Bulan</strong> atau <strong>6 Bulan</strong>.
-                            </p>
-                        </div>
-                    @else
-                        <div class="rounded-xl border border-indigo-200 bg-indigo-50/70 p-4 text-sm text-indigo-900 mb-2">
-                            <div class="flex items-center gap-2 font-bold text-indigo-900 mb-1">
-                                <svg class="h-5 w-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                <span>Status: Penghuni Baru (Masa Sewa Awal 12 Bulan)</span>
-                            </div>
-                            <p class="text-xs text-indigo-800">
-                                Penghuni masih menjalani masa sewa awal selama <strong>12 Bulan</strong> (Pembayaran 2 tahap @ 6 Bulan). Opsi durasi 3/6 bulan akan terbuka otomatis setelah kedua pembayaran tahap 6 bulan selesai.
-                            </p>
-                        </div>
-                    @endif
-
                     <div>
                         <x-input-label for="nama" value="Nama Lengkap" />
                         <x-text-input id="nama" name="nama" type="text" class="mt-1 block w-full" :value="old('nama', $penghuni->nama)" required autofocus pattern="^[a-zA-Z\s]+$" title="Nama hanya boleh berisi huruf dan spasi" />
@@ -53,8 +30,11 @@
                         <x-input-error class="mt-2" :messages="$errors->get('no_hp')" />
                     </div>
 
-                    <hr class="border-slate-100 my-4">
-                    <h3 class="text-sm font-bold text-slate-800 mb-3">Informasi Sewa &amp; Durasi Pembayaran</h3>
+                    <div>
+                        <x-input-label for="alamat" value="Alamat Penghuni (Opsional)" />
+                        <textarea id="alamat" name="alamat" rows="2" class="mt-1 block w-full rounded-lg border-slate-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 placeholder:text-slate-400" placeholder="Alamat asal atau domisili penghuni (opsional)">{{ old('alamat', $penghuni->alamat) }}</textarea>
+                        <x-input-error class="mt-2" :messages="$errors->get('alamat')" />
+                    </div>
 
                     <div>
                         <x-input-label for="kamar_id" value="Kamar Kos" />
@@ -68,32 +48,33 @@
                         <x-input-error class="mt-2" :messages="$errors->get('kamar_id')" />
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        <div>
-                            <x-input-label for="tanggal_masuk" value="Tanggal Masuk" />
-                            <x-text-input id="tanggal_masuk" name="tanggal_masuk" type="date" class="mt-1 block w-full" :value="old('tanggal_masuk', $penghuni->tanggal_masuk ? $penghuni->tanggal_masuk->toDateString() : '')" required onchange="updateTanggalSelesai()" />
-                            <x-input-error class="mt-2" :messages="$errors->get('tanggal_masuk')" />
-                        </div>
+                    <hr class="border-slate-100 my-4">
 
-                        <div>
-                            @if ($penghuni->isPenghuniLama())
-                                <x-input-label for="durasi_kontrak" value="Durasi Pembayaran Next Period" />
-                                <select id="durasi_kontrak" name="durasi_kontrak" class="mt-1 block w-full rounded-lg border-slate-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required onchange="updateTanggalSelesai()">
-                                    <option value="3" @selected(old('durasi_kontrak', $penghuni->durasi_kontrak) == 3)>3 Bulan</option>
-                                    <option value="6" @selected(old('durasi_kontrak', $penghuni->durasi_kontrak) == 6)>6 Bulan</option>
-                                </select>
-                                <x-input-error class="mt-2" :messages="$errors->get('durasi_kontrak')" />
-                            @else
-                                <x-input-label for="durasi_display" value="Masa Sewa Awal" />
-                                <x-text-input id="durasi_display" type="text" class="mt-1 block w-full bg-slate-100 font-semibold text-indigo-700" value="12 Bulan (2x Tahap @ 6 Bln)" readonly />
-                                <input type="hidden" id="durasi_kontrak" name="durasi_kontrak" value="12" />
-                            @endif
+                    <!-- Information Read-Only Section for Lease Contract -->
+                    <div class="rounded-xl border border-slate-200 bg-slate-50/80 p-4 space-y-3">
+                        <div class="flex items-center gap-2">
+                            <svg class="h-5 w-5 text-indigo-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            <h3 class="text-sm font-bold text-slate-800">Informasi Masa Sewa (Read-Only)</h3>
                         </div>
+                        <p class="text-xs text-slate-600">
+                            Masa sewa dan kontrak tidak dapat diubah dari halaman ini. Untuk memperpanjang atau memperbarui durasi sewa, gunakan tombol <strong>"Perpanjang Sewa"</strong> pada halaman Kelola Penghuni.
+                        </p>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+                            <div>
+                                <x-input-label value="Tanggal Mulai Sewa" />
+                                <x-text-input type="text" class="mt-1 block w-full bg-white text-slate-700 font-semibold cursor-not-allowed" :value="$penghuni->tanggal_masuk ? $penghuni->tanggal_masuk->format('d/m/Y') : '-'" readonly disabled />
+                            </div>
 
-                        <div>
-                            <x-input-label for="tanggal_selesai" value="Tanggal Berakhir Sewa" />
-                            <x-text-input id="tanggal_selesai" name="tanggal_selesai" type="date" class="mt-1 block w-full bg-slate-50" :value="old('tanggal_selesai', $penghuni->tanggal_selesai ? $penghuni->tanggal_selesai->toDateString() : '')" required readonly />
-                            <x-input-error class="mt-2" :messages="$errors->get('tanggal_selesai')" />
+                            <div>
+                                <x-input-label value="Durasi Sewa Saat Ini" />
+                                <x-text-input type="text" class="mt-1 block w-full bg-white text-indigo-700 font-semibold cursor-not-allowed" :value="$penghuni->durasi_kontrak . ' Bulan'" readonly disabled />
+                            </div>
+
+                            <div>
+                                <x-input-label value="Tanggal Berakhir Sewa" />
+                                <x-text-input type="text" class="mt-1 block w-full bg-white text-slate-700 font-semibold cursor-not-allowed" :value="$penghuni->tanggal_selesai ? $penghuni->tanggal_selesai->format('d/m/Y') : '-'" readonly disabled />
+                            </div>
                         </div>
                     </div>
 
@@ -149,7 +130,7 @@
 
                     <div class="flex items-center gap-3 pt-3">
                         <button type="submit" class="rounded-xl bg-indigo-600 px-5 py-2.5 font-semibold text-white shadow-sm hover:bg-indigo-700 active:scale-95 transition">
-                            Perbarui Data Penghuni
+                            Simpan Perubahan Identitas
                         </button>
                         <a href="{{ route('penghuni.index') }}" class="rounded-xl border border-slate-300 bg-white px-5 py-2.5 font-semibold text-slate-700 hover:bg-slate-50 transition">
                             Batal
@@ -159,33 +140,4 @@
             </div>
         </div>
     </div>
-
-    <script>
-        function updateTanggalSelesai() {
-            const tglMasukInput = document.getElementById('tanggal_masuk');
-            const durasiInput = document.getElementById('durasi_kontrak');
-            const tglSelesaiInput = document.getElementById('tanggal_selesai');
-
-            if (!tglMasukInput || !durasiInput || !tglSelesaiInput) return;
-
-            const startVal = tglMasukInput.value;
-            const durasiVal = parseInt(durasiInput.value) || 12;
-
-            if (!startVal) return;
-
-            let date = new Date(startVal);
-            date.setMonth(date.getMonth() + durasiVal);
-            date.setDate(date.getDate() - 1);
-
-            const yyyy = date.getFullYear();
-            const mm = String(date.getMonth() + 1).padStart(2, '0');
-            const dd = String(date.getDate()).padStart(2, '0');
-
-            tglSelesaiInput.value = `${yyyy}-${mm}-${dd}`;
-        }
-
-        document.addEventListener("DOMContentLoaded", function() {
-            updateTanggalSelesai();
-        });
-    </script>
 </x-app-layout>

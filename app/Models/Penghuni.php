@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Penghuni extends Model
 {
     protected $fillable = [
-        'nama', 'no_hp', 'kamar_id', 'user_id', 'nama_wali', 'no_hp_wali',
+        'nama', 'no_hp', 'alamat', 'kamar_id', 'harga_kontrak', 'user_id', 'nama_wali', 'no_hp_wali',
         'alamat_wali', 'tanggal_masuk', 'tanggal_selesai', 'hubungan',
         'durasi_kontrak'
     ];
@@ -16,6 +16,7 @@ class Penghuni extends Model
     protected $casts = [
         'tanggal_masuk' => 'date',
         'tanggal_selesai' => 'date',
+        'harga_kontrak' => 'integer',
     ];
 
     public function kamar()
@@ -40,8 +41,6 @@ class Penghuni extends Model
 
     /**
      * Memeriksa apakah penghuni sudah tergolong "Penghuni Lama".
-     * Penghuni dianggap sebagai penghuni lama apabila telah menyelesaikan
-     * pembayaran 2 tahap (2x tagihan 6 bulan) atau telah tinggal selama 12 bulan.
      */
     public function isPenghuniLama(): bool
     {
@@ -56,18 +55,25 @@ class Penghuni extends Model
         return $this->isPenghuniLama() ? 'Penghuni Lama' : 'Penghuni Baru';
     }
 
+    /**
+     * Mengembalikan harga sewa efektif yang disepakati dalam kontrak penghuni.
+     */
+    public function getHargaSewaEffectiveAttribute(): int
+    {
+        return (int) ($this->harga_kontrak ?? $this->kamar?->harga ?? 0);
+    }
+
     public function generateBilling($startDateString, $duration)
     {
         $this->load('kamar');
-        $kamar = $this->kamar;
-        if (!$kamar) {
+        if (!$this->kamar) {
             return;
         }
 
+        $rentPrice = $this->harga_sewa_effective;
         $startDate = Carbon::parse($startDateString);
         $duration = (int) $duration;
 
-        // Jika 12 bulan (penghuni baru), buat 2 tahap @ 6 bulan
         $step = ($duration === 12) ? 6 : $duration;
 
         for ($i = 0; $i < $duration; $i += $step) {
@@ -76,9 +82,8 @@ class Penghuni extends Model
             $due = $termStart->toDateString();
             $tahun = $termStart->year;
             $bulan = $termStart->month;
-            $amount = $kamar->harga * $monthsInTerm;
+            $amount = $rentPrice * $monthsInTerm;
 
-            // Prevent duplicating bills for the same period
             $exists = Tagihan::where('penghuni_id', $this->id)
                 ->where('tahun', $tahun)
                 ->where('bulan', $bulan)

@@ -16,9 +16,18 @@ class TagihanController extends Controller
     /**
      * Hitung daftar virtual penghuni yang berada pada kondisi "Menunggu Generate"
      * untuk periode (bulan & tahun) yang dipilih.
+     * HANYA berlaku untuk periode saat ini atau periode sebelumnya (bukan masa depan).
      */
     public static function getPendingGenerationForPeriod(int $bulan, int $tahun): \Illuminate\Support\Collection
     {
+        $currentYear = (int) now()->year;
+        $currentMonth = (int) now()->month;
+
+        // Aturan: Tidak diperbolehkan generate tagihan untuk periode masa depan
+        if ($tahun > $currentYear || ($tahun === $currentYear && $bulan > $currentMonth)) {
+            return collect();
+        }
+
         $penghunis = Penghuni::with('kamar')->whereNotNull('kamar_id')->get();
         $pendingList = collect();
 
@@ -43,7 +52,9 @@ class TagihanController extends Controller
                         ->exists();
 
                     if (!$exists) {
-                        $amount = $penghuni->kamar->harga * $step;
+                        // Gunakan harga kontrak yang terkunci pada data penghuni
+                        $rentPrice = (int) ($penghuni->harga_kontrak ?? $penghuni->kamar->harga);
+                        $amount = $rentPrice * $step;
                         $due = $termStart->toDateString();
 
                         $item = new Tagihan([
@@ -73,6 +84,10 @@ class TagihanController extends Controller
     {
         $bulan = (int) $request->get('bulan', now()->month);
         $tahun = (int) $request->get('tahun', now()->year);
+
+        $currentYear = (int) now()->year;
+        $currentMonth = (int) now()->month;
+        $isFuturePeriod = ($tahun > $currentYear) || ($tahun === $currentYear && $bulan > $currentMonth);
 
         // 1. Ambil seluruh tagihan di database yang belum lunas (Belum Bayar, Menunggu Verifikasi, Ditolak)
         $activeTagihansDB = Tagihan::with(['penghuni', 'kamar'])
@@ -110,7 +125,8 @@ class TagihanController extends Controller
             'bulan',
             'tahun',
             'namaBulan',
-            'jumlahMenungguGenerate'
+            'jumlahMenungguGenerate',
+            'isFuturePeriod'
         ));
     }
 
@@ -136,6 +152,8 @@ class TagihanController extends Controller
             return back()->withInput()->with('error', 'Penghuni ini belum memiliki kamar.');
         }
 
+        $rentPrice = (int) ($penghuni->harga_kontrak ?? $penghuni->kamar->harga);
+
         Tagihan::updateOrCreate(
             [
                 'penghuni_id' => $penghuni->id,
@@ -144,7 +162,7 @@ class TagihanController extends Controller
             ],
             [
                 'kamar_id' => $penghuni->kamar_id,
-                'jumlah' => $penghuni->kamar->harga,
+                'jumlah' => $rentPrice,
                 'jatuh_tempo' => $validated['jatuh_tempo'],
                 'status' => 'belum_bayar',
             ]
@@ -163,6 +181,15 @@ class TagihanController extends Controller
 
         $bulan = (int) $validated['bulan'];
         $tahun = (int) $validated['tahun'];
+
+        $currentYear = (int) now()->year;
+        $currentMonth = (int) now()->month;
+
+        // Validasi Sisi Backend: Mencegah generate tagihan periode masa depan
+        if ($tahun > $currentYear || ($tahun === $currentYear && $bulan > $currentMonth)) {
+            return redirect()->route('tagihan.index', ['bulan' => $bulan, 'tahun' => $tahun])
+                ->with('error', 'Tagihan hanya dapat diterbitkan sesuai periode yang sedang berjalan atau periode sebelumnya.');
+        }
 
         // Ambil daftar penghuni pada kondisi "Menunggu Generate" khusus periode yang dipilih
         $pendingItems = self::getPendingGenerationForPeriod($bulan, $tahun);

@@ -37,6 +37,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::resource('kamar', KamarController::class)->except(['show']);
     Route::resource('tipe-kamar', TipeKamarController::class)->only(['index', 'edit', 'update']);
     Route::resource('penghuni', PenghuniController::class)->except(['show']);
+    Route::post('/penghuni/{penghuni}/perpanjang', [PenghuniController::class, 'perpanjang'])->name('penghuni.perpanjang');
     Route::post('/penghuni/{penghuni}/reset-password', [PenghuniController::class, 'resetPassword'])->name('penghuni.reset-password');
     Route::resource('tagihan', TagihanController::class)->only(['index']);
     Route::post('/tagihan/generate', [TagihanController::class, 'generate'])->name('tagihan.generate');

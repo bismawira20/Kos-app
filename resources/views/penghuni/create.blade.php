@@ -44,6 +44,12 @@
                             <x-input-error class="mt-2" :messages="$errors->get('no_hp')" />
                         </div>
 
+                        <div>
+                            <x-input-label for="alamat" value="Alamat Penghuni (Opsional)" />
+                            <textarea id="alamat" name="alamat" rows="2" class="mt-1 block w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 placeholder:text-gray-400" placeholder="Alamat asal atau domisili penghuni (opsional)">{{ old('alamat') }}</textarea>
+                            <x-input-error class="mt-2" :messages="$errors->get('alamat')" />
+                        </div>
+
                         <hr class="border-gray-100 my-4">
                         <h3 class="text-sm font-semibold text-gray-800 mb-3">Kontak Darurat (Opsional)</h3>
 
