@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ config('app.name', 'E-PayKos') }} — Masuk</title>
+    <title>{{ config('app.name', 'E-Kos') }} — Masuk</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="min-h-screen bg-gradient-to-br from-indigo-600 via-violet-600 to-indigo-900 antialiased">
@@ -20,7 +20,7 @@
                 </div>
                 <h1 class="text-center text-2xl font-bold tracking-tight">Selamat Datang</h1>
                 <p class="mt-3 text-center text-sm leading-relaxed text-indigo-100">
-                    Mudah kelola pembayaran kos bulanan dengan cepat &amp; transparan — {{ config('app.name', 'E-PayKos') }}.
+                    Mudah kelola pembayaran kos bulanan dengan cepat &amp; transparan — {{ config('app.name', 'E-Kos') }}.
                 </p>
             </div>
             <div class="md:w-1/2 flex flex-col justify-center p-8 sm:p-10 bg-white">

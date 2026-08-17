@@ -8,6 +8,7 @@ use App\Models\Pembayaran;
 use App\Models\Penghuni;
 use App\Models\Tagihan;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
@@ -43,14 +44,23 @@ class DashboardController extends Controller
         // 6. Tingkat Okupansi
         $occupancy = $totalKamar > 0 ? round(($kamarTerisi / $totalKamar) * 100) : 0;
 
-        // Grafik Pembayaran Lunas per Hari
-        $chart = Pembayaran::selectRaw('DAY(created_at) as hari, COUNT(*) as total')
-            ->whereYear('created_at', $tahun)
-            ->whereMonth('created_at', $bulan)
+        // Grafik Pembayaran Bulanan (Januari - Desember) untuk tahun yang dipilih
+        $monthlyPayments = Pembayaran::selectRaw('MONTH(COALESCE(tanggal_bayar, created_at)) as bulan_num, SUM(jumlah) as total_nominal')
+            ->whereYear(DB::raw('COALESCE(tanggal_bayar, created_at)'), $tahun)
             ->where('status', 'lunas')
-            ->groupBy('hari')
-            ->orderBy('hari')
-            ->pluck('total', 'hari');
+            ->groupBy('bulan_num')
+            ->pluck('total_nominal', 'bulan_num');
+
+        $chartLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
+        $chartValues = [];
+        $chartBackgrounds = [];
+        $chartBorders = [];
+
+        for ($m = 1; $m <= 12; $m++) {
+            $chartValues[] = (int) ($monthlyPayments[$m] ?? 0);
+            $chartBackgrounds[] = 'rgba(79, 70, 229, 0.85)';
+            $chartBorders[] = 'rgb(67, 56, 202)';
+        }
 
         $namaBulan = [
             1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
@@ -69,7 +79,10 @@ class DashboardController extends Controller
             'tagihanBelumLunas',
             'jumlahMenungguGenerate',
             'occupancy',
-            'chart',
+            'chartLabels',
+            'chartValues',
+            'chartBackgrounds',
+            'chartBorders',
             'bulan',
             'tahun',
             'namaBulan'

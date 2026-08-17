@@ -76,20 +76,16 @@
 
         <!-- Monitoring Section: Grafik & Ringkasan Cepat -->
         <section class="grid gap-6 xl:grid-cols-[1.35fr_0.9fr]">
-            <!-- Grafik Pembayaran Lunas -->
+            <!-- Grafik Pembayaran Bulanan -->
             <div class="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
                 <div class="flex flex-wrap items-center justify-between gap-4">
                     <div>
                         <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Monitoring</p>
-                        <h3 class="mt-1 text-lg font-semibold text-slate-900">Grafik Pembayaran Lunas</h3>
+                        <h3 class="mt-1 text-lg font-semibold text-slate-900">Grafik Pembayaran Bulanan</h3>
                     </div>
-                    <form method="GET" class="flex gap-2">
-                        <select name="bulan" onchange="this.form.submit()" class="rounded-xl border-slate-200 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                            @for ($i = 1; $i <= 12; $i++)
-                                <option value="{{ $i }}" @selected((int) $bulan === $i)>{{ $namaBulan[$i] ?? $i }}</option>
-                            @endfor
-                        </select>
-                        <select name="tahun" onchange="this.form.submit()" class="rounded-xl border-slate-200 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                    <form method="GET" class="flex items-center gap-2">
+                        <label for="filter_tahun" class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Tahun:</label>
+                        <select id="filter_tahun" name="tahun" onchange="this.form.submit()" class="rounded-xl border-slate-200 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                             @for ($y = now()->year; $y >= now()->year - 5; $y--)
                                 <option value="{{ $y }}" @selected((int) $tahun === $y)>{{ $y }}</option>
                             @endfor
@@ -162,25 +158,57 @@
     @push('scripts')
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script>
-            const labels = {!! json_encode($chart->keys()->values()) !!};
-            const values = {!! json_encode($chart->values()) !!};
+            const labels = {!! json_encode($chartLabels) !!};
+            const values = {!! json_encode($chartValues) !!};
+            const bgColors = {!! json_encode($chartBackgrounds) !!};
+            const borderColors = {!! json_encode($chartBorders) !!};
+
             new Chart(document.getElementById('chartPembayaran'), {
-                type: 'line',
+                type: 'bar',
                 data: {
                     labels: labels,
                     datasets: [{
-                        label: 'Pembayaran lunas',
+                        label: 'Total Pembayaran (Rp)',
                         data: values,
-                        borderColor: 'rgb(109, 40, 217)',
-                        backgroundColor: 'rgba(109, 40, 217, 0.08)',
-                        fill: true,
-                        tension: 0.25,
+                        backgroundColor: bgColors,
+                        borderColor: borderColors,
+                        borderWidth: 2,
+                        borderRadius: 8,
+                        borderSkipped: false,
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let value = context.raw || 0;
+                                    return ' Pembayaran: Rp ' + new Intl.NumberFormat('id-ID').format(value);
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    if (value >= 1000000) {
+                                        return 'Rp ' + (value / 1000000).toFixed(1) + ' Jt';
+                                    } else if (value >= 1000) {
+                                        return 'Rp ' + (value / 1000).toFixed(0) + ' Rb';
+                                    }
+                                    return 'Rp ' + value;
+                                }
+                            }
+                        },
+                        x: {
+                            grid: { display: false }
+                        }
+                    }
                 }
             });
         </script>

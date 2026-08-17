@@ -10,6 +10,7 @@ use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class PenghuniController extends Controller
@@ -38,7 +39,7 @@ class PenghuniController extends Controller
     {
         $validated = $request->validate([
             'user_id' => ['required', 'exists:users,id'],
-            'no_hp' => ['required', 'string', 'digits_between:10,13'],
+            'no_hp' => ['required', 'string', 'digits_between:10,13', 'unique:penghunis,no_hp'],
             'alamat' => ['nullable', 'string'],
             'kamar_id' => ['required', 'exists:kamars,id'],
             'tanggal_masuk' => ['required', 'date'],
@@ -49,6 +50,7 @@ class PenghuniController extends Controller
         ], [
             'nama_wali.regex' => 'Nama kontak darurat hanya boleh berisi huruf dan spasi.',
             'no_hp.digits_between' => 'Nomor HP harus berupa angka dengan panjang antara 10 hingga 13 digit.',
+            'no_hp.unique' => 'Nomor HP sudah terdaftar. Silakan gunakan nomor HP lain.',
             'no_hp_wali.digits_between' => 'Nomor HP kontak darurat harus berupa angka dengan panjang antara 10 hingga 13 digit.',
         ]);
 
@@ -197,7 +199,7 @@ class PenghuniController extends Controller
     {
         $validated = $request->validate([
             'nama' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/'],
-            'no_hp' => ['required', 'string', 'digits_between:10,13'],
+            'no_hp' => ['required', 'string', 'digits_between:10,13', Rule::unique('penghunis', 'no_hp')->ignore($penghuni->id)],
             'alamat' => ['nullable', 'string'],
             'kamar_id' => ['required', 'exists:kamars,id'],
             'user_id' => ['nullable', 'exists:users,id'],
@@ -208,6 +210,7 @@ class PenghuniController extends Controller
         ], [
             'nama.regex' => 'Nama hanya boleh berisi huruf dan spasi.',
             'no_hp.digits_between' => 'Nomor HP harus berupa angka dengan panjang antara 10 hingga 13 digit.',
+            'no_hp.unique' => 'Nomor HP sudah terdaftar. Silakan gunakan nomor HP lain.',
             'nama_wali.regex' => 'Nama kontak darurat hanya boleh berisi huruf dan spasi.',
             'no_hp_wali.digits_between' => 'Nomor HP kontak darurat harus berupa angka dengan panjang antara 10 hingga 13 digit.',
         ]);

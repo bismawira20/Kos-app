@@ -3,7 +3,7 @@
     $home = $isAdmin ? route('dashboard') : route('dashboard.penghuni');
 
     // Dynamically identify the page title based on the active route to match sidebar menus
-    $pageTitle = 'E-PayKos';
+    $pageTitle = 'E-Kos';
     if (request()->routeIs('dashboard') || request()->routeIs('dashboard.penghuni')) {
         $pageTitle = 'Dashboard';
     } elseif (request()->routeIs('kamar.*')) {
@@ -35,9 +35,9 @@
             <div class="flex min-w-0 items-center gap-3">
                 <a href="{{ $home }}" class="flex min-w-0 items-center gap-3 rounded-2xl bg-white/10 px-3 py-2 font-semibold text-white backdrop-blur transition hover:bg-white/15">
                     <div class="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white shadow-sm">
-                        <img src="{{ asset('images/epaykos-logo.png') }}" alt="ePayKos" class="h-full w-full object-cover">
+                        <img src="{{ asset('images/epaykos-logo.png') }}" alt="E-Kos" class="h-full w-full object-cover">
                     </div>
-                    <span class="text-lg font-bold tracking-tight">ePayKos</span>
+                    <span class="text-base font-bold tracking-tight truncate max-w-[180px] sm:max-w-[260px]">{{ Auth::user()->name }}</span>
                 </a>
             </div>
 

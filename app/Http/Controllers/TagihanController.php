@@ -14,9 +14,9 @@ use Illuminate\View\View;
 class TagihanController extends Controller
 {
     /**
-     * Hitung daftar virtual penghuni yang berada pada kondisi "Menunggu Generate"
-     * untuk periode (bulan & tahun) yang dipilih.
-     * HANYA berlaku untuk periode saat ini atau periode sebelumnya (bukan masa depan).
+     * Hitung daftar tagihan penghuni yang berada pada kondisi "Menunggu Generate"
+     * untuk periode (bulan & tahun) yang dipilih atau periode sebelumnya yang belum pernah digenerate.
+     * Menggabungkan record 'menunggu_generate' dari DB dan tagihan termin yang hilang/belum dibuat.
      */
     public static function getPendingGenerationForPeriod(int $bulan, int $tahun): \Illuminate\Support\Collection
     {
@@ -28,8 +28,31 @@ class TagihanController extends Controller
             return collect();
         }
 
-        $penghunis = Penghuni::with('kamar')->whereNotNull('kamar_id')->get();
         $pendingList = collect();
+
+        // 1. Ambil tagihan berstatus 'menunggu_generate' yang SUDAH ADA di database
+        //    untuk periode ini atau periode sebelumnya yang belum pernah digenerate.
+        $dbPending = Tagihan::with(['penghuni', 'kamar'])
+            ->where('status', 'menunggu_generate')
+            ->where(function ($query) use ($tahun, $bulan) {
+                $query->where('tahun', '<', $tahun)
+                    ->orWhere(function ($q) use ($tahun, $bulan) {
+                        $q->where('tahun', $tahun)
+                          ->where('bulan', '<=', $bulan);
+                    });
+            })
+            ->orderBy('tahun', 'asc')
+            ->orderBy('bulan', 'asc')
+            ->get();
+
+        foreach ($dbPending as $t) {
+            $t->is_menunggu_generate = true;
+            $pendingList->push($t);
+        }
+
+        // 2. Cek apakah ada penghuni aktif yang termin pembayarannya jatuh pada periode <= ($tahun, $bulan),
+        //    TETAPI record tagihannya BELUM ADA di database (misal: karena pernah dihapus dari DB).
+        $penghunis = Penghuni::with('kamar')->whereNotNull('kamar_id')->get();
 
         foreach ($penghunis as $penghuni) {
             if (!$penghuni->kamar || !$penghuni->tanggal_masuk) {
@@ -39,32 +62,41 @@ class TagihanController extends Controller
             $startDate = Carbon::parse($penghuni->tanggal_masuk)->startOfDay();
             $duration = (int) ($penghuni->durasi_kontrak ?? 12);
             $step = ($duration === 12) ? 6 : $duration;
+            $totalTerms = (int) ceil($duration / $step);
 
-            // Cek setiap istilah/termin pembayaran penghuni
-            for ($termIdx = 0; $termIdx < 24; $termIdx++) {
+            for ($termIdx = 0; $termIdx < $totalTerms; $termIdx++) {
                 $termStart = $startDate->copy()->addMonths($termIdx * $step);
+                $termYear = (int) $termStart->year;
+                $termMonth = (int) $termStart->month;
 
-                if ((int)$termStart->month === $bulan && (int)$termStart->year === $tahun) {
-                    // Cek apakah record tagihan SUDAH ADA di database
-                    $exists = Tagihan::where('penghuni_id', $penghuni->id)
-                        ->where('tahun', $tahun)
-                        ->where('bulan', $bulan)
+                // Hanya proses termin yang waktunya <= periode ($tahun, $bulan)
+                $isDueOrPast = ($termYear < $tahun) || ($termYear === $tahun && $termMonth <= $bulan);
+
+                if ($isDueOrPast) {
+                    // Cek apakah SUDAH ADA tagihan di DB untuk penghuni ini pada termin (termYear, termMonth)
+                    $existsInDb = Tagihan::where('penghuni_id', $penghuni->id)
+                        ->where('tahun', $termYear)
+                        ->where('bulan', $termMonth)
                         ->exists();
 
-                    if (!$exists) {
-                        // Gunakan harga kontrak yang terkunci pada data penghuni
+                    $alreadyInPendingList = $pendingList->contains(function ($item) use ($penghuni, $termYear, $termMonth) {
+                        return $item->penghuni_id == $penghuni->id && $item->tahun == $termYear && $item->bulan == $termMonth;
+                    });
+
+                    if (!$existsInDb && !$alreadyInPendingList) {
                         $rentPrice = (int) ($penghuni->harga_kontrak ?? $penghuni->kamar->harga);
-                        $amount = $rentPrice * $step;
+                        $monthsInTerm = min($step, $duration - ($termIdx * $step));
+                        $amount = $rentPrice * $monthsInTerm;
                         $due = $termStart->toDateString();
 
                         $item = new Tagihan([
                             'penghuni_id' => $penghuni->id,
                             'kamar_id' => $penghuni->kamar_id,
-                            'tahun' => $tahun,
-                            'bulan' => $bulan,
+                            'tahun' => $termYear,
+                            'bulan' => $termMonth,
                             'jumlah' => $amount,
                             'jatuh_tempo' => $due,
-                            'status' => 'menunggu_generate', // Status tampilan virtual saja
+                            'status' => 'menunggu_generate',
                         ]);
                         $item->setRelation('penghuni', $penghuni);
                         $item->setRelation('kamar', $penghuni->kamar);
@@ -72,7 +104,6 @@ class TagihanController extends Controller
 
                         $pendingList->push($item);
                     }
-                    break;
                 }
             }
         }
@@ -102,7 +133,7 @@ class TagihanController extends Controller
             $t->is_menunggu_generate = false;
         }
 
-        // 2. Ambil daftar kondisi "Menunggu Generate" khusus periode bulan & tahun yang dipilih
+        // 2. Ambil daftar kondisi "Menunggu Generate" khusus periode bulan & tahun yang dipilih atau sebelumnya
         $pendingGenerateList = self::getPendingGenerationForPeriod($bulan, $tahun);
 
         // 3. Gabungkan dan urutkan berdasarkan periode paling lama terlebih dahulu (ascending)
@@ -191,27 +222,31 @@ class TagihanController extends Controller
                 ->with('error', 'Tagihan hanya dapat diterbitkan sesuai periode yang sedang berjalan atau periode sebelumnya.');
         }
 
-        // Ambil daftar penghuni pada kondisi "Menunggu Generate" khusus periode yang dipilih
+        // Ambil daftar tagihan "Menunggu Generate"
         $pendingItems = self::getPendingGenerationForPeriod($bulan, $tahun);
         $count = 0;
 
         DB::transaction(function () use ($pendingItems, &$count) {
             foreach ($pendingItems as $item) {
-                $exists = Tagihan::where('penghuni_id', $item->penghuni_id)
-                    ->where('tahun', $item->tahun)
-                    ->where('bulan', $item->bulan)
-                    ->exists();
-
-                if (!$exists) {
-                    Tagihan::create([
-                        'penghuni_id' => $item->penghuni_id,
-                        'kamar_id' => $item->kamar_id,
-                        'tahun' => $item->tahun,
-                        'bulan' => $item->bulan,
-                        'jumlah' => $item->jumlah,
-                        'jatuh_tempo' => $item->jatuh_tempo,
-                        'status' => 'belum_bayar',
-                    ]);
+                if ($item->exists && $item->id) {
+                    // Update record 'menunggu_generate' yang ada di DB menjadi 'belum_bayar'
+                    Tagihan::where('id', $item->id)->update(['status' => 'belum_bayar']);
+                    $count++;
+                } else {
+                    // Buat/update record jika tagihan pernah dihapus atau berupa item virtual
+                    Tagihan::updateOrCreate(
+                        [
+                            'penghuni_id' => $item->penghuni_id,
+                            'tahun' => $item->tahun,
+                            'bulan' => $item->bulan,
+                        ],
+                        [
+                            'kamar_id' => $item->kamar_id,
+                            'jumlah' => $item->jumlah,
+                            'jatuh_tempo' => $item->jatuh_tempo,
+                            'status' => 'belum_bayar',
+                        ]
+                    );
                     $count++;
                 }
             }

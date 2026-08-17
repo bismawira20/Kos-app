@@ -30,7 +30,12 @@ class ProfileUpdateRequest extends FormRequest
         ];
 
         if ($this->user()->penghuni) {
-            $rules['no_hp'] = ['required', 'string', 'digits_between:10,13'];
+            $rules['no_hp'] = [
+                'required',
+                'string',
+                'digits_between:10,13',
+                Rule::unique('penghunis', 'no_hp')->ignore($this->user()->penghuni->id),
+            ];
             $rules['alamat'] = ['nullable', 'string'];
         }
 
@@ -49,6 +54,7 @@ class ProfileUpdateRequest extends FormRequest
             'email.regex' => 'Email harus menggunakan domain @gmail.com.',
             'no_hp.required' => 'Nomor HP wajib diisi.',
             'no_hp.digits_between' => 'Nomor HP harus berupa angka dengan panjang antara 10 hingga 13 digit.',
+            'no_hp.unique' => 'Nomor HP sudah terdaftar. Silakan gunakan nomor HP lain.',
         ];
     }
 }
