@@ -82,9 +82,7 @@ class PenghuniTagihanController extends Controller
             return redirect()->route('penghuni.tagihan.index')->with('error', 'Tagihan ini tidak dapat dibayar (sudah lunas atau menunggu verifikasi).');
         }
 
-        $request->merge(['jumlah' => str_replace('.', '', $request->jumlah)]);
         $validated = $request->validate([
-            'jumlah' => ['required', 'integer', 'min:1'],
             'bukti' => ['required', 'image', 'max:5120'],
         ]);
 
@@ -99,7 +97,7 @@ class PenghuniTagihanController extends Controller
         Pembayaran::create([
             'penghuni_id' => $tagihan->penghuni_id,
             'tagihan_id' => $tagihan->id,
-            'jumlah' => $validated['jumlah'],
+            'jumlah' => $tagihan->jumlah,
             'tanggal_bayar' => now()->toDateString(),
             'status' => 'menunggu',
             'bukti' => $namaFile,
