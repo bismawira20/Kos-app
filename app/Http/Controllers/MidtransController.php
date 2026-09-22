@@ -123,7 +123,7 @@ class MidtransController extends Controller
         $penghuni = Auth::user()->penghuni;
         abort_if(! $penghuni || $tagihan->penghuni_id !== $penghuni->id, 403);
 
-        return redirect()->route('penghuni.riwayat')
+        return redirect()->route('penghuni.tagihan.index')
             ->with('status', 'Pembayaran sedang diproses. Status tagihan akan otomatis diperbarui menjadi lunas setelah konfirmasi notifikasi dari Midtrans diterima.');
     }
 
