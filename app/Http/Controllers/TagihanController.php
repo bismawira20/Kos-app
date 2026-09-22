@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Kamar;
 use App\Models\Penghuni;
 use App\Models\Tagihan;
 use Carbon\Carbon;
@@ -113,8 +112,8 @@ class TagihanController extends Controller
 
     public function index(Request $request): View
     {
-        $bulan = (int) $request->get('bulan', now()->month);
-        $tahun = (int) $request->get('tahun', now()->year);
+        $bulan = (int) $request->input('bulan', now()->month);
+        $tahun = (int) $request->input('tahun', now()->year);
 
         $currentYear = (int) now()->year;
         $currentMonth = (int) now()->month;

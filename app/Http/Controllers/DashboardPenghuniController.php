@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\KendalaLaporan;
 use App\Models\Tagihan;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
@@ -11,7 +12,19 @@ class DashboardPenghuniController extends Controller
 {
     public function index(): View
     {
+        /** @var User|null $user */
         $user = Auth::user();
+
+        if (! $user) {
+            return view('dashboard_penghuni', [
+                'penghuni' => null,
+                'tagihanAktif' => null,
+                'tagihanTerbaru' => null,
+                'laporanTerakhir' => null,
+                'stats' => [],
+            ]);
+        }
+
         $user->load(['penghuni.kamar.tipeKamar']);
         $penghuni = $user->penghuni;
 

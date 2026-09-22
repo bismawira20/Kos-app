@@ -6,6 +6,23 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * @property int $id
+ * @property int $penghuni_id
+ * @property int $kamar_id
+ * @property int $tahun
+ * @property int $bulan
+ * @property int $jumlah
+ * @property \Carbon\Carbon|null $jatuh_tempo
+ * @property string $status
+ * @property \Carbon\Carbon|null $created_at
+ * @property \Carbon\Carbon|null $updated_at
+ * @property \App\Models\Penghuni|null $penghuni
+ * @property \App\Models\Kamar|null $kamar
+ * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Pembayaran> $pembayaran
+ * @property bool|null $is_tunggakan
+ * @property bool|null $is_menunggu_generate
+ */
 class Tagihan extends Model
 {
     protected $fillable = [

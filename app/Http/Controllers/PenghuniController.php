@@ -121,9 +121,7 @@ class PenghuniController extends Controller
         $duration = (int) $validated['durasi_kontrak'];
 
         // Tanggal mulai sewa baru otomatis 1 hari setelah tanggal berakhir kontrak sebelumnya
-        $start = $penghuni->tanggal_selesai
-        ? Carbon::parse($penghuni->tanggal_selesai)->addDay()
-        : now()->startOfDay();
+        $start = $penghuni->tanggal_selesai ? $penghuni->tanggal_selesai->copy()->addDay() : now()->startOfDay();
         $end = $start->copy()->addMonths($duration)->subDay()->toDateString();
 
         // Ambil harga kamar terbaru saat perpanjangan dilakukan

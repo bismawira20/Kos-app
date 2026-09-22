@@ -13,10 +13,12 @@ use Illuminate\Notifications\Notifiable;
  * @property string $email
  * @property string $password
  * @property string $role
+ * @property string $status
  * @property \Illuminate\Support\Carbon|null $email_verified_at
  * @property string|null $remember_token
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \App\Models\Penghuni|null $penghuni
  */
 class User extends Authenticatable
 {

@@ -5,6 +5,30 @@ namespace App\Models;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property int $id
+ * @property string $nama
+ * @property string $no_hp
+ * @property string|null $alamat
+ * @property int|null $kamar_id
+ * @property int|null $harga_kontrak
+ * @property int|null $user_id
+ * @property string|null $nama_wali
+ * @property string|null $no_hp_wali
+ * @property string|null $alamat_wali
+ * @property \Carbon\Carbon|null $tanggal_masuk
+ * @property \Carbon\Carbon|null $tanggal_selesai
+ * @property string|null $hubungan
+ * @property int|null $durasi_kontrak
+ * @property \Carbon\Carbon|null $created_at
+ * @property \Carbon\Carbon|null $updated_at
+ * @property-read int $harga_sewa_effective
+ * @property-read string $status_penghuni
+ * @property \App\Models\Kamar|null $kamar
+ * @property \App\Models\User|null $user
+ * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Tagihan> $tagihan
+ * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Pembayaran> $pembayaran
+ */
 class Penghuni extends Model
 {
     protected $fillable = [
