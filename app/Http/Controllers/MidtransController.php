@@ -123,8 +123,22 @@ class MidtransController extends Controller
         $penghuni = Auth::user()->penghuni;
         abort_if(! $penghuni || $tagihan->penghuni_id !== $penghuni->id, 403);
 
-        return redirect()->route('penghuni.tagihan.index')
-            ->with('status', 'Pembayaran sedang diproses. Status tagihan akan otomatis diperbarui menjadi lunas setelah konfirmasi notifikasi dari Midtrans diterima.');
+        $pembayaran = Pembayaran::where('tagihan_id', $tagihan->id)
+            ->where('metode_pembayaran', 'midtrans')
+            ->where('status', 'menunggu')
+            ->first();
+
+        if ($pembayaran) {
+            $pembayaran->update([
+                'status' => 'lunas',
+                'tanggal_bayar' => now()->toDateString(),
+            ]);
+        }
+
+        $tagihan->update(['status' => 'lunas']);
+
+        return redirect()->route('penghuni.riwayat')
+            ->with('status', 'Pembayaran Midtrans berhasil! Status tagihan Anda kini Lunas dan dapat dilihat di Riwayat Pembayaran.');
     }
 
     public function webhook(Request $request)
