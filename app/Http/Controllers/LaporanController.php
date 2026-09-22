@@ -14,9 +14,9 @@ class LaporanController extends Controller
 {
     public function index(Request $request): View
     {
-        $dari = Carbon::parse($request->get('dari', now()->startOfMonth()->toDateString()))->startOfDay();
-        $sampai = Carbon::parse($request->get('sampai', now()->endOfMonth()->toDateString()))->endOfDay();
-        $kamarId = $request->get('kamar_id');
+        $dari = Carbon::parse($request->input('dari', now()->startOfMonth()->toDateString()))->startOfDay();
+        $sampai = Carbon::parse($request->input('sampai', now()->endOfMonth()->toDateString()))->endOfDay();
+        $kamarId = $request->input('kamar_id');
 
         $q = Pembayaran::with(['penghuni.kamar', 'tagihan'])
             ->where('status', 'lunas')
@@ -41,7 +41,7 @@ class LaporanController extends Controller
                 ->sum('jumlah');
         }
 
-        $kamars = Kamar::orderBy('nomor_kamar')->get();
+        $kamars = Kamar::orderByRaw('LENGTH(nomor_kamar), nomor_kamar')->get()->sortBy('nomor_kamar', SORT_NATURAL)->values();
 
         $penghuniAktif = Penghuni::count();
         $kamarTerisi = Kamar::where('status', 'terisi')->count();
@@ -64,10 +64,10 @@ class LaporanController extends Controller
 
     public function exportCsv(Request $request): StreamedResponse
     {
-        $dari = Carbon::parse($request->get('dari', now()->startOfMonth()->toDateString()))->startOfDay();
-        $sampai = Carbon::parse($request->get('sampai', now()->endOfMonth()->toDateString()))->endOfDay();
-        $kamarId = $request->get('kamar_id');
-        $tipe = $request->get('tipe', 'lunas');
+        $dari = Carbon::parse($request->input('dari', now()->startOfMonth()->toDateString()))->startOfDay();
+        $sampai = Carbon::parse($request->input('sampai', now()->endOfMonth()->toDateString()))->endOfDay();
+        $kamarId = $request->input('kamar_id');
+        $tipe = $request->input('tipe', 'lunas');
 
         if ($tipe === 'belum_bayar') {
             $q = \App\Models\Tagihan::with(['penghuni.kamar'])
@@ -88,7 +88,7 @@ class LaporanController extends Controller
                 foreach ($rows as $i => $r) {
                     fputcsv($out, [
                         $i + 1,
-                        $r->labelPeriode(),
+                        method_exists($r, 'labelPeriode') ? call_user_func([$r, 'labelPeriode']) : '—',
                         $r->penghuni?->nama ?? '—',
                         $r->penghuni?->kamar?->nomor_kamar ?? '—',
                         $r->jatuh_tempo ? $r->jatuh_tempo->format('Y-m-d') : '—',
@@ -118,7 +118,9 @@ class LaporanController extends Controller
                 fprintf($out, chr(0xEF).chr(0xBB).chr(0xBF));
                 fputcsv($out, ['No', 'Tanggal Bayar', 'Penghuni', 'Kamar', 'Periode Tagihan', 'Jumlah', 'Status'], ';');
                 foreach ($rows as $i => $r) {
-                    $periode = $r->tagihan ? $r->tagihan->labelPeriode() : '-';
+                    $periode = $r->tagihan && method_exists($r->tagihan, 'labelPeriode')
+                        ? call_user_func([$r->tagihan, 'labelPeriode'])
+                        : '—';
                     fputcsv($out, [
                         $i + 1,
                         $r->tanggal_bayar,
@@ -138,9 +140,9 @@ class LaporanController extends Controller
 
     public function print(Request $request): View
     {
-        $dari = Carbon::parse($request->get('dari', now()->startOfMonth()->toDateString()))->startOfDay();
-        $sampai = Carbon::parse($request->get('sampai', now()->endOfMonth()->toDateString()))->endOfDay();
-        $kamarId = $request->get('kamar_id');
+        $dari = Carbon::parse($request->input('dari', now()->startOfMonth()->toDateString()))->startOfDay();
+        $sampai = Carbon::parse($request->input('sampai', now()->endOfMonth()->toDateString()))->endOfDay();
+        $kamarId = $request->input('kamar_id');
 
         $q = Pembayaran::with(['penghuni.kamar', 'tagihan'])
             ->where('status', 'lunas')
