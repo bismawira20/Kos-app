@@ -25,11 +25,7 @@ class PenghuniController extends Controller
     public function create(): View
     {
         // Hanya menampilkan kamar yang masih kosong
-        $kamar = Kamar::where('status', 'kosong')
-            ->orderByRaw('LENGTH(nomor_kamar), nomor_kamar')
-            ->get()
-            ->sortBy('nomor_kamar', SORT_NATURAL)
-            ->values();
+        $kamar = Kamar::where('status', 'kosong')->orderBy('nomor_kamar')->get();
 
         $users = User::where('role', 'penghuni')
             ->whereDoesntHave('penghuni')
@@ -181,10 +177,8 @@ class PenghuniController extends Controller
         // Hanya menampilkan kamar yang masih berstatus "Kosong" serta kamar yang saat ini ditempati penghuni tersebut
         $kamar = Kamar::where('status', 'kosong')
             ->orWhere('id', $penghuni->kamar_id)
-            ->orderByRaw('LENGTH(nomor_kamar), nomor_kamar')
-            ->get()
-            ->sortBy('nomor_kamar', SORT_NATURAL)
-            ->values();
+            ->orderBy('nomor_kamar')
+            ->get();
 
         $users = User::where('role', 'penghuni')
             ->where(function ($query) use ($penghuni) {

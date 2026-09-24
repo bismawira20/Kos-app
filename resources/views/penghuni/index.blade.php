@@ -187,18 +187,15 @@
                                             <div class="px-5 py-5 space-y-4 text-sm max-h-[75vh] overflow-y-auto">
                                                 <div>
                                                     <h4 class="text-xs font-bold tracking-wider uppercase text-slate-400 mb-2">Data Utama</h4>
-                                                    <p class="text-slate-800"><span class="font-medium text-slate-500 inline-block w-28">Nama:</span> {{ $p->nama }}</p>
-                                                    <p class="text-slate-800"><span class="font-medium text-slate-500 inline-block w-28">No. HP:</span> {{ $p->no_hp }}</p>
-                                                    <p class="text-slate-800"><span class="font-medium text-slate-500 inline-block w-28">Alamat:</span> <span class="{{ $p->alamat ? 'text-slate-800 font-medium' : 'text-slate-400 italic' }}">{{ $p->alamat ?: 'Belum diisi' }}</span></p>
-                                                    <p class="text-slate-800"><span class="font-medium text-slate-500 inline-block w-28">Kamar:</span> {{ $p->kamar?->nomor_kamar ?? '—' }}</p>
-                                                    <p class="text-slate-800"><span class="font-medium text-slate-500 inline-block w-28">Status:</span> {{ $p->status_penghuni }}</p>
-                                                    <p class="text-slate-800"><span class="font-medium text-slate-500 inline-block w-28">Harga Kontrak:</span> Rp {{ number_format($p->harga_sewa_effective, 0, ',', '.') }}/bulan</p>
-                                                    <p class="text-slate-800"><span class="font-medium text-slate-500 inline-block w-28">Tgl Masuk:</span> {{ $p->tanggal_masuk ? $p->tanggal_masuk->format('d M Y') : '—' }}</p>
-                                                    <p class="text-slate-800">
-                                                        <span class="font-medium text-slate-500 inline-block w-28">Tgl Selesai:</span> 
-                                                        {{ $p->tanggal_selesai ? $p->tanggal_selesai->format('d M Y') : '—' }}
-                                                    </p>
-                                                    <p class="text-slate-800"><span class="font-medium text-slate-500 inline-block w-28">Durasi:</span> {{ $p->durasi_kontrak }} Bulan</p>
+                                                    <p class="text-slate-800"><span class="font-medium text-slate-500 inline-block w-40">Nama:</span> {{ $p->nama }}</p>
+                                                    <p class="text-slate-800"><span class="font-medium text-slate-500 inline-block w-40">No. HP:</span> {{ $p->no_hp }}</p>
+                                                    <p class="text-slate-800"><span class="font-medium text-slate-500 inline-block w-40">Alamat:</span> <span class="{{ $p->alamat ? 'text-slate-800 font-medium' : 'text-slate-400 italic' }}">{{ $p->alamat ?: 'Belum diisi' }}</span></p>
+                                                    <p class="text-slate-800"><span class="font-medium text-slate-500 inline-block w-40">Kamar:</span> {{ $p->kamar?->nomor_kamar ?? '—' }}</p>
+                                                    <p class="text-slate-800"><span class="font-medium text-slate-500 inline-block w-40">Status:</span> {{ $p->status_penghuni }}</p>
+                                                    <p class="text-slate-800"><span class="font-medium text-slate-500 inline-block w-40">Harga Kontrak:</span> Rp {{ number_format($p->harga_sewa_effective, 0, ',', '.') }}/bulan</p>
+                                                    <p class="text-slate-800"><span class="font-medium text-slate-500 inline-block w-40">Tgl Masuk:</span> {{ $p->tanggal_masuk ? $p->tanggal_masuk->format('d M Y') : '—' }}</p>
+                                                    <p class="text-slate-800"><span class="font-medium text-slate-500 inline-block w-40">Tgl Selesai:</span> {{ $p->tanggal_selesai ? $p->tanggal_selesai->format('d M Y') : '—' }}</p>
+                                                    <p class="text-slate-800"><span class="font-medium text-slate-500 inline-block w-40">Durasi Kontrak Aktif:</span> {{ $p->durasi_kontrak }} Bulan</p>
                                                 </div>
                                                 
                                                 <hr class="border-slate-100">

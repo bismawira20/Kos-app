@@ -13,11 +13,7 @@ class KamarController extends Controller
 {
     public function index(): View
     {
-        $kamar = Kamar::with('tipeKamar')
-            ->orderByRaw('LENGTH(nomor_kamar), nomor_kamar')
-            ->get()
-            ->sortBy('nomor_kamar', SORT_NATURAL)
-            ->values();
+        $kamar = Kamar::with('tipeKamar')->orderBy('nomor_kamar')->get();
 
         return view('kamar.index', compact('kamar'));
     }

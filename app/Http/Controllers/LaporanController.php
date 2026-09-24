@@ -41,7 +41,7 @@ class LaporanController extends Controller
                 ->sum('jumlah');
         }
 
-        $kamars = Kamar::orderByRaw('LENGTH(nomor_kamar), nomor_kamar')->get()->sortBy('nomor_kamar', SORT_NATURAL)->values();
+        $kamars = Kamar::orderBy('nomor_kamar')->get();
 
         $penghuniAktif = Penghuni::count();
         $kamarTerisi = Kamar::where('status', 'terisi')->count();
@@ -88,7 +88,6 @@ class LaporanController extends Controller
                 foreach ($rows as $i => $r) {
                     fputcsv($out, [
                         $i + 1,
-                        method_exists($r, 'labelPeriode') ? call_user_func([$r, 'labelPeriode']) : '—',
                         $r->penghuni?->nama ?? '—',
                         $r->penghuni?->kamar?->nomor_kamar ?? '—',
                         $r->jatuh_tempo ? $r->jatuh_tempo->format('Y-m-d') : '—',
@@ -118,9 +117,7 @@ class LaporanController extends Controller
                 fprintf($out, chr(0xEF).chr(0xBB).chr(0xBF));
                 fputcsv($out, ['No', 'Tanggal Bayar', 'Penghuni', 'Kamar', 'Periode Tagihan', 'Jumlah', 'Status'], ';');
                 foreach ($rows as $i => $r) {
-                    $periode = $r->tagihan && method_exists($r->tagihan, 'labelPeriode')
-                        ? call_user_func([$r->tagihan, 'labelPeriode'])
-                        : '—';
+                    $periode = $r->tagihan ? $r->tagihan->labelPeriode() : '-';
                     fputcsv($out, [
                         $i + 1,
                         $r->tanggal_bayar,
